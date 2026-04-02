@@ -40,6 +40,6 @@ const fields: AuthFormField[] = [{
 }]
 
 async function onSubmit(_payload: FormSubmitEvent<LoginRequest>) {
-  navigateTo('/')
+  navigateTo('/dashboard')
 }
 </script>
