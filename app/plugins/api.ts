@@ -1,10 +1,10 @@
 import { defineNuxtPlugin, navigateTo } from '#app'
-import { client } from '~/api/client.gen'
+// import { client } from '~/api/client.gen'
 
 export default defineNuxtPlugin(() => {
   const config = useRuntimeConfig()
 
-  client.setConfig({
+  /* client.setConfig({
     baseURL: config.public.apiBaseUrl as string || 'http://localhost:8080/api/v1',
     withCredentials: true
   })
@@ -24,5 +24,5 @@ export default defineNuxtPlugin(() => {
 
       return Promise.reject(error)
     }
-  )
+  ) */
 })

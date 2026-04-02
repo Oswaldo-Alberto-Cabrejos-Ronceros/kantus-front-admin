@@ -4,54 +4,54 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 const open = ref(false)
 
 const links = [{
-  label: 'Dashboard',
+  label: 'Inicio',
   icon: 'i-lucide-house',
-  to: '/admin/inicio',
+  to: '/',
   onSelect: () => {
     open.value = false
   }
 }, {
   label: 'Gestión de carta',
-  icon: 'i-lucide-file-text',
-  to: '/admin/documentos',
+  icon: 'i-lucide-receipt-text',
+  to: '/gestion-carta',
   onSelect: () => {
     open.value = false
   }
 }, {
   label: 'Pedidos / Cocina',
-  icon: 'i-lucide-square-user-round',
-  to: '/admin/autores',
+  icon: 'i-lucide-cooking-pot',
+  to: '/pedidos-cocina',
   onSelect: () => {
     open.value = false
   }
 },
 {
   label: 'Cajas',
-  icon: 'i-lucide-hospital',
-  to: '/admin/departamentos',
+  icon: 'i-lucide-hand-coins',
+  to: '/cajas',
   onSelect: () => {
     open.value = false
   }
 },
 {
   label: 'Inventario',
-  icon: 'i-lucide-table-of-contents',
-  to: '/admin/categorias',
+  icon: 'i-lucide-archive',
+  to: '/inventario',
   onSelect: () => {
     open.value = false
   }
 },
 {
   label: 'Ingresos',
-  icon: 'i-lucide-tags',
-  to: '/admin/tags',
+  icon: 'i-lucide-banknote',
+  to: '/ingresos',
   onSelect: () => {
     open.value = false
   } },
 {
   label: 'Trabajadores',
-  icon: 'i-lucide-user-round-key',
-  to: '/admin/usuarios',
+  icon: 'i-lucide-square-user-round',
+  to: '/trabajadores',
   onSelect: () => {
     open.value = false
   }
