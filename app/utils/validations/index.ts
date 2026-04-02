@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 export const loginSchema = z.object({
   email: z.email('El formato del correo no es válido'),
 
