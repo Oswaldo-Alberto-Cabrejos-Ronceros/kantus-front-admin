@@ -92,7 +92,7 @@ const links = [{
       </template>
 
       <template #footer="{ collapsed }">
-        <AUserMenu :collapsed="collapsed" />
+        <UserMenu :collapsed="collapsed" />
       </template>
     </UDashboardSidebar>
 
