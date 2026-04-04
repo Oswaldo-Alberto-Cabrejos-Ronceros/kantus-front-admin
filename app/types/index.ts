@@ -12,7 +12,7 @@ export interface Category {
 
 export interface Product {
   id: number
-  categoryId: string | number
+  categoryId: number
   imageUrl: string
   name: string
   description: string

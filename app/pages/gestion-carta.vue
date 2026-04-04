@@ -12,12 +12,36 @@
     </template>
 
     <template #body>
-      <div class="flex justify-end">
-        <UButton
-          label="Agregar Producto"
-          icon="i-lucide-plus"
-          @click="handleAddProduct"
-        />
+      <div class="flex justify-end gap-2">
+        <UModal
+          v-model:open="isModalOpen"
+          title="Agregar Producto"
+        >
+          <UButton icon="i-lucide-plus">
+            Agregar Producto
+          </UButton>
+          <template #body>
+            <MenuFormAddProduct
+              :categories="categories || []"
+              :loading="isSubmitting"
+              @submit="handleCreate"
+              @cancel="isModalOpen = false"
+            />
+          </template>
+        </UModal>
+
+        <UModal v-model:open="isEditModalOpen" title="Editar Producto">
+          <template #body>
+            <MenuFormAddProduct
+              v-if="selectedProduct"
+              :categories="categories || []"
+              :initial-data="selectedProduct"
+              :loading="isSubmitting"
+              @edit="handleEdit"
+              @cancel="isEditModalOpen = false"
+            />
+          </template>
+        </UModal>
       </div>
       <UTabs
         v-if="items && items.length"
@@ -52,8 +76,9 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { Category, Product } from '~/types'
+import type { ProductRequest } from '~/utils/validations'
 
 const { data: categories } = await useFetch<Category[]>('/api/categories')
 const { data: products } = await useFetch<Product[]>('/api/products')
@@ -69,14 +94,34 @@ const getProductsByCategory = (categoryId: number) => {
   return products.value?.filter(p => p.categoryId === categoryId) || []
 }
 
-function handleAddProduct() {
-  // Lógica para abrir modal o navegar para agregar producto
-  console.log('Agregar nuevo producto')
+const isModalOpen = ref(false)
+const isEditModalOpen = ref(false)
+const selectedProduct = ref<Product | null>(null)
+const isSubmitting = ref(false)
+
+async function handleCreate(data: ProductRequest) {
+  isSubmitting.value = true
+  console.log('Simulando creación de producto...', data)
+  setTimeout(() => {
+    isSubmitting.value = false
+    isModalOpen.value = false
+    console.log('¡Producto creado exitosamente!')
+  }, 1000)
+}
+
+async function handleEdit(id: number, data: Partial<ProductRequest>) {
+  isSubmitting.value = true
+  console.log('Simulando edición de producto...', id, data)
+  setTimeout(() => {
+    isSubmitting.value = false
+    isEditModalOpen.value = false
+    console.log('¡Producto editado exitosamente!')
+  }, 1000)
 }
 
 function handleEditProduct(product: Product) {
-  // Lógica para editar el producto
-  console.log('Editando producto:', product.id)
+  selectedProduct.value = product
+  isEditModalOpen.value = true
 }
 
 function handleDeleteProduct(product: Product) {

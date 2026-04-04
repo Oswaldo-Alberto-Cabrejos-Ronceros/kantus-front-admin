@@ -17,7 +17,7 @@
       <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 h-10">
         {{ description }}
       </p>
-      <span class="text-xl font-bold text-primary mt-1">S/ {{ formatPrice(price) }}</span>
+      <span class="text-xl font-bold text-primary mt-1">{{ formatPrice(price) }}</span>
     </div>
 
     <template #footer>

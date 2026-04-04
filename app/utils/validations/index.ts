@@ -8,3 +8,14 @@ export const loginSchema = z.object({
 })
 
 export type LoginRequest = z.infer<typeof loginSchema>
+
+export const productSchema = z.object({
+  categoryId: z.number('La categoría es obligatoria'),
+  imageUrl: z.string('La imagen es obligatoria').min(1, 'La imagen es obligatoria'),
+  name: z.string().min(1, 'El nombre es obligatorio'),
+  description: z.string().min(1, 'La descripción es obligatoria'),
+  price: z.number('El precio es obligatorio')
+    .positive('El precio debe ser mayor a 0')
+})
+
+export type ProductRequest = z.infer<typeof productSchema>
