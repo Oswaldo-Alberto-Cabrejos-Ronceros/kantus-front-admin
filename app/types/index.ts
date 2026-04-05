@@ -39,3 +39,32 @@ export interface Order {
   customerName?: string
   customerPhone?: string
 }
+
+export interface CategoryInventory {
+  id: number
+  name: string
+}
+
+export type InventoryUnit = 'Unidad' | 'Kilogramo' | 'Litro' | 'Gramo' | 'Mililitro'
+
+export interface ProductInventory {
+  id: number
+  name: string
+  categoryId: number
+  cantidad: number
+  unidad: InventoryUnit
+  fechaVencimiento: string | Date
+  estado: boolean
+}
+
+export type MovementType = 'entrada' | 'salida'
+
+export interface MovementInventory {
+  id: number
+  fecha: string | Date
+  productId: number
+  productName: string
+  tipo: MovementType
+  cantidad: number
+  razon: string
+}
