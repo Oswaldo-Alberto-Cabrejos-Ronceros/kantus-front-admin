@@ -68,3 +68,11 @@ export interface MovementInventory {
   cantidad: number
   razon: string
 }
+
+export interface ProductTop {
+  id: number
+  productId: number
+  productName: string
+  quantity: number
+  totalCollected: number
+}
