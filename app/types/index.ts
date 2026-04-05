@@ -76,3 +76,13 @@ export interface ProductTop {
   quantity: number
   totalCollected: number
 }
+
+export type SaleMethod = 'efectivo' | 'transferencia' | 'tarjeta' | 'yape/plin'
+
+export interface Sale {
+  id: number | string
+  fecha: string | Date
+  codigo: string
+  metodo: SaleMethod
+  monto: number
+}

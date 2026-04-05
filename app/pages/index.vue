@@ -32,7 +32,6 @@ const baseStats = [{
   variation: 10
 }]
 
-// Carga de los productos Top desde la nueva API
 const { data: topProducts, status } = await useFetch<ProductTop[]>('/api/product-top')
 
 const columns = computed<TableColumn<ProductTop>[]>(() => [

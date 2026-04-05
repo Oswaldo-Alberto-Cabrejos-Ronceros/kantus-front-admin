@@ -3,7 +3,7 @@ export interface HomeStat {
   title: string
   icon: string
   value: string | number
-  variation: number
+  variation?: number
 }
 
 defineProps<{
@@ -33,6 +33,7 @@ defineProps<{
         </span>
 
         <UBadge
+          v-if="stat.variation"
           :color="stat.variation > 0 ? 'success' : 'error'"
           variant="subtle"
           class="text-xs"
