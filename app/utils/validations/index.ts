@@ -19,3 +19,12 @@ export const productSchema = z.object({
 })
 
 export type ProductRequest = z.infer<typeof productSchema>
+
+export const movementInventorySchema = z.object({
+  tipo: z.enum(['entrada', 'salida'], 'El tipo de movimiento es obligatorio'),
+  productId: z.number('El producto es obligatorio'),
+  cantidad: z.number('La cantidad es obligatoria').positive('La cantidad debe ser mayor a 0'),
+  razon: z.string().min(1, 'La razón es obligatoria')
+})
+
+export type MovementInventoryRequest = z.infer<typeof movementInventorySchema>

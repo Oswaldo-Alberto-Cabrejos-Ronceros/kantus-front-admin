@@ -11,9 +11,22 @@
     <template #body>
       <div class="flex flex-col gap-4 pb-4">
         <div class="flex justify-end">
-          <UButton icon="i-lucide-plus" color="primary">
-            Agregar Movimiento
-          </UButton>
+          <UModal
+            v-model:open="isModalOpen"
+            title="Agregar Movimiento"
+          >
+            <UButton icon="i-lucide-plus" color="primary">
+              Agregar Movimiento
+            </UButton>
+            <template #body>
+              <InventoryFormAddMovement
+                :products="products || []"
+                :loading="isSubmitting"
+                @submit="handleCreate"
+                @cancel="isModalOpen = false"
+              />
+            </template>
+          </UModal>
         </div>
 
         <UTabs :items="tabItems" class="w-full">
@@ -58,16 +71,17 @@
 </template>
 
 <script lang="ts" setup>
-import { h, resolveComponent, computed } from 'vue'
+import { h, resolveComponent, computed, ref } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import type { ProductInventory, MovementInventory, CategoryInventory } from '~/types'
+import type { MovementInventoryRequest } from '~/utils/validations'
 
 const UBadge = resolveComponent('UBadge')
 
 // Carga de datos de la API que creamos anteriormente
-const { data: products, status: statusProducts } = await useFetch<ProductInventory[]>('/api/products-inventary')
+const { data: products, status: statusProducts } = await useFetch<ProductInventory[]>('/api/products-inventory')
 const { data: movements, status: statusMovements } = await useFetch<MovementInventory[]>('/api/movements-inventory')
-const { data: categories } = await useFetch<CategoryInventory[]>('/api/categories-inventary')
+const { data: categories } = await useFetch<CategoryInventory[]>('/api/categories-inventory')
 
 // Configuración de las pestañas
 const tabItems = [
@@ -124,4 +138,17 @@ const movementColumns = computed<TableColumn<MovementInventory>[]>(() => [
   { accessorKey: 'cantidad', header: 'Cantidad' },
   { accessorKey: 'razon', header: 'Razón' }
 ])
+
+const isModalOpen = ref(false)
+const isSubmitting = ref(false)
+
+async function handleCreate(data: MovementInventoryRequest) {
+  isSubmitting.value = true
+  console.log('Simulando creación de movimiento...', data)
+  setTimeout(() => {
+    isSubmitting.value = false
+    isModalOpen.value = false
+    console.log('¡Movimiento agregado exitosamente!')
+  }, 1000)
+}
 </script>
