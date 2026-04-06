@@ -86,3 +86,19 @@ export interface Sale {
   metodo: SaleMethod
   monto: number
 }
+
+export type DocumentType = 'DNI' | 'CE'
+export type EmployeePosition = 'Administrative' | 'Chef' | 'Waiter'
+
+export interface Employee {
+  id: number | string
+  name: string
+  lastname: string
+  documentType: DocumentType
+  documentNumber: string
+  birthdate: string | Date
+  hoursWeek: number
+  hourlyWage: number
+  position: EmployeePosition
+  status: boolean
+}

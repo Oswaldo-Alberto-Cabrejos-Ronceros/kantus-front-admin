@@ -49,9 +49,9 @@ const links = [{
     open.value = false
   } },
 {
-  label: 'Trabajadores',
+  label: 'Empleados',
   icon: 'i-lucide-square-user-round',
-  to: '/trabajadores',
+  to: '/empleados',
   onSelect: () => {
     open.value = false
   }
