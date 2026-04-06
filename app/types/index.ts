@@ -102,3 +102,16 @@ export interface Employee {
   position: EmployeePosition
   status: boolean
 }
+
+export type CashBoxStatus = 'Abierta' | 'Cerrada'
+
+export interface CashBox {
+  id: number | string
+  name: string
+  openingAmount: number
+  currentBalance: number
+  collectedSales: number
+  openingTime: string | Date
+  closingTime?: string | Date
+  status: CashBoxStatus
+}
