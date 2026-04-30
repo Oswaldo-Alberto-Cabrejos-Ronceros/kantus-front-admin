@@ -115,3 +115,17 @@ export interface CashBox {
   closingTime?: string | Date
   status: CashBoxStatus
 }
+
+export type ComprobanteType = 'Boleta' | 'Factura'
+export type MovementCashboxType = 'Egreso' | 'Ingreso'
+
+export interface MovementCashbox {
+  id: number | string
+  dia: string | Date
+  hora: string
+  codigoPedidos?: string
+  tipoComprobante?: ComprobanteType
+  descripcion?: string
+  tipo: MovementCashboxType
+  monto: number
+}

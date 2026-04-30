@@ -6,13 +6,16 @@ export interface HomeStat {
   variation?: number
 }
 
-defineProps<{
+withDefaults(defineProps<{
   stats: HomeStat[]
-}>()
+  columns?: number
+}>(), {
+  columns: 4
+})
 </script>
 
 <template>
-  <UPageGrid class="lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-px">
+  <UPageGrid class="gap-4 sm:gap-6 lg:gap-px" :class="columns === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-4'">
     <UPageCard
       v-for="(stat, index) in stats"
       :key="index"

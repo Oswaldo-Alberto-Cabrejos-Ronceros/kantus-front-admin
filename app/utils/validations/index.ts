@@ -42,3 +42,13 @@ export const employeeSchema = z.object({
 })
 
 export type EmployeeRequest = z.infer<typeof employeeSchema>
+
+export const openCashboxSchema = z.object({
+  openingAmount: z.number({ message: 'Debe ser un número' }).min(0, 'El monto no puede ser negativo')
+})
+export type OpenCashboxRequest = z.infer<typeof openCashboxSchema>
+
+export const closeCashboxSchema = z.object({
+  closingAmount: z.number({ message: 'Debe ser un número' }).min(0, 'El monto no puede ser negativo')
+})
+export type CloseCashboxRequest = z.infer<typeof closeCashboxSchema>
