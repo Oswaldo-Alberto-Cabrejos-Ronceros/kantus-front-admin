@@ -54,7 +54,7 @@
       <!-- Total -->
       <div class="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-700">
         <span class="font-semibold text-gray-900 dark:text-white">Total</span>
-        <span class="text-xl font-bold text-primary">S/ {{ formatPrice(totalPrice) }}</span>
+        <span class="text-xl font-bold text-primary">{{ formatPrice(totalPrice) }}</span>
       </div>
     </div>
 

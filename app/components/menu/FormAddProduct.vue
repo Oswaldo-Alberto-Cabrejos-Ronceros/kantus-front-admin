@@ -47,7 +47,7 @@
         v-model="state.categoryId"
         :items="categories"
         value-key="id"
-        option-key="name"
+        label-key="name"
         placeholder="Seleccione una categoría"
         class="w-full"
       />
