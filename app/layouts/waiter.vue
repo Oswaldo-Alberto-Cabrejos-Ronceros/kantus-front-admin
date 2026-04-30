@@ -5,9 +5,9 @@ const open = ref(false)
 
 const links = [
   {
-    label: 'Caja',
-    icon: 'i-lucide-hand-coins',
-    to: '/caja',
+    label: 'Mesas',
+    icon: 'i-lucide-cooking-pot',
+    to: '/mesas',
     onSelect: () => {
       open.value = false
     }
