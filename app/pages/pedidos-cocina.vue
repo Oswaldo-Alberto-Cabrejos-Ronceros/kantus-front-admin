@@ -38,7 +38,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import type { Order } from '~/types'
+import type { Order, OrderStatus } from '~/types'
 
 const { data: orders } = await useFetch<Order[]>('/api/orders')
 
@@ -60,7 +60,23 @@ const getOrdersByType = (typeValue?: string) => {
   return orders.value?.filter(o => o.type === typeValue) || []
 }
 
-function handleOrderAction(orderId: number | string, nextStatus: string) {
-  console.log(`Actualizando estado del pedido ${orderId} a: ${nextStatus}`)
+async function handleOrderAction(orderId: number, nextStatus: string) {
+  if (!nextStatus) return
+
+  try {
+    const response = await $fetch(`/api/orders/${orderId}/status`, {
+      method: 'PUT',
+      body: { status: nextStatus as OrderStatus }
+    })
+
+    if (response && orders.value) {
+      const order = orders.value.find(o => o.id === orderId)
+      if (order) {
+        order.status = nextStatus as OrderStatus
+      }
+    }
+  } catch (error) {
+    console.error('Error al actualizar el estado de la orden:', error)
+  }
 }
 </script>

@@ -28,7 +28,7 @@ export interface OrderProduct {
 }
 
 export interface Order {
-  id: number | string
+  id: number
   code: string
   status: OrderStatus
   type: OrderType
