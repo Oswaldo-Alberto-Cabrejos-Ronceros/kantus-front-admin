@@ -70,9 +70,10 @@ async function handleOrderAction(orderId: number, nextStatus: string) {
     })
 
     if (response && orders.value) {
-      const order = orders.value.find(o => o.id === orderId)
-      if (order) {
-        order.status = nextStatus as OrderStatus
+      const index = orders.value.findIndex(o => o.id === orderId)
+      if (index !== -1) {
+        orders.value[index]!.status = nextStatus as OrderStatus
+        orders.value = [...orders.value]
       }
     }
   } catch (error) {
