@@ -52,3 +52,10 @@ export const closeCashboxSchema = z.object({
   closingAmount: z.number({ message: 'Debe ser un número' }).min(0, 'El monto no puede ser negativo')
 })
 export type CloseCashboxRequest = z.infer<typeof closeCashboxSchema>
+
+export const discountSchema = z.object({
+  tipo: z.enum(['porcentaje', 'precio'], 'El tipo de descuento es obligatorio'),
+  cantidad: z.number('La cantidad es obligatoria').positive('La cantidad debe ser mayor a 0')
+})
+
+export type DiscountRequest = z.infer<typeof discountSchema>

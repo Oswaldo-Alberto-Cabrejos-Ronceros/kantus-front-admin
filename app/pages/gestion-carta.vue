@@ -42,6 +42,19 @@
             />
           </template>
         </UModal>
+
+        <UModal v-model:open="isDiscountModalOpen" title="Agregar Oferta">
+          <template #body>
+            <MenuFormAddDiscount
+              v-if="selectedProductForDiscount"
+              :product-id="selectedProductForDiscount.id"
+              :product-name="selectedProductForDiscount.name"
+              :loading="isSubmittingDiscount"
+              @submit="handleAddDiscount"
+              @cancel="isDiscountModalOpen = false"
+            />
+          </template>
+        </UModal>
       </div>
       <UTabs
         v-if="items && items.length"
@@ -64,6 +77,7 @@
               :image-url="product.imageUrl"
               @edit="handleEditProduct(product)"
               @delete="handleDeleteProduct(product)"
+              @add-discount="openDiscountModal(product)"
             />
           </div>
         </template>
@@ -78,7 +92,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import type { Category, Product } from '~/types'
-import type { ProductRequest } from '~/utils/validations'
+import type { ProductRequest, DiscountRequest } from '~/utils/validations'
 
 const { data: categories } = await useFetch<Category[]>('/api/categories')
 const { data: products } = await useFetch<Product[]>('/api/products')
@@ -96,8 +110,11 @@ const getProductsByCategory = (categoryId: number) => {
 
 const isModalOpen = ref(false)
 const isEditModalOpen = ref(false)
+const isDiscountModalOpen = ref(false)
 const selectedProduct = ref<Product | null>(null)
+const selectedProductForDiscount = ref<Product | null>(null)
 const isSubmitting = ref(false)
+const isSubmittingDiscount = ref(false)
 
 async function handleCreate(data: ProductRequest) {
   isSubmitting.value = true
@@ -127,5 +144,20 @@ function handleEditProduct(product: Product) {
 function handleDeleteProduct(product: Product) {
   // Lógica para eliminar el producto
   console.log('Eliminando producto:', product.id)
+}
+
+function openDiscountModal(product: Product) {
+  selectedProductForDiscount.value = product
+  isDiscountModalOpen.value = true
+}
+
+async function handleAddDiscount(productId: number, data: DiscountRequest) {
+  isSubmittingDiscount.value = true
+  console.log('Simulando agregado de oferta...', productId, data)
+  setTimeout(() => {
+    isSubmittingDiscount.value = false
+    isDiscountModalOpen.value = false
+    console.log('¡Oferta agregada exitosamente!')
+  }, 1000)
 }
 </script>

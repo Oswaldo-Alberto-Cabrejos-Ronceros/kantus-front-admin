@@ -21,23 +21,34 @@
     </div>
 
     <template #footer>
-      <div class="flex justify-end gap-2">
+      <div class="flex justify-between items-center">
         <UButton
-          icon="i-lucide-pencil"
+          icon="i-lucide-badge-percent"
           size="sm"
-          color="secondary"
-          @click="emit('edit')"
+          color="primary"
+          variant="soft"
+          @click="emit('addDiscount')"
         >
-          Editar
+          Oferta
         </UButton>
-        <UButton
-          icon="i-lucide-trash-2"
-          size="sm"
-          color="error"
-          @click="emit('delete')"
-        >
-          Eliminar
-        </UButton>
+        <div class="flex justify-end gap-2">
+          <UButton
+            icon="i-lucide-pencil"
+            size="sm"
+            color="secondary"
+            @click="emit('edit')"
+          >
+            Editar
+          </UButton>
+          <UButton
+            icon="i-lucide-trash-2"
+            size="sm"
+            color="error"
+            @click="emit('delete')"
+          >
+            Eliminar
+          </UButton>
+        </div>
       </div>
     </template>
   </UCard>
@@ -52,7 +63,7 @@ defineProps<{
   imageUrl: string
 }>()
 
-const emit = defineEmits(['edit', 'delete'])
+const emit = defineEmits(['edit', 'delete', 'addDiscount'])
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat('es-PE', {
