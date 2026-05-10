@@ -42,6 +42,16 @@ export interface Order {
   customerPhone?: string
 }
 
+export type OrderDeliveryStatus = 'Pendiente' | 'Camino' | 'Entregado'
+
+export interface OrderDelivery {
+  id: number
+  status: OrderDeliveryStatus
+  customerName: string
+  address: string
+  totalPrice: number
+}
+
 export interface CategoryInventory {
   id: number
   name: string
