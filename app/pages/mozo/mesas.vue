@@ -10,6 +10,8 @@
 
     <template #body>
       <div class="flex flex-col gap-4 pb-4">
+        <HomeStats :stats="stats" :columns="3" />
+
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           <TableCard
             v-for="table in tables"
@@ -67,6 +69,23 @@ async function handleSubmit(data: ProcessOrderRequest) {
     console.log('¡Transacción exitosa!')
   }, 1000)
 }
+
+const stats = [{
+  title: 'Mesas Ocupadas',
+  value: tables.value?.filter(t => t.occupied).length || 0,
+  icon: 'i-lucide-users',
+  color: 'primary'
+}, {
+  title: 'Órdenes Pendientes',
+  value: tables.value?.filter(t => t.order && t.order.status === 'Pendiente').length || 0,
+  icon: 'i-lucide-clock-alert',
+  color: 'warning'
+}, {
+  title: 'Órdenes Listas',
+  value: tables.value?.filter(t => t.order && t.order.status === 'Listo').length || 0,
+  icon: 'i-lucide-check',
+  color: 'success'
+}]
 </script>
 
 <style>
