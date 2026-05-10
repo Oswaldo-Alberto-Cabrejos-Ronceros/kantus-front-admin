@@ -42,7 +42,7 @@
 
       <!-- ingresos y egresos -->
 
-      <UPageGrid class="ap-4 sm:gap-6 lg:gap-px grid-cols-1 md:grid-cols-2">
+      <UPageGrid class="ap-4 sm:gap-6 lg:gap-px grid-cols-1 lg:grid-cols-2">
         <UPageCard
           variant="subtle"
           class="lg:rounded-none first:rounded-l-lg last:rounded-r-lg hover:z-1"

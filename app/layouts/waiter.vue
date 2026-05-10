@@ -7,7 +7,7 @@ const links = [
   {
     label: 'Mesas',
     icon: 'i-lucide-cooking-pot',
-    to: '/mesas',
+    to: '/mozo/mesas',
     onSelect: () => {
       open.value = false
     }

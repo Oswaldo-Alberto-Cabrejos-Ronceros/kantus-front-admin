@@ -7,7 +7,7 @@ const links = [
   {
     label: 'Pedidos',
     icon: 'i-lucide-motorbike',
-    to: '/pedidos',
+    to: '/delivery/pedidos',
     onSelect: () => {
       open.value = false
     }

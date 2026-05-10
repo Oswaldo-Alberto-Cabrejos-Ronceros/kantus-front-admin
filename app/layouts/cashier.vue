@@ -7,7 +7,7 @@ const links = [
   {
     label: 'Caja',
     icon: 'i-lucide-hand-coins',
-    to: '/caja',
+    to: '/cajas',
     onSelect: () => {
       open.value = false
     }
