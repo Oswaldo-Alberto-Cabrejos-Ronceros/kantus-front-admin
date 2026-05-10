@@ -129,3 +129,17 @@ export interface MovementCashbox {
   tipo: MovementCashboxType
   monto: number
 }
+
+export interface OrderDetailProduct {
+  id: number | string
+  name: string
+  price: number
+  quantity: number
+}
+
+export interface Table {
+  id: number
+  name: string
+  occupied: boolean
+  order?: Order
+}
