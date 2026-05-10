@@ -59,3 +59,10 @@ export const discountSchema = z.object({
 })
 
 export type DiscountRequest = z.infer<typeof discountSchema>
+
+export const processOrderSchema = z.object({
+  orderId: z.number('El ID de la orden es obligatorio'),
+  paymentMethod: z.enum(['efectivo', 'transferencia', 'tarjeta', 'yape/plin'], 'El método de pago es obligatorio')
+})
+
+export type ProcessOrderRequest = z.infer<typeof processOrderSchema>

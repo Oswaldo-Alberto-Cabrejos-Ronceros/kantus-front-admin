@@ -23,7 +23,9 @@ export type OrderStatus = 'Pendiente' | 'Preparando' | 'Listo'
 export type OrderType = 'salon' | 'delivery'
 
 export interface OrderProduct {
+  id: number
   name: string
+  priceUnitary: number
   quantity: number
 }
 

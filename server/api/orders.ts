@@ -7,8 +7,8 @@ export const mockOrders: Order[] = [
     status: 'Pendiente',
     type: 'salon',
     products: [
-      { name: 'Ceviche Clásico', quantity: 2 },
-      { name: 'Pisco Sour', quantity: 2 }
+      { id: 1, name: 'Ceviche Clásico', priceUnitary: 35.00, quantity: 2 },
+      { id: 2, name: 'Pisco Sour', priceUnitary: 10.00, quantity: 2 }
     ],
     time: new Date(Date.now() - 1000 * 60 * 5).toISOString(), // Hace 5 minutos
     totalPrice: 90.00
@@ -19,8 +19,8 @@ export const mockOrders: Order[] = [
     status: 'Preparando',
     type: 'delivery',
     products: [
-      { name: 'Lomo Saltado', quantity: 1 },
-      { name: 'Chicha Morada 1L', quantity: 1 }
+      { id: 3, name: 'Lomo Saltado', priceUnitary: 40.00, quantity: 1 },
+      { id: 4, name: 'Chicha Morada 1L', priceUnitary: 15.00, quantity: 1 }
     ],
     time: new Date(Date.now() - 1000 * 60 * 15).toISOString(), // Hace 15 minutos
     totalPrice: 55.00,

@@ -5,12 +5,17 @@
     :icon="currentIcon"
     :highlight="isOccupied"
     :highlight-color="isOccupied ? statusColor : undefined"
+    class="cursor-pointer transition-all hover:ring-2 hover:ring-primary-500"
+    @click="$emit('click')"
   >
-    <template v-if="isOccupied && order">
+    <template v-if="isOccupied">
       <div class="mt-2">
-        <UBadge :color="statusColor">
+        <UBadge v-if="order" :color="statusColor">
           {{ order.status }}
         </UBadge>
+        <span v-else class="text-sm text-gray-500 dark:text-gray-400">
+          Sin orden activa
+        </span>
       </div>
     </template>
   </UPageCard>
@@ -24,6 +29,10 @@ const props = defineProps<{
   tableName: string
   isOccupied: boolean
   order?: Order
+}>()
+
+defineEmits<{
+  click: []
 }>()
 
 const statusColor = computed(() => {

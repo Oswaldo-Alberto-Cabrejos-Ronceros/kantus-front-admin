@@ -1,18 +1,19 @@
 <template>
   <UForm
+    :schema="processOrderSchema"
     :state="state"
     class="flex flex-col gap-6"
     @submit="onSubmit"
   >
     <div class="flex justify-between items-center pb-2 border-b border-gray-200 dark:border-gray-800">
       <h2 class="text-xl font-bold text-gray-900 dark:text-white">
-        {{ state.tableName || 'Sin mesa' }}
-        <span v-if="state.customerName" class="text-gray-500 dark:text-gray-400 font-normal text-lg">
-          - {{ state.customerName }}
+        {{ tableName || 'Sin mesa' }}
+        <span v-if="order.customerName" class="text-gray-500 dark:text-gray-400 font-normal text-lg">
+          - {{ order.customerName }}
         </span>
       </h2>
       <UBadge :color="statusColor">
-        {{ state.status }}
+        {{ order.status }}
       </UBadge>
     </div>
 
@@ -21,14 +22,14 @@
         Productos
       </h3>
       <UPageCard
-        v-for="product in state.products"
+        v-for="product in (order.products || [])"
         :key="product.id"
         :title="product.name"
-        :description="`${formatPrice(product.price)} x ${product.quantity}`"
+        :description="`${formatPrice(product.priceUnitary)} x ${product.quantity}`"
         orientation="horizontal"
       >
         <div class="flex h-full items-center justify-end p-4 text-xl font-bold text-primary">
-          {{ formatPrice(product.price * product.quantity) }}
+          {{ formatPrice(product.priceUnitary * product.quantity) }}
         </div>
       </UPageCard>
     </div>
@@ -67,19 +68,17 @@
 <script lang="ts" setup>
 import { reactive, watch, computed } from 'vue'
 import type { FormSubmitEvent } from '@nuxt/ui'
-import type { OrderStatus, SaleMethod, OrderDetailProduct } from '~/types'
+import type { Order, OrderStatus, SaleMethod } from '~/types'
+import { processOrderSchema, type ProcessOrderRequest } from '~/utils/validations'
 
 const props = defineProps<{
   loading?: boolean
-  orderId: number
   tableName?: string
-  customerName?: string
-  status: OrderStatus
-  products: OrderDetailProduct[]
+  order: Order
 }>()
 
 const emit = defineEmits<{
-  submit: [data: typeof state]
+  submit: [data: ProcessOrderRequest]
   cancel: []
 }>()
 
@@ -91,28 +90,20 @@ const statusColor = computed(() => {
     Preparando: 'info',
     Listo: 'success'
   }
-  return colors[state.status] || 'neutral'
+  return colors[props.order.status] || 'neutral'
 })
 
-const state = reactive({
-  orderId: props.orderId,
-  tableName: props.tableName || '',
-  customerName: props.customerName || '',
-  status: props.status,
-  products: props.products || [],
+const state = reactive<ProcessOrderRequest>({
+  orderId: props.order.id,
   paymentMethod: 'efectivo' as SaleMethod
 })
 
-watch(() => props, (newData) => {
-  state.orderId = newData.orderId
-  state.tableName = newData.tableName || ''
-  state.customerName = newData.customerName || ''
-  state.status = newData.status
-  state.products = newData.products || []
-}, { deep: true })
+watch(() => props.order.id, (newId) => {
+  state.orderId = newId
+})
 
 const total = computed(() => {
-  return state.products.reduce((acc, product) => acc + (product.price * product.quantity), 0)
+  return (props.order.products || []).reduce((acc, product) => acc + (product.priceUnitary * product.quantity), 0)
 })
 
 function formatPrice(value: number) {
@@ -122,7 +113,7 @@ function formatPrice(value: number) {
   }).format(value)
 }
 
-async function onSubmit(event: FormSubmitEvent<typeof state>) {
+async function onSubmit(event: FormSubmitEvent<ProcessOrderRequest>) {
   emit('submit', event.data)
 }
 </script>
