@@ -56,6 +56,11 @@ export const useAuth = () => {
     })
   }
 
+  const useLogout = () => {
+    authStore.clearAuth()
+    router.push('/login')
+  }
+
   return {
     useLogin,
     user,
@@ -64,6 +69,7 @@ export const useAuth = () => {
     isMozo,
     isCajero,
     isCocinero,
-    isDelivery
+    isDelivery,
+    useLogout
   }
 }

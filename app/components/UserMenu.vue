@@ -5,6 +5,8 @@ defineProps<{
   collapsed?: boolean
 }>()
 
+const { useLogout } = useAuth()
+
 const user = ref({
   name: '',
   avatar: {
@@ -15,13 +17,10 @@ const user = ref({
 const logoutAction = () => {
   try {
     console.log('Logout action triggered')
+    useLogout()
   } catch (e) {
     console.log(e)
   }
-}
-
-const backToLanding = () => {
-  navigateTo('/')
 }
 
 const colorMode = useColorMode()
@@ -63,12 +62,7 @@ const items = computed<DropdownMenuItem[][]>(() => [
         logoutAction()
       }
     }
-  ],
-  [{
-    label: 'Volver al inicio',
-    icon: 'i-lucide-home',
-    onSelect: backToLanding
-  }]
+  ]
 ])
 
 // for show user name

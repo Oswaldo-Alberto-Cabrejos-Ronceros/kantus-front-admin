@@ -25,6 +25,22 @@ const MOCK_USERS: Array<AuthResponse & { email: string, password: string }> = [
     email: 'cajero@kantus.com',
     password: 'password123',
     role: 'Cajero'
+  },
+  {
+    id: 4,
+    name: 'Karla',
+    lastname: 'Velazco',
+    email: 'cocinero@kantus.com',
+    password: 'password123',
+    role: 'Cocinero'
+  },
+  {
+    id: 4,
+    name: 'Jhon',
+    lastname: 'Manchado',
+    email: 'delivery@kantus.com',
+    password: 'password123',
+    role: 'Delivery'
   }
 ]
 
