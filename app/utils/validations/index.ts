@@ -66,3 +66,10 @@ export const processOrderSchema = z.object({
 })
 
 export type ProcessOrderRequest = z.infer<typeof processOrderSchema>
+
+export const processDeliveryOrderSchema = z.object({
+  orderId: z.number('El ID de la orden es obligatorio'),
+  status: z.enum(['Pendiente', 'Camino', 'Entregado'], 'El estado es obligatorio')
+})
+
+export type ProcessDeliveryOrderRequest = z.infer<typeof processDeliveryOrderSchema>
