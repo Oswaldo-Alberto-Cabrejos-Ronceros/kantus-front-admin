@@ -8,6 +8,7 @@
         description="Ingrese sus credenciales"
         icon="i-lucide-user"
         :fields="fields"
+        :loading="isPending"
         @submit="onSubmit"
       />
     </UPageCard>
@@ -16,14 +17,17 @@
 
 <script lang="ts" setup>
 import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
-import type { LoginRequest } from '~/utils/validations'
+import type { AuthRequest } from '~/types'
 import { loginSchema } from '~/utils/validations'
 
 definePageMeta({
   layout: false
 })
 
-// const toast = useToast()
+const toast = useToast()
+const { useLogin } = useAuth()
+
+const { mutate: login, isPending } = useLogin()
 
 const fields: AuthFormField[] = [{
   name: 'email',
@@ -39,7 +43,23 @@ const fields: AuthFormField[] = [{
   required: true
 }]
 
-async function onSubmit(_payload: FormSubmitEvent<LoginRequest>) {
-  navigateTo('/')
+async function onSubmit(payload: FormSubmitEvent<AuthRequest>) {
+  login(payload.data, {
+    onSuccess() {
+      toast.add({
+        title: '¡Bienvenido!',
+        description: 'Inicio de sesión exitoso.',
+        color: 'success'
+      })
+    },
+    onError(error) {
+      console.log(error)
+      toast.add({
+        title: 'Error al iniciar sesión',
+        description: 'Credenciales inválidas. Por favor, verifique e intente nuevamente',
+        color: 'error'
+      })
+    }
+  })
 }
 </script>
