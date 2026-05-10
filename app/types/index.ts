@@ -155,3 +155,17 @@ export interface Table {
   occupied: boolean
   order?: Order
 }
+
+export type UserRole = 'Admin' | 'Mozo' | 'Cajero' | 'Cocinero' | 'Delivery'
+
+export interface AuthRequest {
+  email: string
+  password: string
+}
+
+export interface AuthResponse {
+  id: number | string
+  name: string
+  lastname: string
+  role: UserRole
+}

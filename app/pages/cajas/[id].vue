@@ -91,6 +91,14 @@ import type { TableColumn } from '@nuxt/ui'
 import type { MovementCashbox } from '~/types'
 import type { OpenCashboxRequest, CloseCashboxRequest } from '~/utils/validations'
 
+const { user } = useAuth()
+
+if (user.value?.role === 'Cajero') {
+  setPageLayout('cashier')
+} else {
+  setPageLayout('default')
+}
+
 const UBadge = resolveComponent('UBadge')
 
 const isCashboxOpen = ref(false)

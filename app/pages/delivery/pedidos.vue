@@ -57,6 +57,8 @@ import { ref, computed } from 'vue'
 import type { OrderDelivery } from '~/types'
 import type { ProcessDeliveryOrderRequest } from '~/utils/validations'
 
+setPageLayout('delivery')
+
 const { data: deliveries } = await useFetch<OrderDelivery[]>('/api/orders-delivery')
 
 const isModalOpen = ref(false)

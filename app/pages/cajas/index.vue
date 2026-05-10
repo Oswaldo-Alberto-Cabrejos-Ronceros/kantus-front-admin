@@ -26,5 +26,13 @@
 <script lang="ts" setup>
 import type { CashBox } from '~/types'
 
+const { user } = useAuth()
+
+if (user.value?.role === 'Cajero') {
+  setPageLayout('cashier')
+} else {
+  setPageLayout('default')
+}
+
 const { data: boxes } = await useFetch<CashBox[]>('/api/cash-boxes')
 </script>

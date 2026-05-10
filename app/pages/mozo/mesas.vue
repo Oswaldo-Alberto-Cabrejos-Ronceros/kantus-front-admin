@@ -48,6 +48,8 @@ import { ref } from 'vue'
 import type { Table } from '~/types'
 import type { ProcessOrderRequest } from '~/utils/validations'
 
+setPageLayout('waiter')
+
 const { data: tables } = await useFetch<Table[]>('/api/tables')
 
 const isModalOpen = ref(false)

@@ -40,6 +40,14 @@
 import { computed } from 'vue'
 import type { Order, OrderStatus } from '~/types'
 
+const { user } = useAuth()
+
+if (user.value?.role === 'Cocinero') {
+  setPageLayout('cook')
+} else {
+  setPageLayout('default')
+}
+
 const { data: orders } = await useFetch<Order[]>('/api/orders')
 
 const orderTypes = [
