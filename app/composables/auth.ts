@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { useAuthStore } from '~/stores/auth'
-import type { AuthRequest, AuthResponse } from '~/types'
+import type { AuthRequest, AuthResponse, UserRole } from '~/types'
 
 export const useAuth = () => {
   const authStore = useAuthStore()
@@ -9,12 +9,33 @@ export const useAuth = () => {
   const user = computed(() => authStore.user)
   const isAuthenticated = computed(() => authStore.isAuthenticated)
 
-  // Computed properties útiles para validar el rol en la interfaz
+  // Computed properties for role checks
   const isAdmin = computed(() => authStore.user?.role === 'Admin')
   const isMozo = computed(() => authStore.user?.role === 'Mozo')
   const isCajero = computed(() => authStore.user?.role === 'Cajero')
   const isCocinero = computed(() => authStore.user?.role === 'Cocinero')
   const isDelivery = computed(() => authStore.user?.role === 'Delivery')
+  const isCliente = computed(() => authStore.user?.role === 'Cliente')
+
+  // Helper to check if user has a specific role
+  const hasRole = (role: UserRole) => computed(() => authStore.user?.role === role)
+
+  // Helper to check if user has any of the given roles
+  const hasAnyRole = (...roles: UserRole[]) => computed(() => {
+    return roles.includes(authStore.user?.role as UserRole)
+  })
+
+  // User display name
+  const displayName = computed(() => {
+    if (!authStore.user) return 'Usuario'
+    return `${authStore.user.name} ${authStore.user.lastname}`
+  })
+
+  // User initials for avatar
+  const initials = computed(() => {
+    if (!authStore.user) return 'U'
+    return `${authStore.user.name.charAt(0)}${authStore.user.lastname.charAt(0)}`
+  })
 
   const useLogin = () => {
     const queryClient = useQueryClient()
@@ -70,6 +91,11 @@ export const useAuth = () => {
     isCajero,
     isCocinero,
     isDelivery,
+    isCliente,
+    hasRole,
+    hasAnyRole,
+    displayName,
+    initials,
     useLogout
   }
 }

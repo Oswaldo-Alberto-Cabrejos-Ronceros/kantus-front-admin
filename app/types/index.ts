@@ -5,9 +5,12 @@ export interface Range {
   end: Date
 }
 
+// ===== CARTA (MENU) =====
+
 export interface Category {
   id: number
   name: string
+  status: boolean
 }
 
 export interface Product {
@@ -17,9 +20,23 @@ export interface Product {
   name: string
   description: string
   price: number
+  status: boolean
+  promotion?: Promotion
 }
 
-export type OrderStatus = 'Pendiente' | 'Preparando' | 'Listo'
+export interface Promotion {
+  id: number
+  productId: number
+  tipo: 'porcentaje' | 'precio'
+  valor: number
+  fechaInicio: string | Date
+  fechaFin: string | Date
+  status: boolean
+}
+
+// ===== ORDERS =====
+
+export type OrderStatus = 'Pendiente' | 'Preparando' | 'Listo' | 'Entregado' | 'Pagado' | 'Cancelado'
 export type OrderType = 'salon' | 'delivery'
 
 export interface OrderProduct {
@@ -40,21 +57,36 @@ export interface Order {
   location?: string
   customerName?: string
   customerPhone?: string
+  customerEmail?: string
+  customerDni?: string
+  tableId?: number
+  tableName?: string
+  paymentMethod?: SaleMethod
 }
 
 export type OrderDeliveryStatus = 'Pendiente' | 'Camino' | 'Entregado'
 
 export interface OrderDelivery {
   id: number
+  code?: string
   status: OrderDeliveryStatus
   customerName: string
+  customerPhone?: string
+  customerEmail?: string
+  customerDni?: string
   address: string
   totalPrice: number
+  products?: OrderProduct[]
+  time?: string | number | Date
+  paymentMethod?: string
 }
+
+// ===== INVENTORY =====
 
 export interface CategoryInventory {
   id: number
   name: string
+  status?: boolean
 }
 
 export type InventoryUnit = 'Unidad' | 'Kilogramo' | 'Litro' | 'Gramo' | 'Mililitro'
@@ -64,9 +96,11 @@ export interface ProductInventory {
   name: string
   categoryId: number
   cantidad: number
+  stockMinimo?: number
   unidad: InventoryUnit
   fechaVencimiento: string | Date
   estado: boolean
+  supplierId?: number
 }
 
 export type MovementType = 'entrada' | 'salida'
@@ -80,6 +114,18 @@ export interface MovementInventory {
   cantidad: number
   razon: string
 }
+
+export interface Supplier {
+  id: number
+  nombre: string
+  ruc: string
+  contacto: string
+  email: string
+  telefono: string
+  estado: boolean
+}
+
+// ===== SALES & REVENUE =====
 
 export interface ProductTop {
   id: number
@@ -97,10 +143,13 @@ export interface Sale {
   codigo: string
   metodo: SaleMethod
   monto: number
+  tipo?: OrderType
 }
 
+// ===== EMPLOYEES =====
+
 export type DocumentType = 'DNI' | 'CE'
-export type EmployeePosition = 'Administrative' | 'Chef' | 'Waiter'
+export type EmployeePosition = 'Administrative' | 'Chef' | 'Waiter' | 'Cashier' | 'Delivery'
 
 export interface Employee {
   id: number | string
@@ -113,7 +162,13 @@ export interface Employee {
   hourlyWage: number
   position: EmployeePosition
   status: boolean
+  // System user fields
+  email?: string
+  userRole?: UserRole
+  hasSystemUser?: boolean
 }
+
+// ===== CASHBOX =====
 
 export type CashBoxStatus = 'Abierta' | 'Cerrada'
 
@@ -149,14 +204,19 @@ export interface OrderDetailProduct {
   quantity: number
 }
 
+// ===== TABLES =====
+
 export interface Table {
   id: number
   name: string
   occupied: boolean
   order?: Order
+  qrUrl?: string
 }
 
-export type UserRole = 'Admin' | 'Mozo' | 'Cajero' | 'Cocinero' | 'Delivery'
+// ===== AUTH =====
+
+export type UserRole = 'Admin' | 'Mozo' | 'Cajero' | 'Cocinero' | 'Delivery' | 'Cliente'
 
 export interface AuthRequest {
   email: string
@@ -168,4 +228,38 @@ export interface AuthResponse {
   name: string
   lastname: string
   role: UserRole
+  token?: string
+}
+
+// ===== DELIVERY CLIENT ORDER =====
+
+export interface DeliveryOrderRequest {
+  nombre: string
+  celular: string
+  email: string
+  dni: string
+  direccion: string
+  productos: Array<{ productId: number, quantity: number }>
+  metodoPago?: string
+}
+
+// ===== CHARTS =====
+
+export interface ChartDataPoint {
+  date: string
+  value: number
+  label?: string
+}
+
+export interface SalesComparison {
+  period: string
+  efectivo: number
+  digital: number
+  total: number
+}
+
+export interface InventoryStockLevel {
+  categoryName: string
+  totalStock: number
+  lowStockCount: number
 }

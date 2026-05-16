@@ -1,20 +1,12 @@
 import type { Category } from '~/types'
 
-export default defineEventHandler(async () => {
-  const categories: Category[] = [
-    {
-      id: 1,
-      name: 'Pollo a la Brasa'
-    },
-    {
-      id: 2,
-      name: 'Parrillas'
-    },
-    {
-      id: 3,
-      name: 'Bebidas'
-    }
-  ]
+export const mockCategories: Category[] = [
+  { id: 1, name: 'Pollo a la Brasa', status: true },
+  { id: 2, name: 'Parrillas', status: true },
+  { id: 3, name: 'Bebidas', status: true },
+  { id: 4, name: 'Postres', status: false }
+]
 
-  return categories
+export default defineEventHandler(async () => {
+  return mockCategories
 })

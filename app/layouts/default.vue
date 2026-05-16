@@ -7,56 +7,38 @@ const links = [{
   label: 'Inicio',
   icon: 'i-lucide-house',
   to: '/',
-  onSelect: () => {
-    open.value = false
-  }
+  onSelect: () => { open.value = false }
 }, {
   label: 'Gestión de carta',
   icon: 'i-lucide-receipt-text',
   to: '/gestion-carta',
-  onSelect: () => {
-    open.value = false
-  }
+  onSelect: () => { open.value = false }
 }, {
   label: 'Pedidos / Cocina',
   icon: 'i-lucide-cooking-pot',
   to: '/pedidos-cocina',
-  onSelect: () => {
-    open.value = false
-  }
-},
-{
+  onSelect: () => { open.value = false }
+}, {
   label: 'Cajas',
   icon: 'i-lucide-hand-coins',
   to: '/cajas',
-  onSelect: () => {
-    open.value = false
-  }
-},
-{
+  onSelect: () => { open.value = false }
+}, {
   label: 'Inventario',
   icon: 'i-lucide-archive',
   to: '/inventario',
-  onSelect: () => {
-    open.value = false
-  }
-},
-{
+  onSelect: () => { open.value = false }
+}, {
   label: 'Ingresos',
   icon: 'i-lucide-banknote',
   to: '/ingresos',
-  onSelect: () => {
-    open.value = false
-  } },
-{
+  onSelect: () => { open.value = false }
+}, {
   label: 'Empleados',
   icon: 'i-lucide-square-user-round',
   to: '/empleados',
-  onSelect: () => {
-    open.value = false
-  }
-}
-] as NavigationMenuItem[]
+  onSelect: () => { open.value = false }
+}] as NavigationMenuItem[]
 </script>
 
 <template>
@@ -66,11 +48,10 @@ const links = [{
       v-model:open="open"
       collapsible
       resizable
-      class="bg-elevated/25 transition-all duration-300"
+      class="bg-elevated/25 gradient-sidebar"
       :ui="{ footer: 'lg:border-t lg:border-default' }"
     >
       <template #header="{ collapsed }">
-        <!-- icon -->
         <LogoTitle :show-title="!collapsed" />
       </template>
 

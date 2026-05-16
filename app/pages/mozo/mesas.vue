@@ -9,21 +9,24 @@
     </template>
 
     <template #body>
-      <div class="flex flex-col gap-4 pb-4">
+      <div class="flex flex-col gap-6 pb-4">
         <HomeStats :stats="stats" :columns="3" />
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
           <TableCard
             v-for="table in tables"
             :key="table.id"
             :table-name="table.name"
             :is-occupied="table.occupied"
             :order="table.order"
+            class="stagger-item"
             @click="openOrderDetails(table)"
+            @take-order="openTakeOrder(table)"
           />
         </div>
       </div>
 
+      <!-- Order Details Modal -->
       <UModal v-model:open="isModalOpen" title="Detalles de Orden">
         <template #body>
           <TableFormOrderDetails
@@ -33,10 +36,27 @@
             :loading="isSubmitting"
             @submit="handleSubmit"
             @cancel="isModalOpen = false"
+            @change-status="handleChangeStatus"
           />
-          <div v-else class="p-6 text-center text-gray-500 dark:text-gray-400">
-            Esta mesa está libre o no tiene una orden asociada por el momento.
+          <div v-else class="empty-state py-8">
+            <UIcon name="i-lucide-armchair" class="w-12 h-12 mb-3" />
+            <p class="text-sm font-medium text-muted">Esta mesa está libre.</p>
           </div>
+        </template>
+      </UModal>
+
+      <!-- Take Order Modal -->
+      <UModal v-model:open="isTakeOrderOpen" title="Tomar Pedido">
+        <template #body>
+          <TableFormTakeOrder
+            v-if="selectedTable"
+            :table-id="selectedTable.id"
+            :table-name="selectedTable.name"
+            :products="menuProducts || []"
+            :loading="isSubmitting"
+            @submit="handleTakeOrder"
+            @cancel="isTakeOrderOpen = false"
+          />
         </template>
       </UModal>
     </template>
@@ -44,15 +64,19 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
-import type { Table } from '~/types'
-import type { ProcessOrderRequest } from '~/utils/validations'
+import { ref, computed } from 'vue'
+import type { Table, Product, OrderStatus } from '~/types'
+import type { ProcessOrderRequest, TakeOrderRequest } from '~/utils/validations'
 
 setPageLayout('waiter')
 
+const toast = useToast()
+
 const { data: tables } = await useFetch<Table[]>('/api/tables')
+const { data: menuProducts } = await useFetch<Product[]>('/api/products')
 
 const isModalOpen = ref(false)
+const isTakeOrderOpen = ref(false)
 const selectedTable = ref<Table | null>(null)
 const isSubmitting = ref(false)
 
@@ -61,35 +85,52 @@ function openOrderDetails(table: Table) {
   isModalOpen.value = true
 }
 
+function openTakeOrder(table: Table) {
+  selectedTable.value = table
+  isTakeOrderOpen.value = true
+}
+
 async function handleSubmit(data: ProcessOrderRequest) {
   isSubmitting.value = true
-  console.log('Procesando pago/orden...', data)
-
   setTimeout(() => {
     isSubmitting.value = false
     isModalOpen.value = false
-    console.log('¡Transacción exitosa!')
+    toast.add({ title: '¡Pago registrado!', color: 'success' })
   }, 1000)
 }
 
-const stats = [{
+async function handleTakeOrder(data: TakeOrderRequest) {
+  isSubmitting.value = true
+  setTimeout(() => {
+    isSubmitting.value = false
+    isTakeOrderOpen.value = false
+    toast.add({ title: '¡Pedido enviado a cocina!', color: 'success' })
+  }, 1000)
+}
+
+async function handleChangeStatus(orderId: number, status: OrderStatus) {
+  try {
+    await $fetch(`/api/orders/${orderId}/status`, {
+      method: 'PUT',
+      body: { status }
+    })
+    toast.add({ title: `Estado cambiado a "${status}"`, color: 'success' })
+  } catch {
+    toast.add({ title: 'Error al cambiar estado', color: 'error' })
+  }
+}
+
+const stats = computed(() => [{
   title: 'Mesas Ocupadas',
   value: tables.value?.filter(t => t.occupied).length || 0,
-  icon: 'i-lucide-users',
-  color: 'primary'
+  icon: 'i-lucide-users'
 }, {
   title: 'Órdenes Pendientes',
   value: tables.value?.filter(t => t.order && t.order.status === 'Pendiente').length || 0,
-  icon: 'i-lucide-clock-alert',
-  color: 'warning'
+  icon: 'i-lucide-clock-alert'
 }, {
   title: 'Órdenes Listas',
   value: tables.value?.filter(t => t.order && t.order.status === 'Listo').length || 0,
-  icon: 'i-lucide-check',
-  color: 'success'
-}]
+  icon: 'i-lucide-check'
+}])
 </script>
-
-<style>
-
-</style>

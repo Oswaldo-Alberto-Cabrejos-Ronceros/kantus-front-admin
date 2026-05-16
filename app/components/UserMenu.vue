@@ -5,18 +5,10 @@ defineProps<{
   collapsed?: boolean
 }>()
 
-const { useLogout } = useAuth()
-
-const user = ref({
-  name: '',
-  avatar: {
-    icon: 'i-lucide-user-round'
-  }
-})
+const { useLogout, displayName, user } = useAuth()
 
 const logoutAction = () => {
   try {
-    console.log('Logout action triggered')
     useLogout()
   } catch (e) {
     console.log(e)
@@ -24,6 +16,17 @@ const logoutAction = () => {
 }
 
 const colorMode = useColorMode()
+
+const roleBadgeColor = computed(() => {
+  const colors: Record<string, string> = {
+    Admin: 'primary',
+    Mozo: 'info',
+    Cajero: 'success',
+    Cocinero: 'warning',
+    Delivery: 'secondary'
+  }
+  return colors[user.value?.role || ''] || 'neutral'
+})
 
 const items = computed<DropdownMenuItem[][]>(() => [
   [{
@@ -36,7 +39,6 @@ const items = computed<DropdownMenuItem[][]>(() => [
       checked: colorMode.value === 'light',
       onSelect(e: Event) {
         e.preventDefault()
-
         colorMode.preference = 'light'
       }
     }, {
@@ -64,11 +66,6 @@ const items = computed<DropdownMenuItem[][]>(() => [
     }
   ]
 ])
-
-// for show user name
-onMounted(() => {
-  user.value.name = 'Usuario'
-})
 </script>
 
 <template>
@@ -80,11 +77,6 @@ onMounted(() => {
     }"
   >
     <UButton
-      v-bind="{
-        ...user,
-        label: collapsed ? undefined : user?.name,
-        trailingIcon: collapsed ? undefined : 'i-lucide-chevrons-up-down'
-      }"
       color="neutral"
       variant="ghost"
       block
@@ -93,18 +85,21 @@ onMounted(() => {
       :ui="{
         trailingIcon: 'text-dimmed'
       }"
-    />
-
-    <template #chip-leading="{ item }">
-      <div class="inline-flex size-5 shrink-0 items-center justify-center">
-        <span
-          class="ring-bg size-2 rounded-full bg-(--chip-light) ring dark:bg-(--chip-dark)"
-          :style="{
-            '--chip-light': `var(--color-${(item as any).chip}-500)`,
-            '--chip-dark': `var(--color-${(item as any).chip}-400)`
-          }"
-        />
-      </div>
-    </template>
+    >
+      <template #leading>
+        <div class="flex items-center justify-center h-7 w-7 rounded-full bg-primary/10 text-primary font-semibold text-xs ring-1 ring-primary/20">
+          {{ user?.name?.charAt(0) || 'U' }}{{ user?.lastname?.charAt(0) || '' }}
+        </div>
+      </template>
+      <template v-if="!collapsed" #default>
+        <div class="flex flex-col items-start min-w-0">
+          <span class="text-sm font-medium truncate w-full text-left">{{ displayName }}</span>
+          <span class="text-[10px] font-medium text-muted uppercase tracking-wider">{{ user?.role || 'Usuario' }}</span>
+        </div>
+      </template>
+      <template v-if="!collapsed" #trailing>
+        <UIcon name="i-lucide-chevrons-up-down" class="text-dimmed h-4 w-4" />
+      </template>
+    </UButton>
   </UDropdownMenu>
 </template>
