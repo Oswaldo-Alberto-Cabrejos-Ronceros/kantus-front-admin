@@ -19,7 +19,12 @@
         >
           <template #description>
             <div class="flex items-center gap-2">
-              <UBadge color="warning" variant="subtle" size="xs" class="badge-glow-warning">
+              <UBadge
+                color="warning"
+                variant="subtle"
+                size="xs"
+                class="badge-glow-warning"
+              >
                 Stock: {{ product.cantidad }} {{ product.unidad }}
               </UBadge>
               <span class="text-xs text-muted">Mín: {{ product.stockMinimo }} {{ product.unidad }}</span>
@@ -48,7 +53,12 @@
         >
           <template #description>
             <div class="flex items-center gap-2">
-              <UBadge color="error" variant="subtle" size="xs" class="badge-glow-error">
+              <UBadge
+                color="error"
+                variant="subtle"
+                size="xs"
+                class="badge-glow-error"
+              >
                 Vence: {{ formatDate(product.fechaVencimiento) }}
               </UBadge>
               <span class="text-xs text-muted">{{ getDaysUntilExpiry(product.fechaVencimiento) }} días</span>
@@ -61,7 +71,9 @@
     <!-- All good message -->
     <div v-if="lowStockProducts.length === 0 && expiringProducts.length === 0" class="empty-state py-8">
       <UIcon name="i-lucide-check-circle" class="w-12 h-12 mb-3 text-success" />
-      <p class="text-sm font-medium text-muted">Todo en orden. No hay alertas pendientes.</p>
+      <p class="text-sm font-medium text-muted">
+        Todo en orden. No hay alertas pendientes.
+      </p>
     </div>
   </div>
 </template>

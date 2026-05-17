@@ -13,7 +13,12 @@
         <UBadge :color="type === 'delivery' ? 'secondary' : 'info'" variant="soft" size="xs">
           {{ type === 'delivery' ? '🛵 DELIVERY' : '🍽️ SALÓN' }}
         </UBadge>
-        <UBadge :color="statusInfo.color" variant="solid" size="xs" :class="statusInfo.glowClass">
+        <UBadge
+          :color="statusInfo.color"
+          variant="solid"
+          size="xs"
+          :class="statusInfo.glowClass"
+        >
           {{ status }}
         </UBadge>
       </div>

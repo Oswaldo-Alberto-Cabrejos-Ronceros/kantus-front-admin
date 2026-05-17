@@ -9,7 +9,13 @@
       @click="isOpen = true"
     >
       <template #trailing>
-        <UBadge v-if="totalItems > 0" color="error" variant="solid" size="xs" class="animate-count-bounce">
+        <UBadge
+          v-if="totalItems > 0"
+          color="error"
+          variant="solid"
+          size="xs"
+          class="animate-count-bounce"
+        >
           {{ totalItems }}
         </UBadge>
       </template>
@@ -20,8 +26,12 @@
         <!-- Empty cart -->
         <div v-if="items.length === 0" class="empty-state flex-1">
           <UIcon name="i-lucide-shopping-cart" class="w-16 h-16 mb-4 text-muted" />
-          <p class="text-lg font-medium text-muted">Tu carrito está vacío</p>
-          <p class="text-sm text-dimmed mt-1">Agrega productos desde la carta</p>
+          <p class="text-lg font-medium text-muted">
+            Tu carrito está vacío
+          </p>
+          <p class="text-sm text-dimmed mt-1">
+            Agrega productos desde la carta
+          </p>
         </div>
 
         <!-- Cart items -->
@@ -32,8 +42,12 @@
             class="flex items-center gap-3 p-3 rounded-lg bg-elevated/50 animate-fade-in-up"
           >
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-highlighted truncate">{{ item.name }}</p>
-              <p class="text-xs text-muted">{{ formatPrice(item.priceUnitary) }} c/u</p>
+              <p class="text-sm font-medium text-highlighted truncate">
+                {{ item.name }}
+              </p>
+              <p class="text-xs text-muted">
+                {{ formatPrice(item.priceUnitary) }} c/u
+              </p>
             </div>
             <div class="flex items-center gap-2">
               <UButton

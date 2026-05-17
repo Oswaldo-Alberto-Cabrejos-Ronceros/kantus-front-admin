@@ -27,12 +27,16 @@
 
       <!-- Sales chart placeholder -->
       <div class="mt-8">
-        <h2 class="text-xl font-semibold text-highlighted mb-4">Comparativo de Ventas</h2>
+        <h2 class="text-xl font-semibold text-highlighted mb-4">
+          Comparativo de Ventas
+        </h2>
         <UCard class="p-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Bar chart simulation -->
             <div class="space-y-3">
-              <h3 class="text-sm font-semibold text-muted uppercase tracking-wider">Ventas por Tipo</h3>
+              <h3 class="text-sm font-semibold text-muted uppercase tracking-wider">
+                Ventas por Tipo
+              </h3>
               <div v-for="bar in salesByType" :key="bar.label" class="space-y-1">
                 <div class="flex justify-between text-sm">
                   <span class="text-highlighted">{{ bar.label }}</span>
@@ -46,7 +50,9 @@
 
             <!-- Pie chart simulation -->
             <div class="space-y-3">
-              <h3 class="text-sm font-semibold text-muted uppercase tracking-wider">Métodos de Pago</h3>
+              <h3 class="text-sm font-semibold text-muted uppercase tracking-wider">
+                Métodos de Pago
+              </h3>
               <div v-for="pm in paymentBreakdown" :key="pm.label" class="flex items-center justify-between p-2 rounded-lg bg-elevated/50">
                 <div class="flex items-center gap-2">
                   <div class="w-3 h-3 rounded-full" :style="{ backgroundColor: pm.color }" />
@@ -65,7 +71,9 @@
       <!-- Latest sales table -->
       <div class="mt-8 flex flex-col gap-4">
         <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold text-highlighted">Últimas Ventas</h2>
+          <h2 class="text-xl font-semibold text-highlighted">
+            Últimas Ventas
+          </h2>
         </div>
         <UTable
           class="shrink-0"

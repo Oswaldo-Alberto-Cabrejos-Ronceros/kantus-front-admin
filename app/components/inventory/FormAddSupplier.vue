@@ -1,5 +1,10 @@
 <template>
-  <UForm :schema="supplierSchema" :state="state" class="space-y-4" @submit="onSubmit">
+  <UForm
+    :schema="supplierSchema"
+    :state="state"
+    class="space-y-4"
+    @submit="onSubmit"
+  >
     <UFormField label="Nombre / Razón Social" name="nombre">
       <UInput v-model="state.nombre" placeholder="Ej. Avícola San Fernando" class="w-full" />
     </UFormField>
@@ -13,7 +18,12 @@
     </div>
     <div class="grid grid-cols-2 gap-4">
       <UFormField label="Email" name="email">
-        <UInput v-model="state.email" type="email" placeholder="correo@ejemplo.com" class="w-full" />
+        <UInput
+          v-model="state.email"
+          type="email"
+          placeholder="correo@ejemplo.com"
+          class="w-full"
+        />
       </UFormField>
       <UFormField label="Teléfono" name="telefono">
         <UInput v-model="state.telefono" placeholder="01-XXXXXXX" class="w-full" />
@@ -26,8 +36,12 @@
       </div>
     </UFormField>
     <div class="flex justify-end gap-2 mt-4">
-      <UButton color="neutral" variant="ghost" @click="$emit('cancel')">Cancelar</UButton>
-      <UButton type="submit" :loading="loading">Guardar</UButton>
+      <UButton color="neutral" variant="ghost" @click="$emit('cancel')">
+        Cancelar
+      </UButton>
+      <UButton type="submit" :loading="loading">
+        Guardar
+      </UButton>
     </div>
   </UForm>
 </template>

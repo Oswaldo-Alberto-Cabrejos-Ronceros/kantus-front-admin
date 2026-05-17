@@ -9,7 +9,9 @@
 
     <!-- Product selection -->
     <div class="space-y-3">
-      <h3 class="text-sm font-semibold text-muted uppercase tracking-wider">Seleccionar Productos</h3>
+      <h3 class="text-sm font-semibold text-muted uppercase tracking-wider">
+        Seleccionar Productos
+      </h3>
 
       <!-- Search -->
       <UInput
@@ -27,8 +29,12 @@
           class="flex items-center justify-between p-3 rounded-lg bg-elevated/50 hover:bg-elevated transition-colors"
         >
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-highlighted truncate">{{ product.name }}</p>
-            <p class="text-xs text-muted">{{ formatPrice(product.price) }}</p>
+            <p class="text-sm font-medium text-highlighted truncate">
+              {{ product.name }}
+            </p>
+            <p class="text-xs text-muted">
+              {{ formatPrice(product.price) }}
+            </p>
           </div>
           <div class="flex items-center gap-2">
             <UButton
@@ -58,7 +64,9 @@
 
     <!-- Selected items summary -->
     <div v-if="selectedItems.length > 0" class="space-y-2">
-      <h3 class="text-sm font-semibold text-muted uppercase tracking-wider">Resumen del Pedido</h3>
+      <h3 class="text-sm font-semibold text-muted uppercase tracking-wider">
+        Resumen del Pedido
+      </h3>
       <div
         v-for="item in selectedItems"
         :key="item.productId"

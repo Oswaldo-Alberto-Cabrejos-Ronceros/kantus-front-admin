@@ -62,6 +62,7 @@ export interface Order {
   tableId?: number
   tableName?: string
   paymentMethod?: SaleMethod
+  tip?: number
 }
 
 export type OrderDeliveryStatus = 'Pendiente' | 'Camino' | 'Entregado'
@@ -210,6 +211,7 @@ export interface Table {
   id: number
   name: string
   occupied: boolean
+  status?: boolean
   order?: Order
   qrUrl?: string
 }

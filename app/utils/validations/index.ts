@@ -118,7 +118,8 @@ export type CloseCashboxRequest = z.infer<typeof closeCashboxSchema>
 
 export const processOrderSchema = z.object({
   orderId: z.number('El ID de la orden es obligatorio'),
-  paymentMethod: z.enum(['efectivo', 'transferencia', 'tarjeta', 'yape/plin'], 'El método de pago es obligatorio')
+  paymentMethod: z.enum(['efectivo', 'transferencia', 'tarjeta', 'yape/plin'], 'El método de pago es obligatorio'),
+  tip: z.number().min(0, 'La propina no puede ser negativa').optional()
 })
 
 export type ProcessOrderRequest = z.infer<typeof processOrderSchema>
@@ -159,3 +160,12 @@ export const deliveryClientOrderSchema = z.object({
 })
 
 export type DeliveryClientOrderRequest = z.infer<typeof deliveryClientOrderSchema>
+
+// ===== TABLES =====
+
+export const tableSchema = z.object({
+  name: z.string().min(1, 'El nombre es obligatorio'),
+  status: z.boolean().default(true)
+})
+
+export type TableRequest = z.infer<typeof tableSchema>

@@ -9,11 +9,18 @@
         >
         <!-- Status overlay -->
         <div v-if="!status" class="absolute inset-0 bg-black/50 flex items-center justify-center">
-          <UBadge color="error" variant="solid" size="lg">Inactivo</UBadge>
+          <UBadge color="error" variant="solid" size="lg">
+            Inactivo
+          </UBadge>
         </div>
         <!-- Promotion badge -->
         <div v-if="promotion && promotion.status" class="absolute top-2 right-2">
-          <UBadge color="warning" variant="solid" size="sm" class="badge-glow-warning font-bold shadow-lg">
+          <UBadge
+            color="warning"
+            variant="solid"
+            size="sm"
+            class="badge-glow-warning font-bold shadow-lg"
+          >
             <UIcon name="i-lucide-badge-percent" class="w-3 h-3 mr-1" />
             {{ promotion.tipo === 'porcentaje' ? `-${promotion.valor}%` : `S/ ${promotion.valor} OFF` }}
           </UBadge>

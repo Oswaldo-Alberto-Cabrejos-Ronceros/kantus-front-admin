@@ -11,19 +11,43 @@
 
     <div class="grid grid-cols-2 gap-4">
       <UFormField label="Categoría" name="categoryId">
-        <USelectMenu v-model="state.categoryId" :items="categories" value-key="id" label-key="name" placeholder="Seleccionar" class="w-full" />
+        <USelectMenu
+          v-model="state.categoryId"
+          :items="categories"
+          value-key="id"
+          label-key="name"
+          placeholder="Seleccionar"
+          class="w-full"
+        />
       </UFormField>
       <UFormField label="Proveedor" name="supplierId">
-        <USelectMenu v-model="state.supplierId" :items="suppliers" value-key="id" label-key="nombre" placeholder="Seleccionar" class="w-full" />
+        <USelectMenu
+          v-model="state.supplierId"
+          :items="suppliers"
+          value-key="id"
+          label-key="nombre"
+          placeholder="Seleccionar"
+          class="w-full"
+        />
       </UFormField>
     </div>
 
     <div class="grid grid-cols-3 gap-4">
       <UFormField label="Cantidad" name="cantidad">
-        <UInput v-model.number="state.cantidad" type="number" placeholder="0" class="w-full" />
+        <UInput
+          v-model.number="state.cantidad"
+          type="number"
+          placeholder="0"
+          class="w-full"
+        />
       </UFormField>
       <UFormField label="Stock Mínimo" name="stockMinimo">
-        <UInput v-model.number="state.stockMinimo" type="number" placeholder="0" class="w-full" />
+        <UInput
+          v-model.number="state.stockMinimo"
+          type="number"
+          placeholder="0"
+          class="w-full"
+        />
       </UFormField>
       <UFormField label="Unidad" name="unidad">
         <USelect v-model="state.unidad" :options="units" class="w-full" />
@@ -42,8 +66,12 @@
     </UFormField>
 
     <div class="flex justify-end gap-2 mt-4">
-      <UButton color="neutral" variant="ghost" @click="$emit('cancel')">Cancelar</UButton>
-      <UButton type="submit" :loading="loading">Guardar</UButton>
+      <UButton color="neutral" variant="ghost" @click="$emit('cancel')">
+        Cancelar
+      </UButton>
+      <UButton type="submit" :loading="loading">
+        Guardar
+      </UButton>
     </div>
   </UForm>
 </template>

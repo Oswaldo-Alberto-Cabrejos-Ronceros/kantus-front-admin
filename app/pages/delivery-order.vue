@@ -8,8 +8,12 @@
             <span class="text-white font-black text-lg">K</span>
           </div>
           <div>
-            <h1 class="text-lg font-bold text-highlighted leading-tight">Kantus Pollería</h1>
-            <p class="text-xs text-muted">Pedido por Delivery</p>
+            <h1 class="text-lg font-bold text-highlighted leading-tight">
+              Kantus Pollería
+            </h1>
+            <p class="text-xs text-muted">
+              Pedido por Delivery
+            </p>
           </div>
         </div>
         <UColorModeButton />
@@ -20,7 +24,9 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Products column -->
         <div class="lg:col-span-2">
-          <h2 class="text-xl font-bold text-highlighted mb-4">Nuestra Carta</h2>
+          <h2 class="text-xl font-bold text-highlighted mb-4">
+            Nuestra Carta
+          </h2>
 
           <!-- Category tabs -->
           <div class="flex gap-2 overflow-x-auto pb-4">
@@ -72,13 +78,31 @@
               <div v-if="cartItems.length > 0" class="space-y-3 mb-4">
                 <div v-for="item in cartItems" :key="item.productId" class="flex items-center justify-between text-sm">
                   <div class="flex-1 min-w-0">
-                    <p class="text-highlighted truncate">{{ item.name }}</p>
-                    <p class="text-xs text-muted">{{ formatPrice(item.priceUnitary) }}</p>
+                    <p class="text-highlighted truncate">
+                      {{ item.name }}
+                    </p>
+                    <p class="text-xs text-muted">
+                      {{ formatPrice(item.priceUnitary) }}
+                    </p>
                   </div>
                   <div class="flex items-center gap-1.5">
-                    <UButton icon="i-lucide-minus" size="xs" color="neutral" variant="soft" :ui="{ rounded: 'rounded-full' }" @click="updateQuantity(item.productId, item.quantity - 1)" />
+                    <UButton
+                      icon="i-lucide-minus"
+                      size="xs"
+                      color="neutral"
+                      variant="soft"
+                      :ui="{ rounded: 'rounded-full' }"
+                      @click="updateQuantity(item.productId, item.quantity - 1)"
+                    />
                     <span class="text-xs font-semibold w-5 text-center">{{ item.quantity }}</span>
-                    <UButton icon="i-lucide-plus" size="xs" color="primary" variant="soft" :ui="{ rounded: 'rounded-full' }" @click="updateQuantity(item.productId, item.quantity + 1)" />
+                    <UButton
+                      icon="i-lucide-plus"
+                      size="xs"
+                      color="primary"
+                      variant="soft"
+                      :ui="{ rounded: 'rounded-full' }"
+                      @click="updateQuantity(item.productId, item.quantity + 1)"
+                    />
                   </div>
                   <span class="text-sm font-bold text-primary w-16 text-right">{{ formatPrice(item.priceUnitary * item.quantity) }}</span>
                 </div>
@@ -113,7 +137,12 @@
                   <UInput v-model="contactForm.celular" placeholder="987654321" class="w-full" />
                 </UFormField>
                 <UFormField label="Email">
-                  <UInput v-model="contactForm.email" type="email" placeholder="correo@ejemplo.com" class="w-full" />
+                  <UInput
+                    v-model="contactForm.email"
+                    type="email"
+                    placeholder="correo@ejemplo.com"
+                    class="w-full"
+                  />
                 </UFormField>
                 <UFormField label="DNI">
                   <UInput v-model="contactForm.dni" placeholder="12345678" class="w-full" />
@@ -136,7 +165,9 @@
                   >
                     Pagar con Mercado Pago — {{ formatPrice(total) }}
                   </UButton>
-                  <p class="text-xs text-center text-muted">Pago seguro procesado por Mercado Pago</p>
+                  <p class="text-xs text-center text-muted">
+                    Pago seguro procesado por Mercado Pago
+                  </p>
                 </div>
               </template>
             </UCard>

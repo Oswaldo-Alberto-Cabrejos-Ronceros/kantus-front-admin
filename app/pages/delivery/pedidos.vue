@@ -11,9 +11,27 @@
     <template #body>
       <div class="flex flex-col gap-4 pb-4">
         <UPageGrid class="gap-4 sm:gap-6 lg:gap-px grid-cols-1 lg:grid-cols-3">
-          <UPageCard variant="subtle" class="lg:rounded-none first:rounded-l-lg last:rounded-r-lg hover:z-1" icon="i-lucide-package" title="Pendientes" :description="pendingCount.toString()" />
-          <UPageCard variant="subtle" class="lg:rounded-none first:rounded-l-lg last:rounded-r-lg hover:z-1" icon="i-lucide-motorbike" title="En Camino" :description="inTransitCount.toString()" />
-          <UPageCard variant="subtle" class="lg:rounded-none first:rounded-l-lg last:rounded-r-lg hover:z-1" icon="i-lucide-check-circle" title="Entregados" :description="deliveredCount.toString()" />
+          <UPageCard
+            variant="subtle"
+            class="lg:rounded-none first:rounded-l-lg last:rounded-r-lg hover:z-1"
+            icon="i-lucide-package"
+            title="Pendientes"
+            :description="pendingCount.toString()"
+          />
+          <UPageCard
+            variant="subtle"
+            class="lg:rounded-none first:rounded-l-lg last:rounded-r-lg hover:z-1"
+            icon="i-lucide-motorbike"
+            title="En Camino"
+            :description="inTransitCount.toString()"
+          />
+          <UPageCard
+            variant="subtle"
+            class="lg:rounded-none first:rounded-l-lg last:rounded-r-lg hover:z-1"
+            icon="i-lucide-check-circle"
+            title="Entregados"
+            :description="deliveredCount.toString()"
+          />
         </UPageGrid>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

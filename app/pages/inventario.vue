@@ -16,30 +16,49 @@
         <!-- Action buttons -->
         <div class="flex justify-end gap-2 flex-wrap">
           <UModal v-model:open="isCategoryModalOpen" title="Categoría de Inventario">
-            <UButton icon="i-lucide-folder-plus" variant="soft" size="sm">Categoría</UButton>
+            <UButton icon="i-lucide-folder-plus" variant="soft" size="sm">
+              Categoría
+            </UButton>
             <template #body>
               <InventoryFormAddCategoryInventory :loading="isSubmitting" @submit="handleCreateCategory" @cancel="isCategoryModalOpen = false" />
             </template>
           </UModal>
 
           <UModal v-model:open="isProductModalOpen" title="Producto de Inventario">
-            <UButton icon="i-lucide-package-plus" variant="soft" size="sm">Producto</UButton>
+            <UButton icon="i-lucide-package-plus" variant="soft" size="sm">
+              Producto
+            </UButton>
             <template #body>
-              <InventoryFormAddProductInventory :categories="categories || []" :suppliers="suppliers || []" :loading="isSubmitting" @submit="handleCreateProduct" @cancel="isProductModalOpen = false" />
+              <InventoryFormAddProductInventory
+                :categories="categories || []"
+                :suppliers="suppliers || []"
+                :loading="isSubmitting"
+                @submit="handleCreateProduct"
+                @cancel="isProductModalOpen = false"
+              />
             </template>
           </UModal>
 
           <UModal v-model:open="isSupplierModalOpen" title="Proveedor">
-            <UButton icon="i-lucide-truck" variant="soft" size="sm">Proveedor</UButton>
+            <UButton icon="i-lucide-truck" variant="soft" size="sm">
+              Proveedor
+            </UButton>
             <template #body>
               <InventoryFormAddSupplier :loading="isSubmitting" @submit="handleCreateSupplier" @cancel="isSupplierModalOpen = false" />
             </template>
           </UModal>
 
           <UModal v-model:open="isMovementModalOpen" title="Agregar Movimiento">
-            <UButton icon="i-lucide-plus" color="primary">Movimiento</UButton>
+            <UButton icon="i-lucide-plus" color="primary">
+              Movimiento
+            </UButton>
             <template #body>
-              <InventoryFormAddMovement :products="products || []" :loading="isSubmitting" @submit="handleCreateMovement" @cancel="isMovementModalOpen = false" />
+              <InventoryFormAddMovement
+                :products="products || []"
+                :loading="isSubmitting"
+                @submit="handleCreateMovement"
+                @cancel="isMovementModalOpen = false"
+              />
             </template>
           </UModal>
         </div>

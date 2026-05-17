@@ -40,7 +40,9 @@
           />
           <div v-else class="empty-state py-8">
             <UIcon name="i-lucide-armchair" class="w-12 h-12 mb-3" />
-            <p class="text-sm font-medium text-muted">Esta mesa está libre.</p>
+            <p class="text-sm font-medium text-muted">
+              Esta mesa está libre.
+            </p>
           </div>
         </template>
       </UModal>
@@ -92,11 +94,19 @@ function openTakeOrder(table: Table) {
 
 async function handleSubmit(data: ProcessOrderRequest) {
   isSubmitting.value = true
-  setTimeout(() => {
-    isSubmitting.value = false
+  try {
+    await $fetch(`/api/orders/${data.orderId}/pay`, {
+      method: 'POST',
+      body: data
+    })
     isModalOpen.value = false
-    toast.add({ title: '¡Pago registrado!', color: 'success' })
-  }, 1000)
+    toast.add({ title: '¡Pago registrado exitosamente!', color: 'success' })
+    // In a real app we'd refresh tables here
+  } catch {
+    toast.add({ title: 'Error al procesar pago', color: 'error' })
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 async function handleTakeOrder(data: TakeOrderRequest) {

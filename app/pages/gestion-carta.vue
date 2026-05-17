@@ -89,7 +89,12 @@
                 <span class="text-sm text-muted">{{ getProductsByCategory(category.id).length }} productos</span>
               </div>
               <div class="flex gap-1">
-                <UButton size="xs" variant="ghost" icon="i-lucide-pencil" @click="editCategory(category)" />
+                <UButton
+                  size="xs"
+                  variant="ghost"
+                  icon="i-lucide-pencil"
+                  @click="editCategory(category)"
+                />
                 <UButton
                   size="xs"
                   variant="ghost"
@@ -121,8 +126,12 @@
         </UTabs>
         <div v-else class="empty-state">
           <UIcon name="i-lucide-utensils-crossed" class="w-16 h-16 mb-4" />
-          <p class="text-lg font-medium">No hay categorías para mostrar</p>
-          <p class="text-sm mt-1">Comienza creando una categoría</p>
+          <p class="text-lg font-medium">
+            No hay categorías para mostrar
+          </p>
+          <p class="text-sm mt-1">
+            Comienza creando una categoría
+          </p>
         </div>
       </div>
     </template>

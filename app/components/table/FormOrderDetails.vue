@@ -19,7 +19,9 @@
 
     <!-- Status change (for Mozo/Chef) -->
     <div v-if="canChangeStatus" class="space-y-2">
-      <h3 class="text-sm font-semibold text-muted uppercase tracking-wider">Cambiar Estado</h3>
+      <h3 class="text-sm font-semibold text-muted uppercase tracking-wider">
+        Cambiar Estado
+      </h3>
       <div class="flex gap-2 flex-wrap">
         <UButton
           v-for="s in availableStatuses"
@@ -63,11 +65,27 @@
           class="w-full"
         />
       </UFormField>
+      <UFormField label="Propina (Opcional)" name="tip" class="mt-4">
+        <UInput
+          v-model.number="state.tip"
+          type="number"
+          min="0"
+          step="0.5"
+          placeholder="0.00"
+          icon="i-lucide-coins"
+        />
+      </UFormField>
     </template>
 
     <div class="flex justify-between items-center mt-2 border-t border-default pt-4">
-      <div class="text-2xl font-bold text-highlighted">
-        Total: <span class="text-primary">{{ formatPrice(total) }}</span>
+      <div class="flex flex-col">
+        <div v-if="state.tip" class="text-sm text-muted mb-1">
+          Subtotal: {{ formatPrice(subtotal) }} <br>
+          Propina: {{ formatPrice(state.tip) }}
+        </div>
+        <div class="text-2xl font-bold text-highlighted">
+          Total: <span class="text-primary">{{ formatPrice(total) }}</span>
+        </div>
       </div>
       <div class="flex gap-3">
         <UButton color="neutral" variant="ghost" @click="$emit('cancel')">
@@ -139,15 +157,20 @@ const canProcessPayment = computed(() => {
 
 const state = reactive<ProcessOrderRequest>({
   orderId: props.order.id,
-  paymentMethod: 'efectivo' as SaleMethod
+  paymentMethod: 'efectivo' as SaleMethod,
+  tip: undefined
 })
 
 watch(() => props.order.id, (newId) => {
   state.orderId = newId
 })
 
-const total = computed(() => {
+const subtotal = computed(() => {
   return (props.order.products || []).reduce((acc, product) => acc + (product.priceUnitary * product.quantity), 0)
+})
+
+const total = computed(() => {
+  return subtotal.value + (state.tip || 0)
 })
 
 function formatPrice(value: number) {

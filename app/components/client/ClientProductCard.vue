@@ -12,7 +12,12 @@
       >
       <!-- Promotion badge -->
       <div v-if="promotion && promotion.status" class="absolute top-2 left-2">
-        <UBadge color="warning" variant="solid" size="xs" class="font-bold shadow-lg">
+        <UBadge
+          color="warning"
+          variant="solid"
+          size="xs"
+          class="font-bold shadow-lg"
+        >
           {{ promotion.tipo === 'porcentaje' ? `-${promotion.valor}%` : `S/ ${promotion.valor} OFF` }}
         </UBadge>
       </div>

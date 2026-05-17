@@ -8,8 +8,12 @@
             <span class="text-white font-black text-lg">K</span>
           </div>
           <div>
-            <h1 class="text-lg font-bold text-highlighted leading-tight">Kantus Pollería</h1>
-            <p class="text-xs text-muted">{{ tableName }}</p>
+            <h1 class="text-lg font-bold text-highlighted leading-tight">
+              Kantus Pollería
+            </h1>
+            <p class="text-xs text-muted">
+              {{ tableName }}
+            </p>
           </div>
         </div>
         <UColorModeButton />
@@ -46,8 +50,8 @@
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
         <ClientProductCard
           v-for="product in filteredProducts"
-          :key="product.id"
           :id="product.id"
+          :key="product.id"
           :name="product.name"
           :description="product.description"
           :price="product.price"
@@ -60,7 +64,9 @@
 
       <div v-if="filteredProducts.length === 0" class="empty-state py-16">
         <UIcon name="i-lucide-search-x" class="w-16 h-16 mb-4" />
-        <p class="text-lg font-medium">No hay productos en esta categoría</p>
+        <p class="text-lg font-medium">
+          No hay productos en esta categoría
+        </p>
       </div>
     </div>
 

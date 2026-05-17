@@ -1,27 +1,64 @@
 <template>
-  <UForm :schema="employeeSchema" :state="state" class="flex flex-col gap-4" @submit="onSubmit">
+  <UForm
+    :schema="employeeSchema"
+    :state="state"
+    class="flex flex-col gap-4"
+    @submit="onSubmit"
+  >
     <div class="grid grid-cols-2 gap-4">
-      <UFormField label="Nombres" name="name"><UInput v-model="state.name" placeholder="Ej. Juan" class="w-full" /></UFormField>
-      <UFormField label="Apellidos" name="lastname"><UInput v-model="state.lastname" placeholder="Ej. Pérez" class="w-full" /></UFormField>
+      <UFormField label="Nombres" name="name">
+        <UInput v-model="state.name" placeholder="Ej. Juan" class="w-full" />
+      </UFormField>
+      <UFormField label="Apellidos" name="lastname">
+        <UInput v-model="state.lastname" placeholder="Ej. Pérez" class="w-full" />
+      </UFormField>
     </div>
     <div class="grid grid-cols-2 gap-4">
-      <UFormField label="Tipo de Doc." name="documentType"><USelect v-model="state.documentType" :options="['DNI', 'CE']" class="w-full" /></UFormField>
-      <UFormField label="Número de Doc." name="documentNumber"><UInput v-model="state.documentNumber" placeholder="Número" class="w-full" /></UFormField>
+      <UFormField label="Tipo de Doc." name="documentType">
+        <USelect v-model="state.documentType" :options="['DNI', 'CE']" class="w-full" />
+      </UFormField>
+      <UFormField label="Número de Doc." name="documentNumber">
+        <UInput v-model="state.documentNumber" placeholder="Número" class="w-full" />
+      </UFormField>
     </div>
     <div class="grid grid-cols-2 gap-4">
-      <UFormField label="Fecha de Nacimiento" name="birthdate"><UInput v-model="state.birthdate" type="date" class="w-full" /></UFormField>
-      <UFormField label="Puesto" name="position"><USelect v-model="state.position" :options="['Administrative', 'Chef', 'Waiter', 'Cashier', 'Delivery']" class="w-full" /></UFormField>
+      <UFormField label="Fecha de Nacimiento" name="birthdate">
+        <UInput v-model="state.birthdate" type="date" class="w-full" />
+      </UFormField>
+      <UFormField label="Puesto" name="position">
+        <USelect v-model="state.position" :options="['Administrative', 'Chef', 'Waiter', 'Cashier', 'Delivery']" class="w-full" />
+      </UFormField>
     </div>
     <div class="grid grid-cols-2 gap-4">
-      <UFormField label="Horas/semana" name="hoursWeek"><UInput v-model.number="state.hoursWeek" type="number" placeholder="48" class="w-full" /></UFormField>
-      <UFormField label="Salario/hora" name="hourlyWage"><UInput v-model.number="state.hourlyWage" type="number" placeholder="15" class="w-full" /></UFormField>
+      <UFormField label="Horas/semana" name="hoursWeek">
+        <UInput
+          v-model.number="state.hoursWeek"
+          type="number"
+          placeholder="48"
+          class="w-full"
+        />
+      </UFormField>
+      <UFormField label="Salario/hora" name="hourlyWage">
+        <UInput
+          v-model.number="state.hourlyWage"
+          type="number"
+          placeholder="15"
+          class="w-full"
+        />
+      </UFormField>
     </div>
     <UFormField label="Estado" name="status">
-      <div class="flex items-center gap-2"><USwitch v-model="state.status" /><span class="text-sm">{{ state.status ? 'Activo' : 'Inactivo' }}</span></div>
+      <div class="flex items-center gap-2">
+        <USwitch v-model="state.status" /><span class="text-sm">{{ state.status ? 'Activo' : 'Inactivo' }}</span>
+      </div>
     </UFormField>
     <div class="flex justify-end gap-3 mt-4">
-      <UButton color="neutral" variant="ghost" @click="$emit('cancel')">Cancelar</UButton>
-      <UButton type="submit" color="primary" :loading="loading">Guardar Empleado</UButton>
+      <UButton color="neutral" variant="ghost" @click="$emit('cancel')">
+        Cancelar
+      </UButton>
+      <UButton type="submit" color="primary" :loading="loading">
+        Guardar Empleado
+      </UButton>
     </div>
   </UForm>
 </template>
