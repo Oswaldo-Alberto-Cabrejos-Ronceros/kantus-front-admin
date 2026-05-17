@@ -6,9 +6,11 @@ defineProps({
 
 <template>
   <div class="flex flex-row items-center gap-2.5 overflow-hidden">
-    <div class="relative flex items-center justify-center h-9 w-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 shadow-md shadow-amber-500/20">
-      <span class="text-white font-black text-lg leading-none">K</span>
-    </div>
+    <img
+      src="/image/logo.jpg"
+      alt="Kantus"
+      class="mx-auto h-8 w-auto lg:mx-0"
+    >
     <div v-show="showTitle" class="flex flex-col">
       <h3 class="text-base font-bold tracking-tight text-highlighted leading-none">
         Kantus

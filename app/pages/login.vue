@@ -5,11 +5,17 @@
     <div class="w-full max-w-md animate-fade-in-up">
       <!-- Logo -->
       <div class="flex flex-col items-center mb-8">
-        <div class="flex items-center justify-center h-16 w-16 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 shadow-xl shadow-amber-500/20 mb-4">
-          <span class="text-white font-black text-3xl">K</span>
-        </div>
-        <h1 class="text-2xl font-bold text-highlighted">Kantus Pollería</h1>
-        <p class="text-sm text-muted mt-1">Sistema de Gestión</p>
+        <img
+          src="/image/logo.jpg"
+          alt="Kantus"
+          class="mx-auto h-20 w-auto lg:mx-0 mb-4"
+        >
+        <h1 class="text-2xl font-bold text-highlighted">
+          Kantus Pollería
+        </h1>
+        <p class="text-sm text-muted mt-1">
+          Sistema de Gestión
+        </p>
       </div>
 
       <UPageCard class="w-full">
@@ -23,11 +29,6 @@
           @submit="onSubmit"
         />
       </UPageCard>
-
-      <!-- Demo credentials hint -->
-      <div class="mt-4 text-center">
-        <p class="text-xs text-muted">Demo: admin@kantus.com / password123</p>
-      </div>
     </div>
   </div>
 </template>

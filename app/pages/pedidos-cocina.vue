@@ -55,7 +55,9 @@
       </UTabs>
       <div v-else class="empty-state">
         <UIcon name="i-lucide-cooking-pot" class="w-16 h-16 mb-4" />
-        <p class="text-lg font-medium">No hay pedidos para mostrar</p>
+        <p class="text-lg font-medium">
+          No hay pedidos para mostrar
+        </p>
       </div>
     </template>
   </UDashboardPanel>
@@ -138,7 +140,7 @@ async function handleOrderAction(orderId: number, nextStatus: string) {
       }
     }
   } catch (error) {
-    toast.add({ title: 'Error al actualizar el pedido', color: 'error' })
+    toast.add({ title: 'Error al actualizar el pedido' + error, color: 'error' })
   }
 }
 </script>
