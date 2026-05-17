@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { ActivateCategoryData, ActivateCategoryInventoryData, ActivateCategoryInventoryResponses, ActivateCategoryResponses, ActivateEmployeeData, ActivateEmployeeResponses, ActivateProductData, ActivateProductInventoryData, ActivateProductInventoryResponses, ActivateProductResponses, ActivateSupplierData, ActivateSupplierResponses, ActivateTableData, ActivateTableResponses, AddMovement1Data, AddMovement1Responses, AddMovementData, AddMovementResponses, CloseCashBoxData, CloseCashBoxResponses, CreateCategoryData, CreateCategoryInventoryData, CreateCategoryInventoryResponses, CreateCategoryResponses, CreateEmployeeData, CreateEmployeeResponses, CreateEmployeeWithUserData, CreateEmployeeWithUserResponses, CreateOrderData, CreateOrderResponses, CreateProductData, CreateProductInventoryData, CreateProductInventoryResponses, CreateProductResponses, CreateSaleData, CreateSaleResponses, CreateSupplierData, CreateSupplierResponses, CreateTableData, CreateTableResponses, DeactivateCategoryData, DeactivateCategoryInventoryData, DeactivateCategoryInventoryResponses, DeactivateCategoryResponses, DeactivateEmployeeData, DeactivateEmployeeResponses, DeactivateProductData, DeactivateProductInventoryData, DeactivateProductInventoryResponses, DeactivateProductResponses, DeactivateSupplierData, DeactivateSupplierResponses, DeactivateTableData, DeactivateTableResponses, FreeTableData, FreeTableResponses, GetAllCategoriesData, GetAllCategoriesInventoryData, GetAllCategoriesInventoryResponses, GetAllCategoriesResponses, GetAllEmployeesData, GetAllEmployeesResponses, GetAllProductsData, GetAllProductsInventoryData, GetAllProductsInventoryResponses, GetAllProductsResponses, GetAllSuppliersData, GetAllSuppliersResponses, GetAllTablesData, GetAllTablesResponses, GetAllUsersData, GetAllUsersResponses, GetCashBoxByIdData, GetCashBoxByIdResponses, GetCashBoxesData, GetCashBoxesResponses, GetCategoryByIdData, GetCategoryByIdResponses, GetCategoryInventoryByIdData, GetCategoryInventoryByIdResponses, GetEmployeeByIdData, GetEmployeeByIdResponses, GetLatestSalesData, GetLatestSalesResponses, GetMovementByIdData, GetMovementByIdResponses, GetMovements1Data, GetMovements1Responses, GetMovementsData, GetMovementsResponses, GetOrderByIdData, GetOrderByIdResponses, GetOrdersData, GetOrdersResponses, GetProductByIdData, GetProductByIdResponses, GetProductInventoryByIdData, GetProductInventoryByIdResponses, GetProductsByCategoryData, GetProductsByCategoryResponses, GetProductsInventoryByCategoryData, GetProductsInventoryByCategoryResponses, GetSaleByIdData, GetSaleByIdResponses, GetSalesData, GetSalesResponses, GetSummaryData, GetSummaryResponses, GetSupplierByIdData, GetSupplierByIdResponses, GetTableByIdData, GetTableByIdResponses, GetUserByIdData, GetUserByIdResponses, LoginData, LoginResponses, OccupyTableData, OccupyTableResponses, OpenCashBoxData, OpenCashBoxResponses, SearchCategoriesData, SearchCategoriesInventoryData, SearchCategoriesInventoryResponses, SearchCategoriesResponses, SearchEmployeesData, SearchEmployeesResponses, SearchProductsData, SearchProductsInventoryData, SearchProductsInventoryResponses, SearchProductsResponses, SearchSuppliersData, SearchSuppliersResponses, SearchTablesData, SearchTablesResponses, SearchUsersData, SearchUsersResponses, UpdateCategoryData, UpdateCategoryInventoryData, UpdateCategoryInventoryResponses, UpdateCategoryResponses, UpdateEmployeeData, UpdateEmployeeResponses, UpdateOrderStatusData, UpdateOrderStatusResponses, UpdateProductData, UpdateProductInventoryData, UpdateProductInventoryResponses, UpdateProductResponses, UpdateSupplierData, UpdateSupplierResponses, UpdateTableData, UpdateTableResponses } from './types.gen';
+import type { ActivateCategoryData, ActivateCategoryInventoryData, ActivateCategoryInventoryResponses, ActivateCategoryResponses, ActivateEmployeeData, ActivateEmployeeResponses, ActivateProductData, ActivateProductInventoryData, ActivateProductInventoryResponses, ActivateProductResponses, ActivateSupplierData, ActivateSupplierResponses, ActivateTableData, ActivateTableResponses, AddMovement1Data, AddMovement1Responses, AddMovementData, AddMovementResponses, CloseCashBoxData, CloseCashBoxResponses, CreateCategoryData, CreateCategoryInventoryData, CreateCategoryInventoryResponses, CreateCategoryResponses, CreateEmployeeData, CreateEmployeeResponses, CreateEmployeeWithUserData, CreateEmployeeWithUserResponses, CreateOrderData, CreateOrderResponses, CreateProductData, CreateProductInventoryData, CreateProductInventoryResponses, CreateProductResponses, CreateSaleData, CreateSaleResponses, CreateSupplierData, CreateSupplierResponses, CreateTableData, CreateTableResponses, CreateUserData, CreateUserResponses, DeactivateCategoryData, DeactivateCategoryInventoryData, DeactivateCategoryInventoryResponses, DeactivateCategoryResponses, DeactivateEmployeeData, DeactivateEmployeeResponses, DeactivateProductData, DeactivateProductInventoryData, DeactivateProductInventoryResponses, DeactivateProductResponses, DeactivateSupplierData, DeactivateSupplierResponses, DeactivateTableData, DeactivateTableResponses, FreeTableData, FreeTableResponses, GetAllCategoriesData, GetAllCategoriesInventoryData, GetAllCategoriesInventoryResponses, GetAllCategoriesResponses, GetAllEmployeesData, GetAllEmployeesResponses, GetAllProductsData, GetAllProductsInventoryData, GetAllProductsInventoryResponses, GetAllProductsResponses, GetAllSuppliersData, GetAllSuppliersResponses, GetAllTablesData, GetAllTablesResponses, GetAllUsersData, GetAllUsersResponses, GetCashBoxByIdData, GetCashBoxByIdResponses, GetCashBoxesData, GetCashBoxesResponses, GetCategoryByIdData, GetCategoryByIdResponses, GetCategoryInventoryByIdData, GetCategoryInventoryByIdResponses, GetDeliveryOrdersData, GetDeliveryOrdersResponses, GetEmployeeByIdData, GetEmployeeByIdResponses, GetLatestSales1Data, GetLatestSales1Responses, GetLatestSalesData, GetLatestSalesResponses, GetMovementByIdData, GetMovementByIdResponses, GetMovements1Data, GetMovements1Responses, GetMovementsData, GetMovementsResponses, GetOrderByIdData, GetOrderByIdResponses, GetOrdersData, GetOrdersResponses, GetProductByIdData, GetProductByIdResponses, GetProductInventoryByIdData, GetProductInventoryByIdResponses, GetProductsByCategoryData, GetProductsByCategoryResponses, GetProductsInventoryByCategoryData, GetProductsInventoryByCategoryResponses, GetSaleByIdData, GetSaleByIdResponses, GetSalesData, GetSalesResponses, GetSummaryData, GetSummaryResponses, GetSupplierByIdData, GetSupplierByIdResponses, GetTableByIdData, GetTableByIdResponses, GetTopProductsData, GetTopProductsResponses, GetUserByIdData, GetUserByIdResponses, LoginData, LoginResponses, LogoutData, LogoutResponses, OccupyTableData, OccupyTableResponses, OpenCashBoxData, OpenCashBoxResponses, RefreshData, RefreshResponses, SearchCategoriesData, SearchCategoriesInventoryData, SearchCategoriesInventoryResponses, SearchCategoriesResponses, SearchEmployeesData, SearchEmployeesResponses, SearchProductsData, SearchProductsInventoryData, SearchProductsInventoryResponses, SearchProductsResponses, SearchSuppliersData, SearchSuppliersResponses, SearchTablesData, SearchTablesResponses, SearchUsersData, SearchUsersResponses, UpdateCategoryData, UpdateCategoryInventoryData, UpdateCategoryInventoryResponses, UpdateCategoryResponses, UpdateEmployeeData, UpdateEmployeeResponses, UpdateOrderStatusData, UpdateOrderStatusResponses, UpdateProductData, UpdateProductInventoryData, UpdateProductInventoryResponses, UpdateProductResponses, UpdateSupplierData, UpdateSupplierResponses, UpdateTableData, UpdateTableResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -88,6 +88,17 @@ export const getCategoryInventoryById = <ThrowOnError extends boolean = false>(o
 
 export const updateCategoryInventory = <ThrowOnError extends boolean = false>(options: Options<UpdateCategoryInventoryData, ThrowOnError>) => (options.client ?? client).put<UpdateCategoryInventoryResponses, unknown, ThrowOnError>({
     url: '/api/categories-inventory/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const getAllUsers = <ThrowOnError extends boolean = false>(options?: Options<GetAllUsersData, ThrowOnError>) => (options?.client ?? client).get<GetAllUsersResponses, unknown, ThrowOnError>({ url: '/api/users', ...options });
+
+export const createUser = <ThrowOnError extends boolean = false>(options: Options<CreateUserData, ThrowOnError>) => (options.client ?? client).post<CreateUserResponses, unknown, ThrowOnError>({
+    url: '/api/users',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -234,6 +245,10 @@ export const addMovement1 = <ThrowOnError extends boolean = false>(options: Opti
     }
 });
 
+export const refresh = <ThrowOnError extends boolean = false>(options?: Options<RefreshData, ThrowOnError>) => (options?.client ?? client).post<RefreshResponses, unknown, ThrowOnError>({ url: '/api/auth/refresh', ...options });
+
+export const logout = <ThrowOnError extends boolean = false>(options?: Options<LogoutData, ThrowOnError>) => (options?.client ?? client).post<LogoutResponses, unknown, ThrowOnError>({ url: '/api/auth/logout', ...options });
+
 export const login = <ThrowOnError extends boolean = false>(options: Options<LoginData, ThrowOnError>) => (options.client ?? client).post<LoginResponses, unknown, ThrowOnError>({
     url: '/api/auth/login',
     ...options,
@@ -279,8 +294,6 @@ export const activateCategoryInventory = <ThrowOnError extends boolean = false>(
 
 export const closeCashBox = <ThrowOnError extends boolean = false>(options: Options<CloseCashBoxData, ThrowOnError>) => (options.client ?? client).patch<CloseCashBoxResponses, unknown, ThrowOnError>({ url: '/api/cashboxes/{id}/close', ...options });
 
-export const getAllUsers = <ThrowOnError extends boolean = false>(options?: Options<GetAllUsersData, ThrowOnError>) => (options?.client ?? client).get<GetAllUsersResponses, unknown, ThrowOnError>({ url: '/api/users', ...options });
-
 export const getUserById = <ThrowOnError extends boolean = false>(options: Options<GetUserByIdData, ThrowOnError>) => (options.client ?? client).get<GetUserByIdResponses, unknown, ThrowOnError>({ url: '/api/users/{id}', ...options });
 
 export const searchUsers = <ThrowOnError extends boolean = false>(options?: Options<SearchUsersData, ThrowOnError>) => (options?.client ?? client).get<SearchUsersResponses, unknown, ThrowOnError>({ url: '/api/users/search', ...options });
@@ -290,6 +303,10 @@ export const searchTables = <ThrowOnError extends boolean = false>(options?: Opt
 export const searchSuppliers = <ThrowOnError extends boolean = false>(options?: Options<SearchSuppliersData, ThrowOnError>) => (options?.client ?? client).get<SearchSuppliersResponses, unknown, ThrowOnError>({ url: '/api/suppliers/search', ...options });
 
 export const getSaleById = <ThrowOnError extends boolean = false>(options: Options<GetSaleByIdData, ThrowOnError>) => (options.client ?? client).get<GetSaleByIdResponses, unknown, ThrowOnError>({ url: '/api/sales/{id}', ...options });
+
+export const getLatestSales = <ThrowOnError extends boolean = false>(options?: Options<GetLatestSalesData, ThrowOnError>) => (options?.client ?? client).get<GetLatestSalesResponses, unknown, ThrowOnError>({ url: '/api/sales/latest', ...options });
+
+export const getTopProducts = <ThrowOnError extends boolean = false>(options?: Options<GetTopProductsData, ThrowOnError>) => (options?.client ?? client).get<GetTopProductsResponses, unknown, ThrowOnError>({ url: '/api/products/top', ...options });
 
 export const searchProducts = <ThrowOnError extends boolean = false>(options?: Options<SearchProductsData, ThrowOnError>) => (options?.client ?? client).get<SearchProductsResponses, unknown, ThrowOnError>({ url: '/api/products/search', ...options });
 
@@ -301,13 +318,15 @@ export const getProductsInventoryByCategory = <ThrowOnError extends boolean = fa
 
 export const getOrderById = <ThrowOnError extends boolean = false>(options: Options<GetOrderByIdData, ThrowOnError>) => (options.client ?? client).get<GetOrderByIdResponses, unknown, ThrowOnError>({ url: '/api/orders/{id}', ...options });
 
+export const getDeliveryOrders = <ThrowOnError extends boolean = false>(options?: Options<GetDeliveryOrdersData, ThrowOnError>) => (options?.client ?? client).get<GetDeliveryOrdersResponses, unknown, ThrowOnError>({ url: '/api/orders/delivery', ...options });
+
 export const getMovementById = <ThrowOnError extends boolean = false>(options: Options<GetMovementByIdData, ThrowOnError>) => (options.client ?? client).get<GetMovementByIdResponses, unknown, ThrowOnError>({ url: '/api/inventory-movements/{id}', ...options });
 
 export const searchEmployees = <ThrowOnError extends boolean = false>(options?: Options<SearchEmployeesData, ThrowOnError>) => (options?.client ?? client).get<SearchEmployeesResponses, unknown, ThrowOnError>({ url: '/api/employees/search', ...options });
 
 export const getSummary = <ThrowOnError extends boolean = false>(options?: Options<GetSummaryData, ThrowOnError>) => (options?.client ?? client).get<GetSummaryResponses, unknown, ThrowOnError>({ url: '/api/dashboard/summary', ...options });
 
-export const getLatestSales = <ThrowOnError extends boolean = false>(options?: Options<GetLatestSalesData, ThrowOnError>) => (options?.client ?? client).get<GetLatestSalesResponses, unknown, ThrowOnError>({ url: '/api/dashboard/latest-sales', ...options });
+export const getLatestSales1 = <ThrowOnError extends boolean = false>(options?: Options<GetLatestSales1Data, ThrowOnError>) => (options?.client ?? client).get<GetLatestSales1Responses, unknown, ThrowOnError>({ url: '/api/dashboard/latest-sales', ...options });
 
 export const searchCategories = <ThrowOnError extends boolean = false>(options?: Options<SearchCategoriesData, ThrowOnError>) => (options?.client ?? client).get<SearchCategoriesResponses, unknown, ThrowOnError>({ url: '/api/categories/search', ...options });
 

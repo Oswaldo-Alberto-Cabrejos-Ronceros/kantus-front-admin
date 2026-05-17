@@ -116,6 +116,24 @@ export type CategoryInventoryResponse = {
     status: boolean;
 };
 
+export type CreateUserDto = {
+    username: string;
+    password: string;
+    roleId: number;
+    status?: boolean;
+    employeeId: number;
+};
+
+export type UserResponse = {
+    id?: number;
+    email?: string;
+    role?: 'ADMIN' | 'MOZO' | 'CAJERO' | 'COCINERO' | 'DELIVERY';
+    status?: boolean;
+    personId?: number;
+    personName?: string;
+    personLastname?: string;
+};
+
 export type SaleRequest = {
     orderId: number;
     metodo: 'EFECTIVO' | 'TARJETA' | 'YAPE' | 'MERCADO_PAGO';
@@ -252,24 +270,6 @@ export type AuthRequest = {
     password: string;
 };
 
-export type AuthResponse = {
-    token?: string;
-    email?: string;
-    role?: string;
-    name?: string;
-    lastname?: string;
-};
-
-export type UserResponse = {
-    id?: number;
-    email?: string;
-    role?: 'ADMIN' | 'MOZO' | 'CAJERO' | 'COCINERO' | 'DELIVERY';
-    status?: boolean;
-    personId?: number;
-    personName?: string;
-    personLastname?: string;
-};
-
 export type PageUserResponse = {
     totalElements?: number;
     totalPages?: number;
@@ -287,9 +287,9 @@ export type PageUserResponse = {
 export type PageableObject = {
     offset?: number;
     sort?: SortObject;
-    paged?: boolean;
     pageSize?: number;
     pageNumber?: number;
+    paged?: boolean;
     unpaged?: boolean;
 };
 
@@ -341,6 +341,23 @@ export type PageSaleResponse = {
     empty?: boolean;
 };
 
+export type SaleSummaryDto = {
+    id?: number;
+    cliente?: string;
+    fecha?: string;
+    total?: number;
+    estado?: string;
+    metodoPago?: string;
+    orderId?: number;
+};
+
+export type ProductTopDto = {
+    id?: number;
+    productName?: string;
+    quantity?: number;
+    totalCollected?: number;
+};
+
 export type PageProductResponse = {
     totalElements?: number;
     totalPages?: number;
@@ -381,6 +398,28 @@ export type PageOrderResponse = {
     numberOfElements?: number;
     pageable?: PageableObject;
     empty?: boolean;
+};
+
+export type OrderDeliveryDto = {
+    id?: number;
+    code?: string;
+    status?: string;
+    customerName?: string;
+    customerPhone?: string;
+    customerEmail?: string;
+    customerDni?: string;
+    address?: string;
+    totalPrice?: number;
+    time?: string;
+    paymentMethod?: string;
+    products?: Array<OrderDeliveryItemDto>;
+};
+
+export type OrderDeliveryItemDto = {
+    id?: number;
+    name?: string;
+    priceUnitary?: number;
+    quantity?: number;
 };
 
 export type PageMovementInventoryResponse = {
@@ -718,6 +757,38 @@ export type UpdateCategoryInventoryResponses = {
 };
 
 export type UpdateCategoryInventoryResponse = UpdateCategoryInventoryResponses[keyof UpdateCategoryInventoryResponses];
+
+export type GetAllUsersData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/users';
+};
+
+export type GetAllUsersResponses = {
+    /**
+     * OK
+     */
+    200: Array<UserResponse>;
+};
+
+export type GetAllUsersResponse = GetAllUsersResponses[keyof GetAllUsersResponses];
+
+export type CreateUserData = {
+    body: CreateUserDto;
+    path?: never;
+    query?: never;
+    url: '/api/users';
+};
+
+export type CreateUserResponses = {
+    /**
+     * Created
+     */
+    201: UserResponse;
+};
+
+export type CreateUserResponse = CreateUserResponses[keyof CreateUserResponses];
 
 export type GetAllTablesData = {
     body?: never;
@@ -1128,6 +1199,42 @@ export type AddMovement1Responses = {
 
 export type AddMovement1Response = AddMovement1Responses[keyof AddMovement1Responses];
 
+export type RefreshData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/auth/refresh';
+};
+
+export type RefreshResponses = {
+    /**
+     * OK
+     */
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type RefreshResponse = RefreshResponses[keyof RefreshResponses];
+
+export type LogoutData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/auth/logout';
+};
+
+export type LogoutResponses = {
+    /**
+     * OK
+     */
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type LogoutResponse = LogoutResponses[keyof LogoutResponses];
+
 export type LoginData = {
     body: AuthRequest;
     path?: never;
@@ -1139,7 +1246,9 @@ export type LoginResponses = {
     /**
      * OK
      */
-    200: AuthResponse;
+    200: {
+        [key: string]: unknown;
+    };
 };
 
 export type LoginResponse = LoginResponses[keyof LoginResponses];
@@ -1438,22 +1547,6 @@ export type CloseCashBoxResponses = {
 
 export type CloseCashBoxResponse = CloseCashBoxResponses[keyof CloseCashBoxResponses];
 
-export type GetAllUsersData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/users';
-};
-
-export type GetAllUsersResponses = {
-    /**
-     * OK
-     */
-    200: Array<UserResponse>;
-};
-
-export type GetAllUsersResponse = GetAllUsersResponses[keyof GetAllUsersResponses];
-
 export type GetUserByIdData = {
     body?: never;
     path: {
@@ -1553,6 +1646,42 @@ export type GetSaleByIdResponses = {
 
 export type GetSaleByIdResponse = GetSaleByIdResponses[keyof GetSaleByIdResponses];
 
+export type GetLatestSalesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        limit?: number;
+    };
+    url: '/api/sales/latest';
+};
+
+export type GetLatestSalesResponses = {
+    /**
+     * OK
+     */
+    200: Array<SaleSummaryDto>;
+};
+
+export type GetLatestSalesResponse = GetLatestSalesResponses[keyof GetLatestSalesResponses];
+
+export type GetTopProductsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        limit?: number;
+    };
+    url: '/api/products/top';
+};
+
+export type GetTopProductsResponses = {
+    /**
+     * OK
+     */
+    200: Array<ProductTopDto>;
+};
+
+export type GetTopProductsResponse = GetTopProductsResponses[keyof GetTopProductsResponses];
+
 export type SearchProductsData = {
     body?: never;
     path?: never;
@@ -1649,6 +1778,24 @@ export type GetOrderByIdResponses = {
 
 export type GetOrderByIdResponse = GetOrderByIdResponses[keyof GetOrderByIdResponses];
 
+export type GetDeliveryOrdersData = {
+    body?: never;
+    path?: never;
+    query?: {
+        status?: string;
+    };
+    url: '/api/orders/delivery';
+};
+
+export type GetDeliveryOrdersResponses = {
+    /**
+     * OK
+     */
+    200: Array<OrderDeliveryDto>;
+};
+
+export type GetDeliveryOrdersResponse = GetDeliveryOrdersResponses[keyof GetDeliveryOrdersResponses];
+
 export type GetMovementByIdData = {
     body?: never;
     path: {
@@ -1706,21 +1853,21 @@ export type GetSummaryResponses = {
 
 export type GetSummaryResponse = GetSummaryResponses[keyof GetSummaryResponses];
 
-export type GetLatestSalesData = {
+export type GetLatestSales1Data = {
     body?: never;
     path?: never;
     query?: never;
     url: '/api/dashboard/latest-sales';
 };
 
-export type GetLatestSalesResponses = {
+export type GetLatestSales1Responses = {
     /**
      * OK
      */
     200: Array<SaleResponse>;
 };
 
-export type GetLatestSalesResponse = GetLatestSalesResponses[keyof GetLatestSalesResponses];
+export type GetLatestSales1Response = GetLatestSales1Responses[keyof GetLatestSales1Responses];
 
 export type SearchCategoriesData = {
     body?: never;
