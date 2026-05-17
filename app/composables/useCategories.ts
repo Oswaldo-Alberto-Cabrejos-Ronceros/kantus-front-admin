@@ -8,7 +8,6 @@ import {
   activateCategory,
   deactivateCategory,
   getCategoryById,
-  searchCategories
 } from '~/api/sdk.gen'
 import type { CategoryResponse } from '~/api/types.gen'
 import { mapCategoryResponseToUI, mapCategoryRequestFromUI } from '~/adapters/category'

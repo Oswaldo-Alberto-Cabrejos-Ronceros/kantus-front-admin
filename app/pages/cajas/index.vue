@@ -34,5 +34,6 @@ if (user.value?.role === 'Cajero') {
   setPageLayout('default')
 }
 
-const { data: boxes } = await useFetch<CashBox[]>('/api/cash-boxes')
+const { useFindAllCashBoxes } = useCashBoxes()
+const { data: boxes } = useFindAllCashBoxes()
 </script>

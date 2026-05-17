@@ -59,6 +59,23 @@
             @submit="handleTakeOrder"
             @cancel="isTakeOrderOpen = false"
           />
+            </p>
+          </div>
+        </template>
+      </UModal>
+
+      <!-- Take Order Modal -->
+      <UModal v-model:open="isTakeOrderOpen" title="Tomar Pedido">
+        <template #body>
+          <TableFormTakeOrder
+            v-if="selectedTable"
+            :table-id="selectedTable.id"
+            :table-name="selectedTable.name"
+            :products="menuProducts || []"
+            :loading="isSubmitting"
+            @submit="handleTakeOrder"
+            @cancel="isTakeOrderOpen = false"
+          />
         </template>
       </UModal>
     </template>
@@ -74,8 +91,16 @@ setPageLayout('waiter')
 
 const toast = useToast()
 
-const { data: tables } = await useFetch<Table[]>('/api/tables')
-const { data: menuProducts } = await useFetch<Product[]>('/api/products')
+const { useFindAllTables } = useTables()
+const { useFindAllProducts } = useProducts()
+const { useUpdateOrderStatus, useCreateOrder } = useOrders()
+const { useCreateSale } = useSales()
+
+const { data: tables } = useFindAllTables()
+const { data: menuProducts } = useFindAllProducts()
+const updateStatusMutation = useUpdateOrderStatus()
+const createOrderMutation = useCreateOrder()
+const createSaleMutation = useCreateSale()
 
 const isModalOpen = ref(false)
 const isTakeOrderOpen = ref(false)
@@ -95,13 +120,9 @@ function openTakeOrder(table: Table) {
 async function handleSubmit(data: ProcessOrderRequest) {
   isSubmitting.value = true
   try {
-    await $fetch(`/api/orders/${data.orderId}/pay`, {
-      method: 'POST',
-      body: data
-    })
+    await createSaleMutation.mutateAsync({ sale: { metodo: data.paymentMethod as any }, orderId: data.orderId })
     isModalOpen.value = false
     toast.add({ title: '¡Pago registrado exitosamente!', color: 'success' })
-    // In a real app we'd refresh tables here
   } catch {
     toast.add({ title: 'Error al procesar pago', color: 'error' })
   } finally {
@@ -111,19 +132,24 @@ async function handleSubmit(data: ProcessOrderRequest) {
 
 async function handleTakeOrder(data: TakeOrderRequest) {
   isSubmitting.value = true
-  setTimeout(() => {
-    isSubmitting.value = false
+  try {
+    await createOrderMutation.mutateAsync({
+      tableId: selectedTable.value?.id,
+      type: 'salon',
+      products: data.items.map(item => ({ id: item.productId, quantity: item.quantity, name: '', priceUnitary: 0 }))
+    })
     isTakeOrderOpen.value = false
     toast.add({ title: '¡Pedido enviado a cocina!', color: 'success' })
-  }, 1000)
+  } catch {
+    toast.add({ title: 'Error al tomar el pedido', color: 'error' })
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 async function handleChangeStatus(orderId: number, status: OrderStatus) {
   try {
-    await $fetch(`/api/orders/${orderId}/status`, {
-      method: 'PUT',
-      body: { status }
-    })
+    await updateStatusMutation.mutateAsync({ id: orderId, status })
     toast.add({ title: `Estado cambiado a "${status}"`, color: 'success' })
   } catch {
     toast.add({ title: 'Error al cambiar estado', color: 'error' })

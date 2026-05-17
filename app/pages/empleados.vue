@@ -23,7 +23,7 @@
           class="mt-2 shrink-0"
           :data="employees || []"
           :columns="columns"
-          :loading="status === 'pending'"
+          :loading="isPending"
           :ui="{ base: 'table-fixed border-separate border-spacing-0', thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none', tbody: '[&>tr]:last:[&>td]:border-b-0', th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r', td: 'border-b border-default', separator: 'h-0' }"
         />
       </div>
@@ -52,7 +52,13 @@ import type { EmployeeRequest, AssignUserRequest } from '~/utils/validations'
 const UBadge = resolveComponent('UBadge')
 const UBtn = resolveComponent('UButton')
 const toast = useToast()
-const { data: employees, status } = await useFetch<Employee[]>('/api/employees')
+
+const { useFindAllEmployees, useCreateEmployee } = useEmployees()
+const { useCreateUser } = useUsers()
+
+const { data: employees, isPending } = useFindAllEmployees()
+const createEmployeeMutation = useCreateEmployee()
+const createUserMutation = useCreateUser()
 
 const columns = computed<TableColumn<Employee>[]>(() => [
   { accessorKey: 'id', header: 'ID' },
@@ -86,10 +92,31 @@ const isSubmitting = ref(false)
 
 async function handleCreate(data: EmployeeRequest) {
   isSubmitting.value = true
-  setTimeout(() => { isSubmitting.value = false; isModalOpen.value = false; toast.add({ title: '¡Empleado registrado!', color: 'success' }) }, 1000)
+  try {
+    await createEmployeeMutation.mutateAsync(data)
+    isModalOpen.value = false
+    toast.add({ title: '¡Empleado registrado!', color: 'success' })
+  } catch {
+    toast.add({ title: 'Error al crear empleado', color: 'error' })
+  } finally {
+    isSubmitting.value = false
+  }
 }
+
 async function handleAssignUser(data: AssignUserRequest) {
   isSubmitting.value = true
-  setTimeout(() => { isSubmitting.value = false; isAssignModalOpen.value = false; toast.add({ title: '¡Usuario asignado!', color: 'success' }) }, 1000)
+  try {
+    await createUserMutation.mutateAsync({
+      username: data.email.split('@')[0] || data.email,
+      password: data.password,
+      status: true
+    })
+    isAssignModalOpen.value = false
+    toast.add({ title: '¡Usuario asignado!', color: 'success' })
+  } catch {
+    toast.add({ title: 'Error al asignar usuario', color: 'error' })
+  } finally {
+    isSubmitting.value = false
+  }
 }
 </script>

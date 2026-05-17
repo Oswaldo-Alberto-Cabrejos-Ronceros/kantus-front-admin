@@ -79,7 +79,7 @@
           class="shrink-0"
           :data="latestSales || []"
           :columns="columns"
-          :loading="status === 'pending'"
+          :loading="isPending"
           :ui="{
             base: 'table-fixed border-separate border-spacing-0',
             thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
@@ -140,7 +140,8 @@ const paymentBreakdown = [
   { label: 'Yape/Plin', percentage: 15, amount: 'S/ 1,867', color: '#10b981' }
 ]
 
-const { data: latestSales, status } = await useFetch<Sale[]>('/api/latest-sales')
+const { useFindLatestSales } = useSales()
+const { data: latestSales, isPending } = useFindLatestSales()
 
 const columns = computed<TableColumn<Sale>[]>(() => [
   { accessorKey: 'codigo', header: 'Código' },

@@ -70,7 +70,7 @@
               class="mt-4 shrink-0"
               :data="products || []"
               :columns="stockColumns"
-              :loading="statusProducts === 'pending'"
+              :loading="isPendingProducts"
               :ui="{
                 base: 'table-fixed border-separate border-spacing-0',
                 thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
@@ -88,7 +88,7 @@
               class="mt-4 shrink-0"
               :data="movements || []"
               :columns="movementColumns"
-              :loading="statusMovements === 'pending'"
+              :loading="isPendingMovements"
               :ui="{
                 base: 'table-fixed border-separate border-spacing-0',
                 thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
@@ -148,10 +148,29 @@ import type { MovementInventoryRequest, ProductInventoryRequest, CategoryInvento
 const UBadge = resolveComponent('UBadge')
 const toast = useToast()
 
-const { data: products, status: statusProducts } = await useFetch<ProductInventory[]>('/api/products-inventory')
-const { data: movements, status: statusMovements } = await useFetch<MovementInventory[]>('/api/movements-inventory')
-const { data: categories } = await useFetch<CategoryInventory[]>('/api/categories-inventory')
-const { data: suppliers } = await useFetch<Supplier[]>('/api/suppliers')
+const {
+  useFindAllProductsInventory,
+  useFindAllMovementsInventory,
+  useFindAllCategoriesInventory,
+  useAddMovement,
+  useCreateProductInventory,
+  useCreateCategoryInventory
+} = useInventory()
+
+const {
+  useFindAllSuppliers,
+  useCreateSupplier
+} = useSuppliers()
+
+const { data: products, isPending: isPendingProducts } = useFindAllProductsInventory()
+const { data: movements, isPending: isPendingMovements } = useFindAllMovementsInventory()
+const { data: categories } = useFindAllCategoriesInventory()
+const { data: suppliers } = useFindAllSuppliers()
+
+const addMovementMutation = useAddMovement()
+const createProductInventoryMutation = useCreateProductInventory()
+const createCategoryInventoryMutation = useCreateCategoryInventory()
+const createSupplierMutation = useCreateSupplier()
 
 const tabItems = [
   { label: 'Stock Actual', slot: 'stock', icon: 'i-lucide-package' },
@@ -228,18 +247,65 @@ const isSubmitting = ref(false)
 
 async function handleCreateMovement(data: MovementInventoryRequest) {
   isSubmitting.value = true
-  setTimeout(() => { isSubmitting.value = false; isMovementModalOpen.value = false; toast.add({ title: '¡Movimiento registrado!', color: 'success' }) }, 1000)
+  try {
+    await addMovementMutation.mutateAsync({
+      productId: data.productId,
+      tipo: data.tipo as any,
+      cantidad: data.cantidad,
+      razon: data.razon
+    })
+    isMovementModalOpen.value = false
+    toast.add({ title: '¡Movimiento registrado!', color: 'success' })
+  } catch {
+    toast.add({ title: 'Error al registrar', color: 'error' })
+  } finally {
+    isSubmitting.value = false
+  }
 }
+
 async function handleCreateProduct(data: ProductInventoryRequest) {
   isSubmitting.value = true
-  setTimeout(() => { isSubmitting.value = false; isProductModalOpen.value = false; toast.add({ title: '¡Producto agregado!', color: 'success' }) }, 1000)
+  try {
+    await createProductInventoryMutation.mutateAsync(data)
+    isProductModalOpen.value = false
+    toast.add({ title: '¡Producto agregado!', color: 'success' })
+  } catch {
+    toast.add({ title: 'Error al crear', color: 'error' })
+  } finally {
+    isSubmitting.value = false
+  }
 }
+
 async function handleCreateCategory(data: CategoryInventoryRequest) {
   isSubmitting.value = true
-  setTimeout(() => { isSubmitting.value = false; isCategoryModalOpen.value = false; toast.add({ title: '¡Categoría creada!', color: 'success' }) }, 1000)
+  try {
+    await createCategoryInventoryMutation.mutateAsync(data)
+    isCategoryModalOpen.value = false
+    toast.add({ title: '¡Categoría creada!', color: 'success' })
+  } catch {
+    toast.add({ title: 'Error al crear', color: 'error' })
+  } finally {
+    isSubmitting.value = false
+  }
 }
+
 async function handleCreateSupplier(data: SupplierRequest) {
   isSubmitting.value = true
-  setTimeout(() => { isSubmitting.value = false; isSupplierModalOpen.value = false; toast.add({ title: '¡Proveedor agregado!', color: 'success' }) }, 1000)
+  try {
+    await createSupplierMutation.mutateAsync({
+      nombre: data.nombre,
+      ruc: data.ruc,
+      contacto: data.contacto,
+      telefono: data.telefono,
+      email: data.email,
+      direccion: data.direccion
+    })
+    isSupplierModalOpen.value = false
+    toast.add({ title: '¡Proveedor agregado!', color: 'success' })
+  } catch {
+    toast.add({ title: 'Error al crear', color: 'error' })
+  } finally {
+    isSubmitting.value = false
+  }
 }
 </script>

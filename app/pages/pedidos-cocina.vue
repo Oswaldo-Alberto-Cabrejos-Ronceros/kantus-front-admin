@@ -78,7 +78,9 @@ if (user.value?.role === 'Cocinero') {
   setPageLayout('default')
 }
 
-const { data: orders } = await useFetch<Order[]>('/api/orders')
+const { useFindAllOrders, useUpdateOrderStatus } = useOrders()
+const { data: orders } = useFindAllOrders()
+const updateStatusMutation = useUpdateOrderStatus()
 
 const pendingCount = computed(() => orders.value?.filter(o => o.status === 'Pendiente').length || 0)
 
@@ -126,19 +128,8 @@ async function handleOrderAction(orderId: number, nextStatus: string) {
   if (!nextStatus) return
 
   try {
-    const response = await $fetch(`/api/orders/${orderId}/status`, {
-      method: 'PUT',
-      body: { status: nextStatus as OrderStatus }
-    })
-
-    if (response && orders.value) {
-      const index = orders.value.findIndex(o => o.id === orderId)
-      if (index !== -1) {
-        orders.value[index]!.status = nextStatus as OrderStatus
-        orders.value = [...orders.value]
-        toast.add({ title: `Pedido actualizado a "${nextStatus}"`, color: 'success' })
-      }
-    }
+    await updateStatusMutation.mutateAsync({ id: orderId, status: nextStatus })
+    toast.add({ title: `Pedido actualizado a "${nextStatus}"`, color: 'success' })
   } catch (error) {
     toast.add({ title: 'Error al actualizar el pedido' + error, color: 'error' })
   }

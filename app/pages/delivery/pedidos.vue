@@ -38,9 +38,9 @@
           <DeliveryOrderCard
             v-for="order in deliveries"
             :key="order.id"
-            :order="order"
+            :order="order as any"
             class="stagger-item"
-            @click="openOrderDetails(order)"
+            @click="openOrderDetails(order as any)"
           />
         </div>
       </div>
@@ -68,15 +68,24 @@ import type { ProcessDeliveryOrderRequest } from '~/utils/validations'
 setPageLayout('delivery')
 
 const toast = useToast()
-const { data: deliveries } = await useFetch<OrderDelivery[]>('/api/orders-delivery')
+
+const { useFindAllOrders } = useOrders()
+const { data: allOrders } = useFindAllOrders()
+
+// Filtrar solo los pedidos de tipo delivery
+const deliveries = computed(() => {
+  return allOrders.value?.filter((o: any) => o.type === 'delivery') || []
+})
 
 const isModalOpen = ref(false)
 const selectedOrder = ref<OrderDelivery | null>(null)
 const isSubmitting = ref(false)
 
-const deliveredCount = computed(() => deliveries.value?.filter(o => o.status === 'Entregado').length || 0)
-const pendingCount = computed(() => deliveries.value?.filter(o => o.status === 'Pendiente').length || 0)
-const inTransitCount = computed(() => deliveries.value?.filter(o => o.status === 'Camino').length || 0)
+// Nota: El backend OpenAPI puede tener diferentes estados para 'status'. 
+// Ajustar si los valores reales difieren de 'Pendiente', 'Camino', 'Entregado'.
+const deliveredCount = computed(() => deliveries.value.filter((o: any) => o.status === 'Entregado').length)
+const pendingCount = computed(() => deliveries.value.filter((o: any) => o.status === 'Pendiente').length)
+const inTransitCount = computed(() => deliveries.value.filter((o: any) => o.status === 'Camino').length)
 
 function openOrderDetails(order: OrderDelivery) {
   selectedOrder.value = order

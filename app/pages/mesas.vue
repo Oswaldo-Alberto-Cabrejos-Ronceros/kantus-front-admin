@@ -28,7 +28,7 @@
           class="mt-2 shrink-0"
           :data="tables || []"
           :columns="columns"
-          :loading="status === 'pending'"
+          :loading="isPending"
           :ui="{ base: 'table-fixed border-separate border-spacing-0', thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none', tbody: '[&>tr]:last:[&>td]:border-b-0', th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r', td: 'border-b border-default', separator: 'h-0' }"
         />
       </div>
@@ -46,7 +46,13 @@ const UBadge = resolveComponent('UBadge')
 const UBtn = resolveComponent('UButton')
 const toast = useToast()
 
-const { data: tables, status, refresh } = await useFetch<Table[]>('/api/tables')
+const { useFindAllTables, useCreateTable, useUpdateTable, useActivateTable, useDeactivateTable } = useTables()
+
+const { data: tables, isPending } = useFindAllTables()
+const createMutation = useCreateTable()
+const updateMutation = useUpdateTable()
+const activateMutation = useActivateTable()
+const deactivateMutation = useDeactivateTable()
 
 const columns = computed<TableColumn<Table>[]>(() => [
   { accessorKey: 'id', header: 'ID' },
@@ -115,19 +121,12 @@ async function handleSubmit(data: TableRequest) {
   isSubmitting.value = true
   try {
     if (editingTable.value) {
-      await $fetch(`/api/tables/${editingTable.value.id}`, {
-        method: 'PUT',
-        body: data
-      })
+      await updateMutation.mutateAsync({ id: editingTable.value.id, data })
       toast.add({ title: 'Mesa actualizada correctamente', color: 'success' })
     } else {
-      await $fetch('/api/tables', {
-        method: 'POST',
-        body: data
-      })
+      await createMutation.mutateAsync(data)
       toast.add({ title: 'Mesa creada correctamente', color: 'success' })
     }
-    await refresh()
     closeModal()
   } catch (e) {
     toast.add({ title: 'Ocurrió un error', color: 'error' })
@@ -139,12 +138,12 @@ async function handleSubmit(data: TableRequest) {
 async function toggleStatus(table: Table) {
   isTogglingId.value = table.id
   try {
-    await $fetch(`/api/tables/${table.id}`, {
-      method: 'PUT',
-      body: { name: table.name, status: table.status === false ? true : false }
-    })
+    if (table.status !== false) {
+      await deactivateMutation.mutateAsync(table.id)
+    } else {
+      await activateMutation.mutateAsync(table.id)
+    }
     toast.add({ title: 'Estado cambiado', color: 'success' })
-    await refresh()
   } catch (e) {
     toast.add({ title: 'Ocurrió un error', color: 'error' })
   } finally {

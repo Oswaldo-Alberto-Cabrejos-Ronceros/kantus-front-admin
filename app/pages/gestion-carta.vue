@@ -145,8 +145,36 @@ import type { ProductRequest, DiscountRequest, CategoryRequest } from '~/utils/v
 
 const toast = useToast()
 
-const { data: categories } = await useFetch<Category[]>('/api/categories')
-const { data: products } = await useFetch<Product[]>('/api/products')
+const {
+  useFindAllCategories,
+  useCreateCategory,
+  useUpdateCategory,
+  useActivateCategory,
+  useDeactivateCategory
+} = useCategories()
+
+const {
+  useFindAllProducts,
+  useCreateProduct,
+  useUpdateProduct,
+  useActivateProduct,
+  useDeactivateProduct,
+  useRemoveProduct
+} = useProducts()
+
+const { data: categories } = useFindAllCategories()
+const { data: products } = useFindAllProducts()
+
+const createCategoryMutation = useCreateCategory()
+const updateCategoryMutation = useUpdateCategory()
+const activateCategoryMutation = useActivateCategory()
+const deactivateCategoryMutation = useDeactivateCategory()
+
+const createProductMutation = useCreateProduct()
+const updateProductMutation = useUpdateProduct()
+const activateProductMutation = useActivateProduct()
+const deactivateProductMutation = useDeactivateProduct()
+const removeProductMutation = useRemoveProduct()
 
 const activeCategories = computed(() => categories.value?.filter(c => c.status) || [])
 
@@ -173,20 +201,28 @@ const isSubmittingDiscount = ref(false)
 
 async function handleCreateCategory(data: CategoryRequest) {
   isSubmitting.value = true
-  setTimeout(() => {
-    isSubmitting.value = false
+  try {
+    await createCategoryMutation.mutateAsync(data)
     isCategoryModalOpen.value = false
     toast.add({ title: '¡Categoría creada!', color: 'success' })
-  }, 1000)
+  } catch {
+    toast.add({ title: 'Error al crear categoría', color: 'error' })
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 async function handleEditCategory(id: number, data: CategoryRequest) {
   isSubmitting.value = true
-  setTimeout(() => {
-    isSubmitting.value = false
+  try {
+    await updateCategoryMutation.mutateAsync({ id, data })
     isCategoryModalOpen.value = false
     toast.add({ title: '¡Categoría actualizada!', color: 'success' })
-  }, 1000)
+  } catch {
+    toast.add({ title: 'Error al actualizar categoría', color: 'error' })
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 function editCategory(category: Category) {
@@ -194,30 +230,58 @@ function editCategory(category: Category) {
   isCategoryModalOpen.value = true
 }
 
-function toggleCategoryStatus(category: Category) {
-  toast.add({ title: `Categoría ${category.status ? 'desactivada' : 'reactivada'}`, color: 'info' })
+async function toggleCategoryStatus(category: Category) {
+  try {
+    if (category.status) {
+      await deactivateCategoryMutation.mutateAsync(category.id)
+      toast.add({ title: 'Categoría desactivada', color: 'info' })
+    } else {
+      await activateCategoryMutation.mutateAsync(category.id)
+      toast.add({ title: 'Categoría reactivada', color: 'success' })
+    }
+  } catch {
+    toast.add({ title: 'Error al cambiar estado', color: 'error' })
+  }
 }
 
-function toggleProductStatus(product: Product) {
-  toast.add({ title: `Producto ${product.status ? 'desactivado' : 'reactivado'}`, color: 'info' })
+async function toggleProductStatus(product: Product) {
+  try {
+    if (product.status) {
+      await deactivateProductMutation.mutateAsync(product.id)
+      toast.add({ title: 'Producto desactivado', color: 'info' })
+    } else {
+      await activateProductMutation.mutateAsync(product.id)
+      toast.add({ title: 'Producto reactivado', color: 'success' })
+    }
+  } catch {
+    toast.add({ title: 'Error al cambiar estado', color: 'error' })
+  }
 }
 
 async function handleCreate(data: ProductRequest) {
   isSubmitting.value = true
-  setTimeout(() => {
-    isSubmitting.value = false
+  try {
+    await createProductMutation.mutateAsync(data)
     isModalOpen.value = false
     toast.add({ title: '¡Producto creado!', color: 'success' })
-  }, 1000)
+  } catch {
+    toast.add({ title: 'Error al crear producto', color: 'error' })
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 async function handleEdit(id: number, data: Partial<ProductRequest>) {
   isSubmitting.value = true
-  setTimeout(() => {
-    isSubmitting.value = false
+  try {
+    await updateProductMutation.mutateAsync({ id, data: data as any })
     isEditModalOpen.value = false
     toast.add({ title: '¡Producto actualizado!', color: 'success' })
-  }, 1000)
+  } catch {
+    toast.add({ title: 'Error al actualizar producto', color: 'error' })
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 function handleEditProduct(product: Product) {
@@ -225,8 +289,13 @@ function handleEditProduct(product: Product) {
   isEditModalOpen.value = true
 }
 
-function handleDeleteProduct(product: Product) {
-  toast.add({ title: 'Producto eliminado', description: product.name, color: 'warning' })
+async function handleDeleteProduct(product: Product) {
+  try {
+    await removeProductMutation.mutateAsync(product.id)
+    toast.add({ title: 'Producto eliminado', description: product.name, color: 'warning' })
+  } catch {
+    toast.add({ title: 'Error al eliminar producto', color: 'error' })
+  }
 }
 
 function openDiscountModal(product: Product) {

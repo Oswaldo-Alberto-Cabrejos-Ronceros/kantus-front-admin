@@ -75,6 +75,15 @@
       v-model:open="isCartOpen"
       :items="cartItems"
       :loading="isSubmitting"
+        </p>
+      </div>
+    </div>
+
+    <!-- Cart Drawer -->
+    <ClientCartDrawer
+      v-model:open="isCartOpen"
+      :items="cartItems"
+      :loading="isSubmitting"
       @update-quantity="updateQuantity"
       @confirm="confirmOrder"
     />
@@ -92,8 +101,13 @@ const toast = useToast()
 const tableId = route.params.tableId as string
 const tableName = computed(() => `Mesa ${tableId}`)
 
-const { data: categories } = await useFetch<Category[]>('/api/categories')
-const { data: products } = await useFetch<Product[]>('/api/products')
+const { useFindAllCategories } = useCategories()
+const { useFindAllProducts } = useProducts()
+const { useCreateOrder } = useOrders()
+
+const { data: categories } = useFindAllCategories()
+const { data: products } = useFindAllProducts()
+const createOrderMutation = useCreateOrder()
 
 const activeCategories = computed(() => categories.value?.filter(c => c.status) || [])
 const selectedCategoryId = ref<number | null>(null)
@@ -134,18 +148,26 @@ function updateQuantity(productId: number, quantity: number) {
   if (quantity <= 0) {
     cartItems.value = cartItems.value.filter(i => i.productId !== productId)
   } else {
-    const item = cartItems.value.find(i => i.productId === productId)
+    const item = cartItems.value.find(i => i.productId !== productId)
     if (item) item.quantity = quantity
   }
 }
 
-function confirmOrder() {
+async function confirmOrder() {
   isSubmitting.value = true
-  setTimeout(() => {
-    isSubmitting.value = false
+  try {
+    await createOrderMutation.mutateAsync({
+      tableId: parseInt(tableId),
+      type: 'salon',
+      products: cartItems.value.map(item => ({ id: item.productId, quantity: item.quantity, name: '', priceUnitary: 0 }))
+    })
     cartItems.value = []
     isCartOpen.value = false
     toast.add({ title: '¡Pedido enviado!', description: 'Tu pedido fue recibido en cocina.', color: 'success' })
-  }, 1500)
+  } catch {
+    toast.add({ title: 'Error al enviar pedido', color: 'error' })
+  } finally {
+    isSubmitting.value = false
+  }
 }
 </script>

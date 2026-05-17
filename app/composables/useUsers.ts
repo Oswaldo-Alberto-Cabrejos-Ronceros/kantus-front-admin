@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { computed, toValue } from 'vue'
 import {
@@ -37,8 +37,23 @@ export const useUsers = () => {
     })
   }
 
+  const useCreateUser = () => {
+    return useMutation({
+      mutationFn: async (data: any) => {
+        // MOCK: simulando la creación de usuario ya que el backend no tiene un método explícito para crear usuario desde el admin
+        await new Promise(resolve => setTimeout(resolve, 800))
+        return { id: Math.floor(Math.random() * 1000), ...data }
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['users'] })
+        queryClient.invalidateQueries({ queryKey: ['employees'] })
+      }
+    })
+  }
+
   return {
     useFindAllUsers,
-    useFindOneUser
+    useFindOneUser,
+    useCreateUser
   }
 }

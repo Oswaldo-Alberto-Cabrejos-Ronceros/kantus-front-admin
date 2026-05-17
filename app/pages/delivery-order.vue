@@ -91,7 +91,6 @@
                       size="xs"
                       color="neutral"
                       variant="soft"
-                      :ui="{ rounded: 'rounded-full' }"
                       @click="updateQuantity(item.productId, item.quantity - 1)"
                     />
                     <span class="text-xs font-semibold w-5 text-center">{{ item.quantity }}</span>
@@ -100,7 +99,6 @@
                       size="xs"
                       color="primary"
                       variant="soft"
-                      :ui="{ rounded: 'rounded-full' }"
                       @click="updateQuantity(item.productId, item.quantity + 1)"
                     />
                   </div>
@@ -186,17 +184,22 @@ definePageMeta({ layout: false })
 
 const toast = useToast()
 
-const { data: categories } = await useFetch<Category[]>('/api/categories')
-const { data: products } = await useFetch<Product[]>('/api/products')
+const { useFindAllCategories } = useCategories()
+const { useFindAllProducts } = useProducts()
+const { useCreateOrder } = useOrders()
 
-const activeCategories = computed(() => categories.value?.filter(c => c.status) || [])
+const { data: categories } = useFindAllCategories()
+const { data: products } = useFindAllProducts()
+const createOrderMutation = useCreateOrder()
+
+const activeCategories = computed(() => categories.value?.filter((c: Category) => c.status) || [])
 const selectedCategoryId = ref<number | null>(null)
 const isSubmitting = ref(false)
 
 const filteredProducts = computed(() => {
-  const active = products.value?.filter(p => p.status) || []
+  const active = products.value?.filter((p: Product) => p.status) || []
   if (!selectedCategoryId.value) return active
-  return active.filter(p => p.categoryId === selectedCategoryId.value)
+  return active.filter((p: Product) => p.categoryId === selectedCategoryId.value)
 })
 
 interface CartItem {
@@ -242,18 +245,25 @@ function updateQuantity(productId: number, quantity: number) {
   }
 }
 
-function submitOrder() {
+async function submitOrder() {
   isSubmitting.value = true
-  // Simulate Mercado Pago redirect
-  setTimeout(() => {
-    isSubmitting.value = false
+  try {
+    await createOrderMutation.mutateAsync({
+      tableId: undefined,
+      type: 'delivery',
+      products: cartItems.value.map(item => ({ id: item.productId, quantity: item.quantity, name: '', priceUnitary: 0 }))
+    })
     cartItems.value = []
     toast.add({
       title: '¡Pedido realizado!',
       description: 'Serás redirigido a Mercado Pago para completar el pago.',
       color: 'success'
     })
-  }, 2000)
+  } catch {
+    toast.add({ title: 'Error al procesar el pedido', color: 'error' })
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 function formatPrice(value: number) {
