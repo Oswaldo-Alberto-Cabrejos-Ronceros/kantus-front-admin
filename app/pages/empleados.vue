@@ -58,7 +58,20 @@ const columns = computed<TableColumn<Employee>[]>(() => [
   { accessorKey: 'id', header: 'ID' },
   { id: 'fullname', header: 'Empleado', cell: ({ row }) => `${row.original.name} ${row.original.lastname}` },
   { id: 'document', header: 'Documento', cell: ({ row }) => `${row.original.documentType}: ${row.original.documentNumber}` },
-  { accessorKey: 'position', header: 'Puesto' },
+  {
+    accessorKey: 'position',
+    header: 'Puesto',
+    cell: ({ row }) => {
+      const labels: Record<string, string> = {
+        Administrative: 'Administrativo',
+        Chef: 'Cocinero',
+        Waiter: 'Mozo',
+        Cashier: 'Cajero',
+        Delivery: 'Repartidor'
+      }
+      return labels[row.original.position] || row.original.position
+    }
+  },
   { id: 'systemUser', header: 'Usuario', cell: ({ row }) => {
     if (row.original.hasSystemUser) return h('div', { class: 'flex items-center gap-1' }, [h(UBadge, { color: 'info', variant: 'subtle', size: 'xs' }, () => row.original.userRole), h('span', { class: 'text-xs text-muted' }, row.original.email)])
     return h(UBtn, { size: 'xs', color: 'primary', variant: 'soft', onClick: () => { selectedEmployee.value = row.original; isAssignModalOpen.value = true } }, () => 'Asignar')
