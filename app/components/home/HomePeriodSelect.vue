@@ -30,7 +30,15 @@ const periods = computed<Period[]>(() => {
   ]
 })
 
-// Ensure the model value is always a valid period
+const periodOptions = computed(() => {
+  const labels: Record<Period, string> = {
+    daily: 'Diario',
+    weekly: 'Semanal',
+    monthly: 'Mensual'
+  }
+  return periods.value.map(p => ({ label: labels[p], value: p }))
+})
+
 watch(periods, () => {
   if (!periods.value.includes(model.value)) {
     model.value = periods.value[0]!
@@ -41,7 +49,7 @@ watch(periods, () => {
 <template>
   <USelect
     v-model="model"
-    :items="periods"
+    :items="periodOptions"
     variant="ghost"
     class="data-[state=open]:bg-elevated"
     :ui="{ value: 'capitalize', itemLabel: 'capitalize', trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }"
