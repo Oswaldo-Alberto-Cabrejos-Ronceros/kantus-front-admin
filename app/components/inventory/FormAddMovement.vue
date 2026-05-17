@@ -26,7 +26,7 @@
         v-model="state.productId"
         :items="products"
         value-key="id"
-        option-key="name"
+        label-key="name"
         placeholder="Seleccione un producto"
         class="w-full"
       />
