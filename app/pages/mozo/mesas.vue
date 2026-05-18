@@ -59,8 +59,6 @@
             @submit="handleTakeOrder"
             @cancel="isTakeOrderOpen = false"
           />
-            </p>
-          </div>
         </template>
       </UModal>
 

@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import { login as apiLogin } from '~/api/sdk.gen'
 import { useAuthStore } from '~/stores/auth'
 import type { AuthRequest, AuthResponse, UserRole } from '~/types'
 
@@ -42,10 +43,9 @@ export const useAuth = () => {
 
     return useMutation({
       mutationFn: async (credentials: AuthRequest) => {
-        return await $fetch<AuthResponse>('/api/auth/login', {
-          method: 'POST',
-          body: credentials
-        })
+        const res = await apiLogin({ body: { email: credentials.email, password: credentials.password } as any })
+        if (res.error) throw res.error
+        return res.data as unknown as AuthResponse
       },
       onSuccess: (response) => {
         queryClient.invalidateQueries({ queryKey: ['user'] })

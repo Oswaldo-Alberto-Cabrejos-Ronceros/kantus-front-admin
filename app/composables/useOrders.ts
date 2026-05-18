@@ -5,11 +5,12 @@ import {
   getOrders,
   getOrderById,
   createOrder,
-  updateOrderStatus
+  updateOrderStatus,
+  getDeliveryOrders
 } from '~/api/sdk.gen'
 import type { OrderResponse } from '~/api/types.gen'
 import { mapOrderResponseToUI, mapOrderRequestFromUI } from '~/adapters/order'
-import type { Order } from '~/types'
+import type { Order, OrderDelivery } from '~/types'
 
 export const useOrders = () => {
   const queryClient = useQueryClient()
@@ -39,6 +40,18 @@ export const useOrders = () => {
     })
   }
 
+  const useGetDeliveryOrders = () => {
+    return useQuery({
+      queryKey: ['orders', 'delivery'],
+      queryFn: async () => {
+        const res = await getDeliveryOrders()
+        if (res.error) throw res.error
+        const data = res.data || []
+        return (Array.isArray(data) ? data : (data as any)?.content || []) as OrderDelivery[]
+      }
+    })
+  }
+
   const useCreateOrder = () => {
     return useMutation({
       mutationFn: async (order: Partial<Order>) => {
@@ -63,6 +76,7 @@ export const useOrders = () => {
       onSuccess: (_, variables) => {
         queryClient.invalidateQueries({ queryKey: ['orders'] })
         queryClient.invalidateQueries({ queryKey: ['orders', variables.id] })
+        queryClient.invalidateQueries({ queryKey: ['orders', 'delivery'] })
       }
     })
   }
@@ -70,6 +84,7 @@ export const useOrders = () => {
   return {
     useFindAllOrders,
     useFindOneOrder,
+    useGetDeliveryOrders,
     useCreateOrder,
     useUpdateOrderStatus
   }

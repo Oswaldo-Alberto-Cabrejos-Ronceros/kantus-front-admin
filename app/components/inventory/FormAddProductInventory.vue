@@ -9,6 +9,10 @@
       <UInput v-model="state.name" placeholder="Ej. Pollo entero" class="w-full" />
     </UFormField>
 
+    <UFormField label="Descripción" name="description">
+      <UInput v-model="state.description" placeholder="Descripción opcional del producto" class="w-full" />
+    </UFormField>
+
     <div class="grid grid-cols-2 gap-4">
       <UFormField label="Categoría" name="categoryId">
         <USelectMenu
@@ -20,50 +24,11 @@
           class="w-full"
         />
       </UFormField>
-      <UFormField label="Proveedor" name="supplierId">
-        <USelectMenu
-          v-model="state.supplierId"
-          :items="suppliers"
-          value-key="id"
-          label-key="nombre"
-          placeholder="Seleccionar"
-          class="w-full"
-        />
+      <!-- Unidad (unitary) es el único campo requerido además de name y categoryId -->
+      <UFormField label="Unidad de medida" name="unitary">
+        <USelect v-model="state.unitary" :items="unitOptions" class="w-full" />
       </UFormField>
     </div>
-
-    <div class="grid grid-cols-3 gap-4">
-      <UFormField label="Cantidad" name="cantidad">
-        <UInput
-          v-model.number="state.cantidad"
-          type="number"
-          placeholder="0"
-          class="w-full"
-        />
-      </UFormField>
-      <UFormField label="Stock Mínimo" name="stockMinimo">
-        <UInput
-          v-model.number="state.stockMinimo"
-          type="number"
-          placeholder="0"
-          class="w-full"
-        />
-      </UFormField>
-      <UFormField label="Unidad" name="unidad">
-        <USelect v-model="state.unidad" :options="units" class="w-full" />
-      </UFormField>
-    </div>
-
-    <UFormField label="Fecha de Vencimiento" name="fechaVencimiento">
-      <UInput v-model="state.fechaVencimiento" type="date" class="w-full" />
-    </UFormField>
-
-    <UFormField label="Estado" name="estado">
-      <div class="flex items-center gap-3">
-        <USwitch v-model="state.estado" />
-        <span class="text-sm">{{ state.estado ? 'Activo' : 'Inactivo' }}</span>
-      </div>
-    </UFormField>
 
     <div class="flex justify-end gap-2 mt-4">
       <UButton color="neutral" variant="ghost" @click="$emit('cancel')">
@@ -79,13 +44,12 @@
 <script lang="ts" setup>
 import { reactive } from 'vue'
 import type { FormSubmitEvent } from '@nuxt/ui'
-import type { CategoryInventory, Supplier } from '~/types'
+import type { CategoryInventory } from '~/types'
 import { productInventorySchema, type ProductInventoryRequest } from '~/utils/validations'
 
 defineProps<{
   loading?: boolean
   categories: CategoryInventory[]
-  suppliers: Supplier[]
 }>()
 
 const emit = defineEmits<{
@@ -93,17 +57,14 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
-const units = ['Unidad', 'Kilogramo', 'Litro', 'Gramo', 'Mililitro']
+// Backend usa unitary como string libre (ej: "Unidad", "Kilogramo", etc.)
+const unitOptions = ['Unidad', 'Kilogramo', 'Litro', 'Gramo', 'Mililitro']
 
 const state = reactive<Partial<ProductInventoryRequest>>({
   name: '',
+  description: undefined,
   categoryId: undefined,
-  cantidad: undefined,
-  stockMinimo: undefined,
-  unidad: 'Unidad',
-  fechaVencimiento: '',
-  estado: true,
-  supplierId: undefined
+  unitary: 'Unidad'
 })
 
 async function onSubmit(event: FormSubmitEvent<ProductInventoryRequest>) {

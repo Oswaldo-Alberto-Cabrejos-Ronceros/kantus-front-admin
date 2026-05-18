@@ -6,6 +6,7 @@ export type ClientOptions = {
 
 export type RestaurantTableRequest = {
     name: string;
+    capacity: number;
 };
 
 export type RestaurantTableResponse = {
@@ -13,6 +14,7 @@ export type RestaurantTableResponse = {
     name?: string;
     occupied?: boolean;
     qrUrl?: string;
+    capacity?: number;
     status?: boolean;
 };
 
@@ -49,6 +51,7 @@ export type ProductResponse = {
     categoryId?: number;
     categoryName?: string;
     status?: boolean;
+    imageUrl?: string;
 };
 
 export type ProductInventoryRequest = {
@@ -173,6 +176,7 @@ export type OrderItemResponse = {
     priceUnitary?: number;
     quantity?: number;
     subtotal?: number;
+    productImageUrl?: string;
 };
 
 export type OrderResponse = {
@@ -271,8 +275,8 @@ export type AuthRequest = {
 };
 
 export type PageUserResponse = {
-    totalElements?: number;
     totalPages?: number;
+    totalElements?: number;
     size?: number;
     content?: Array<UserResponse>;
     number?: number;
@@ -287,9 +291,9 @@ export type PageUserResponse = {
 export type PageableObject = {
     offset?: number;
     sort?: SortObject;
+    paged?: boolean;
     pageSize?: number;
     pageNumber?: number;
-    paged?: boolean;
     unpaged?: boolean;
 };
 
@@ -300,8 +304,8 @@ export type SortObject = {
 };
 
 export type PageRestaurantTableResponse = {
-    totalElements?: number;
     totalPages?: number;
+    totalElements?: number;
     size?: number;
     content?: Array<RestaurantTableResponse>;
     number?: number;
@@ -314,8 +318,8 @@ export type PageRestaurantTableResponse = {
 };
 
 export type PageSupplierResponse = {
-    totalElements?: number;
     totalPages?: number;
+    totalElements?: number;
     size?: number;
     content?: Array<SupplierResponse>;
     number?: number;
@@ -328,8 +332,8 @@ export type PageSupplierResponse = {
 };
 
 export type PageSaleResponse = {
-    totalElements?: number;
     totalPages?: number;
+    totalElements?: number;
     size?: number;
     content?: Array<SaleResponse>;
     number?: number;
@@ -359,8 +363,8 @@ export type ProductTopDto = {
 };
 
 export type PageProductResponse = {
-    totalElements?: number;
     totalPages?: number;
+    totalElements?: number;
     size?: number;
     content?: Array<ProductResponse>;
     number?: number;
@@ -373,8 +377,8 @@ export type PageProductResponse = {
 };
 
 export type PageProductInventoryResponse = {
-    totalElements?: number;
     totalPages?: number;
+    totalElements?: number;
     size?: number;
     content?: Array<ProductInventoryResponse>;
     number?: number;
@@ -387,8 +391,8 @@ export type PageProductInventoryResponse = {
 };
 
 export type PageOrderResponse = {
-    totalElements?: number;
     totalPages?: number;
+    totalElements?: number;
     size?: number;
     content?: Array<OrderResponse>;
     number?: number;
@@ -423,8 +427,8 @@ export type OrderDeliveryItemDto = {
 };
 
 export type PageMovementInventoryResponse = {
-    totalElements?: number;
     totalPages?: number;
+    totalElements?: number;
     size?: number;
     content?: Array<MovementInventoryResponse>;
     number?: number;
@@ -437,8 +441,8 @@ export type PageMovementInventoryResponse = {
 };
 
 export type PageEmployeeResponse = {
-    totalElements?: number;
     totalPages?: number;
+    totalElements?: number;
     size?: number;
     content?: Array<EmployeeResponse>;
     number?: number;
@@ -451,8 +455,8 @@ export type PageEmployeeResponse = {
 };
 
 export type PageCategoryResponse = {
-    totalElements?: number;
     totalPages?: number;
+    totalElements?: number;
     size?: number;
     content?: Array<CategoryResponse>;
     number?: number;
@@ -465,8 +469,8 @@ export type PageCategoryResponse = {
 };
 
 export type PageCategoryInventoryResponse = {
-    totalElements?: number;
     totalPages?: number;
+    totalElements?: number;
     size?: number;
     content?: Array<CategoryInventoryResponse>;
     number?: number;
@@ -479,8 +483,8 @@ export type PageCategoryInventoryResponse = {
 };
 
 export type PageCashBoxResponse = {
-    totalElements?: number;
     totalPages?: number;
+    totalElements?: number;
     size?: number;
     content?: Array<CashBoxResponse>;
     number?: number;
@@ -493,8 +497,8 @@ export type PageCashBoxResponse = {
 };
 
 export type PageMovementCashboxResponse = {
-    totalElements?: number;
     totalPages?: number;
+    totalElements?: number;
     size?: number;
     content?: Array<MovementCashboxResponse>;
     number?: number;

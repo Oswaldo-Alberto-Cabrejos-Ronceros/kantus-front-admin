@@ -69,23 +69,16 @@ setPageLayout('delivery')
 
 const toast = useToast()
 
-const { useFindAllOrders } = useOrders()
-const { data: allOrders } = useFindAllOrders()
-
-// Filtrar solo los pedidos de tipo delivery
-const deliveries = computed(() => {
-  return allOrders.value?.filter((o: any) => o.type === 'delivery') || []
-})
+const { useGetDeliveryOrders } = useOrders()
+const { data: deliveries } = useGetDeliveryOrders()
 
 const isModalOpen = ref(false)
 const selectedOrder = ref<OrderDelivery | null>(null)
 const isSubmitting = ref(false)
 
-// Nota: El backend OpenAPI puede tener diferentes estados para 'status'. 
-// Ajustar si los valores reales difieren de 'Pendiente', 'Camino', 'Entregado'.
-const deliveredCount = computed(() => deliveries.value.filter((o: any) => o.status === 'Entregado').length)
-const pendingCount = computed(() => deliveries.value.filter((o: any) => o.status === 'Pendiente').length)
-const inTransitCount = computed(() => deliveries.value.filter((o: any) => o.status === 'Camino').length)
+const deliveredCount = computed(() => deliveries.value?.filter((o: any) => o.status === 'Entregado').length ?? 0)
+const pendingCount = computed(() => deliveries.value?.filter((o: any) => o.status === 'Pendiente').length ?? 0)
+const inTransitCount = computed(() => deliveries.value?.filter((o: any) => o.status === 'Camino').length ?? 0)
 
 function openOrderDetails(order: OrderDelivery) {
   selectedOrder.value = order

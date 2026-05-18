@@ -1,16 +1,18 @@
 import type { SaleResponse, SaleRequest } from '~/api/types.gen'
-import type { Sale } from '~/types'
+import type { Sale, SaleMethod } from '~/types'
 
 export const mapSaleResponseToUI = (data: SaleResponse): Sale => ({
   id: data.id || 0,
   fecha: data.fecha || new Date(),
   codigo: data.codigo || '',
-  metodo: (data.metodo?.toLowerCase() as any) || 'efectivo',
+  // Backend ya devuelve en MAYÚSCULAS, los usamos directamente
+  metodo: (data.metodo || 'EFECTIVO') as SaleMethod,
   monto: data.monto || 0,
-  tipo: undefined // Assuming order type isn't directly on sale response
+  orderId: data.orderId
 })
 
 export const mapSaleRequestFromUI = (data: Partial<Sale>, orderId: number): SaleRequest => ({
   orderId: orderId,
-  metodo: (data.metodo?.toUpperCase() as any) || 'EFECTIVO'
+  // Usar directamente en MAYÚSCULAS (SaleMethod ya es uppercase)
+  metodo: (data.metodo || 'EFECTIVO') as 'EFECTIVO' | 'TARJETA' | 'YAPE' | 'MERCADO_PAGO'
 })

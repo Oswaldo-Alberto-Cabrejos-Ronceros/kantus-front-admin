@@ -32,6 +32,10 @@ useSeoMeta({
   ogDescription: description,
   twitterCard: 'summary_large_image'
 })
+
+const authStore = useAuthStore()
+authStore.initAuth()
+
 </script>
 
 <template>

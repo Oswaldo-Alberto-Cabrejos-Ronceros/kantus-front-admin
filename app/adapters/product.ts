@@ -5,7 +5,7 @@ export const mapProductResponseToUI = (data: ProductResponse): Product => {
   return {
     id: data.id || 0,
     categoryId: data.categoryId || 0,
-    imageUrl: '', // Default as it's not present in the OpenAPI generated types
+    imageUrl: '',
     name: data.name || '',
     description: data.description || '',
     price: data.price || 0,

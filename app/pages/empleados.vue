@@ -107,7 +107,7 @@ async function handleAssignUser(data: AssignUserRequest) {
   isSubmitting.value = true
   try {
     await createUserMutation.mutateAsync({
-      username: data.email.split('@')[0] || data.email,
+      username: data.username.split('@')[0] || data.username,
       password: data.password,
       status: true
     })

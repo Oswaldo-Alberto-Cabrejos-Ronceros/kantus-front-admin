@@ -35,7 +35,7 @@ export const useInventory = () => {
   // --- Category Inventory ---
   const useFindAllCategoriesInventory = () => useQuery({
     queryKey: ['categories-inventory'],
-    queryFn: async () => {
+    queryFn: async (): Promise<CategoryInventory[]> => {
       const res = await getAllCategoriesInventory()
       const data = res.data || []
       return Array.isArray(data) 
@@ -104,7 +104,7 @@ export const useInventory = () => {
   // --- Product Inventory ---
   const useFindAllProductsInventory = () => useQuery({
     queryKey: ['products-inventory'],
-    queryFn: async () => {
+    queryFn: async (): Promise<ProductInventory[]> => {
       const res = await getAllProductsInventory()
       const data = res.data || []
       return Array.isArray(data) 
@@ -173,7 +173,7 @@ export const useInventory = () => {
   // --- Movements Inventory ---
   const useFindAllMovementsInventory = () => useQuery({
     queryKey: ['movements-inventory'],
-    queryFn: async () => {
+    queryFn: async (): Promise<MovementInventory[]> => {
       const res = await getMovements()
       const data = res.data || []
       return Array.isArray(data) 

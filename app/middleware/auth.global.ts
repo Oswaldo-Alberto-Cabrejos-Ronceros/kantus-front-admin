@@ -1,36 +1,12 @@
-import type { UserRole } from '~/types'
-
-// Route access configuration per role
-const ROLE_ROUTES: Record<UserRole, string[]> = {
-  Admin: [
-    '/',
-    '/gestion-carta',
-    '/pedidos-cocina',
-    '/cajas',
-    '/inventario',
-    '/ingresos',
-    '/empleados'
-  ],
-  Mozo: [
-    '/mozo/mesas',
-    '/pedidos-cocina'
-  ],
-  Cocinero: [
-    '/pedidos-cocina'
-  ],
-  Cajero: [
-    '/cajas'
-  ],
-  Delivery: [
-    '/delivery/pedidos'
-  ],
-  Cliente: [
-    '/mesa',
-    '/delivery-order'
-  ]
+const ROLE_ROUTES: Record<string, string[]> = {
+  ADMIN: ['/', '/gestion-carta', '/pedidos-cocina', '/cajas', '/inventario', '/ingresos', '/empleados','/mesas'],
+  MOZO: ['/mozo/mesas', '/pedidos-cocina'],
+  COCINERO: ['/pedidos-cocina'],
+  CAJERO: ['/cajas'],
+  DELIVERY: ['/delivery/pedidos'],
+  CLIENTE: ['/mesa', '/delivery-order']
 }
 
-// Routes that don't require authentication
 const PUBLIC_ROUTES = [
   '/login',
   '/cambio-password',
@@ -42,23 +18,30 @@ const PUBLIC_ROUTES = [
 ]
 
 function isPublicRoute(path: string): boolean {
-  return PUBLIC_ROUTES.some(route => decodeURI(path).startsWith(route))
+  const decodedPath = decodeURI(path)
+  return PUBLIC_ROUTES.some(route => {
+    if (decodedPath === route) return true
+    if (decodedPath.startsWith(route + '/')) return true
+    return false
+  })
 }
 
-function getDefaultRoute(role: UserRole): string {
-  switch (role) {
-    case 'Admin': return '/'
-    case 'Mozo': return '/mozo/mesas'
-    case 'Cajero': return '/cajas'
-    case 'Cocinero': return '/pedidos-cocina'
-    case 'Delivery': return '/delivery/pedidos'
-    case 'Cliente': return '/delivery-order'
+// 2. CORREGIDO: Switch evaluado en mayúsculas
+function getDefaultRoute(role: string): string {
+  const normalizedRole = role.toUpperCase()
+  switch (normalizedRole) {
+    case 'ADMIN': return '/'
+    case 'MOZO': return '/mozo/mesas'
+    case 'CAJERO': return '/cajas'
+    case 'COCINERO': return '/pedidos-cocina'
+    case 'DELIVERY': return '/delivery/pedidos'
+    case 'CLIENTE': return '/delivery-order'
     default: return '/'
   }
 }
 
-function hasRouteAccess(role: UserRole, path: string): boolean {
-  const allowedRoutes = ROLE_ROUTES[role] || []
+function hasRouteAccess(role: string, path: string): boolean {
+  const allowedRoutes = ROLE_ROUTES[role.toUpperCase()] || []
   const decodedPath = decodeURI(path)
 
   return allowedRoutes.some((route) => {
@@ -68,32 +51,46 @@ function hasRouteAccess(role: UserRole, path: string): boolean {
   })
 }
 
-export default defineNuxtRouteMiddleware((to) => {
+export default defineNuxtRouteMiddleware(async (to, from) => {
   const authStore = useAuthStore()
+  const path = decodeURI(to.path)
+  const fromPath = decodeURI(from.path)
 
-  if (!authStore.isAuthenticated) {
-    authStore.initAuth()
+  let isLogged = authStore.isAuthenticated
+
+  if (!isLogged) {
+    const success = await authStore.initAuth()
+    isLogged = success || authStore.isAuthenticated
   }
 
-  const path = decodeURI(to.path)
-
-  // Allow public routes without authentication
   if (isPublicRoute(path)) {
-    // If authenticated and trying to access login, redirect to home
-    if (authStore.isAuthenticated && path === '/login') {
-      return navigateTo(getDefaultRoute(authStore.user!.role))
+    if (isLogged && path === '/login') {
+      const userRole = authStore.user?.role
+      if (userRole) {
+        const homeRoute = getDefaultRoute(userRole)
+        if (fromPath === homeRoute) return
+        return navigateTo(homeRoute)
+      }
     }
     return
   }
 
-  // If not authenticated, redirect to login
-  if (!authStore.isAuthenticated) {
+  if (!isLogged) {
+    if (path === '/login') return
     return navigateTo('/login')
   }
 
-  // Check role-based access
-  const userRole = authStore.user!.role
+  const userRole = authStore.user?.role
+  
+  if (!userRole) {
+    return navigateTo('/login')
+  }
   if (!hasRouteAccess(userRole, path)) {
-    return navigateTo(getDefaultRoute(userRole))
+    const targetRoute = getDefaultRoute(userRole)
+    
+    if (path === targetRoute || fromPath === targetRoute) {
+      return
+    }
+    return navigateTo(targetRoute)
   }
 })

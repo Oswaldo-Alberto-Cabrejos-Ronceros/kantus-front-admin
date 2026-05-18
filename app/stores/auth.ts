@@ -17,11 +17,13 @@ export const useAuthStore = defineStore('auth', () => {
     sessionStorage.removeItem('auth_user')
   }
 
-  const initAuth = () => {
+  const initAuth = (): boolean => {
     const storedUser = sessionStorage.getItem('auth_user')
     if (storedUser) {
       user.value = JSON.parse(storedUser)
+      return true
     }
+    return false  
   }
 
   return {

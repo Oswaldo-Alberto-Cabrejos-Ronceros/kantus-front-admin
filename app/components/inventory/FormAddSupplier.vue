@@ -29,12 +29,7 @@
         <UInput v-model="state.telefono" placeholder="01-XXXXXXX" class="w-full" />
       </UFormField>
     </div>
-    <UFormField label="Estado" name="estado">
-      <div class="flex items-center gap-3">
-        <USwitch v-model="state.estado" />
-        <span class="text-sm">{{ state.estado ? 'Activo' : 'Inactivo' }}</span>
-      </div>
-    </UFormField>
+    <!-- estado no es parte de SupplierRequest, el backend lo gestiona internamente -->
     <div class="flex justify-end gap-2 mt-4">
       <UButton color="neutral" variant="ghost" @click="$emit('cancel')">
         Cancelar
@@ -54,8 +49,9 @@ import { supplierSchema, type SupplierRequest } from '~/utils/validations'
 defineProps<{ loading?: boolean }>()
 const emit = defineEmits<{ submit: [data: SupplierRequest], cancel: [] }>()
 
+// SupplierRequest: { nombre, ruc, contacto, email, telefono } — sin estado
 const state = reactive<Partial<SupplierRequest>>({
-  nombre: '', ruc: '', contacto: '', email: '', telefono: '', estado: true
+  nombre: '', ruc: '', contacto: '', email: '', telefono: ''
 })
 
 async function onSubmit(event: FormSubmitEvent<SupplierRequest>) { emit('submit', event.data) }

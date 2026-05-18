@@ -9,9 +9,14 @@
       <UInput v-model="state.name" placeholder="Ej. Mesa 1" icon="i-lucide-armchair" class="w-full" />
     </UFormField>
 
-    <UFormField label="Estado" name="status">
-      <USwitch v-model="state.status" />
-      <span class="ml-2 text-sm text-muted">{{ state.status ? 'Activa' : 'Inactiva' }}</span>
+    <UFormField label="Capacidad (personas)" name="capacity">
+      <UInput
+        v-model.number="state.capacity"
+        type="number"
+        placeholder="4"
+        icon="i-lucide-users"
+        class="w-full"
+      />
     </UFormField>
 
     <div class="flex justify-end gap-3 mt-4">
@@ -43,16 +48,16 @@ const emit = defineEmits<{
 
 const state = reactive<TableRequest>({
   name: '',
-  status: true
+  capacity: 4
 })
 
 watch(() => props.initialData, (newData) => {
   if (newData) {
     state.name = newData.name
-    state.status = newData.status !== undefined ? newData.status : true
+    state.capacity = newData.capacity || 4
   } else {
     state.name = ''
-    state.status = true
+    state.capacity = 4
   }
 }, { immediate: true })
 

@@ -298,7 +298,7 @@ async function handleCreateSupplier(data: SupplierRequest) {
       contacto: data.contacto,
       telefono: data.telefono,
       email: data.email,
-      direccion: data.direccion
+      estado: data.estado
     })
     isSupplierModalOpen.value = false
     toast.add({ title: '¡Proveedor agregado!', color: 'success' })

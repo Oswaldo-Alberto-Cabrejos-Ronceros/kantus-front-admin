@@ -19,7 +19,7 @@ export const useCategories = () => {
   const useFindAllCategories = () => {
     return useQuery({
       queryKey: ['categories'],
-      queryFn: async () => {
+      queryFn: async (): Promise<Category[]> => {
         const res = await getAllCategories()
         const data = res.data || []
         return Array.isArray(data) 

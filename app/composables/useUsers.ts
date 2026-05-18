@@ -4,7 +4,7 @@ import { computed, toValue } from 'vue'
 import {
   getAllUsers,
   getUserById,
-  searchUsers
+  createUser
 } from '~/api/sdk.gen'
 import type { UserResponse } from '~/api/types.gen'
 import { mapUserResponseToUI } from '~/adapters/user'
@@ -39,10 +39,10 @@ export const useUsers = () => {
 
   const useCreateUser = () => {
     return useMutation({
-      mutationFn: async (data: any) => {
-        // MOCK: simulando la creación de usuario ya que el backend no tiene un método explícito para crear usuario desde el admin
-        await new Promise(resolve => setTimeout(resolve, 800))
-        return { id: Math.floor(Math.random() * 1000), ...data }
+      mutationFn: async (data: { username: string; password: string; roleId?: number; status?: boolean }) => {
+        const res = await createUser({ body: data as any })
+        if (res.error) throw res.error
+        return res.data ? mapUserResponseToUI(res.data as UserResponse) : null
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['users'] })

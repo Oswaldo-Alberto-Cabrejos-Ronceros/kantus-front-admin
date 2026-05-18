@@ -8,11 +8,12 @@ import {
   activateProduct,
   deactivateProduct,
   getProductsByCategory,
-  getProductById
+  getProductById,
+  getTopProducts
 } from '~/api/sdk.gen'
 import type { ProductResponse } from '~/api/types.gen'
 import { mapProductResponseToUI, mapProductRequestFromUI } from '~/adapters/product'
-import type { Product } from '~/types'
+import type { Product, ProductTop } from '~/types'
 
 export const useProducts = () => {
   const queryClient = useQueryClient()
@@ -20,7 +21,7 @@ export const useProducts = () => {
   const useFindAllProducts = () => {
     return useQuery({
       queryKey: ['products'],
-      queryFn: async () => {
+      queryFn: async (): Promise<Product[]> => {
         const res = await getAllProducts()
         const data = res.data || []
         return Array.isArray(data) 
@@ -113,6 +114,18 @@ export const useProducts = () => {
     })
   }
 
+  const useGetTopProducts = () => {
+    return useQuery({
+      queryKey: ['products', 'top'],
+      queryFn: async () => {
+        const res = await getTopProducts()
+        if (res.error) throw res.error
+        const data = res.data || []
+        return (Array.isArray(data) ? data : (data as any)?.content || []) as ProductTop[]
+      }
+    })
+  }
+
   return {
     useFindAllProducts,
     useFindOneProduct,
@@ -120,6 +133,7 @@ export const useProducts = () => {
     useCreateProduct,
     useUpdateProduct,
     useActivateProduct,
-    useDeactivateProduct
+    useDeactivateProduct,
+    useGetTopProducts
   }
 }

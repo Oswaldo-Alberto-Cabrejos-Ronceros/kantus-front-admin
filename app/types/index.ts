@@ -10,13 +10,14 @@ export interface Range {
 export interface Category {
   id: number
   name: string
+  description?: string
   status: boolean
 }
 
 export interface Product {
   id: number
   categoryId: number
-  imageUrl: string
+  imageUrl?: string        // No es parte del ProductRequest del backend, se gestiona aparte
   name: string
   description: string
   price: number
@@ -36,8 +37,13 @@ export interface Promotion {
 
 // ===== ORDERS =====
 
-export type OrderStatus = 'Pendiente' | 'Preparando' | 'Listo' | 'Entregado' | 'Pagado' | 'Cancelado'
-export type OrderType = 'salon' | 'delivery'
+// Backend devuelve status en MAYÚSCULAS
+export type OrderStatus = 'PENDIENTE' | 'PREPARANDO' | 'LISTO' | 'CAMINO' | 'ENTREGADO' | 'CANCELADO'
+// Alias legibles para la UI
+export type OrderStatusDisplay = 'Pendiente' | 'Preparando' | 'Listo' | 'Camino' | 'Entregado' | 'Cancelado'
+
+// Backend devuelve type en MAYÚSCULAS
+export type OrderType = 'SALON' | 'DELIVERY'
 
 export interface OrderProduct {
   id: number
@@ -61,7 +67,7 @@ export interface Order {
   customerDni?: string
   tableId?: number
   tableName?: string
-  paymentMethod?: SaleMethod
+  paymentMethod?: string
   tip?: number
 }
 
@@ -87,29 +93,25 @@ export interface OrderDelivery {
 export interface CategoryInventory {
   id: number
   name: string
+  description?: string
   status?: boolean
 }
-
-export type InventoryUnit = 'Unidad' | 'Kilogramo' | 'Litro' | 'Gramo' | 'Mililitro'
 
 export interface ProductInventory {
   id: number
   name: string
+  description?: string
   categoryId: number
-  cantidad: number
-  stockMinimo?: number
-  unidad: InventoryUnit
-  fechaVencimiento: string | Date
-  estado: boolean
-  supplierId?: number
+  unitary: string          // Backend usa "unitary" (no "unidad")
+  status?: boolean
 }
 
-export type MovementType = 'entrada' | 'salida'
+export type MovementType = 'ENTRADA' | 'SALIDA'
 
 export interface MovementInventory {
   id: number
   fecha: string | Date
-  productId: number
+  productInventoryId: number    // Backend usa "productInventoryId" (no "productId")
   productName: string
   tipo: MovementType
   cantidad: number
@@ -129,14 +131,14 @@ export interface Supplier {
 // ===== SALES & REVENUE =====
 
 export interface ProductTop {
-  id: number
-  productId: number
+  id?: number
   productName: string
   quantity: number
   totalCollected: number
 }
 
-export type SaleMethod = 'efectivo' | 'transferencia' | 'tarjeta' | 'yape/plin'
+// Backend usa valores en MAYÚSCULAS
+export type SaleMethod = 'EFECTIVO' | 'TARJETA' | 'YAPE' | 'MERCADO_PAGO'
 
 export interface Sale {
   id: number | string
@@ -144,13 +146,14 @@ export interface Sale {
   codigo: string
   metodo: SaleMethod
   monto: number
-  tipo?: OrderType
+  orderId?: number
 }
 
 // ===== EMPLOYEES =====
 
 export type DocumentType = 'DNI' | 'CE'
 export type EmployeePosition = 'Administrative' | 'Chef' | 'Waiter' | 'Cashier' | 'Delivery'
+export type ContractType = 'FULL_TIME' | 'PART_TIME' | 'CONTRACT'
 
 export interface Employee {
   id: number | string
@@ -158,20 +161,20 @@ export interface Employee {
   lastname: string
   documentType: DocumentType
   documentNumber: string
-  birthdate: string | Date
-  hoursWeek: number
-  hourlyWage: number
   position: EmployeePosition
+  contractType: ContractType
+  weeklyHours: number       // Backend: weeklyHours (no hoursWeek)
+  hourlyWage: number
   status: boolean
   // System user fields
-  email?: string
   userRole?: UserRole
   hasSystemUser?: boolean
 }
 
 // ===== CASHBOX =====
 
-export type CashBoxStatus = 'Abierta' | 'Cerrada'
+// Backend usa MAYÚSCULAS
+export type CashBoxStatus = 'ABIERTA' | 'CERRADA'
 
 export interface CashBox {
   id: number | string
@@ -185,15 +188,17 @@ export interface CashBox {
 }
 
 export type ComprobanteType = 'Boleta' | 'Factura'
-export type MovementCashboxType = 'Egreso' | 'Ingreso'
+// Backend usa MAYÚSCULAS
+export type MovementCashboxType = 'INGRESO' | 'EGRESO'
 
 export interface MovementCashbox {
   id: number | string
+  cashBoxId: number         // Backend requiere cashBoxId
   dia: string | Date
   hora: string
   codigoPedidos?: string
-  tipoComprobante?: ComprobanteType
-  descripcion?: string
+  tipoComprobante?: string
+  descripcion: string       // Backend: requerido (no opcional)
   tipo: MovementCashboxType
   monto: number
 }
@@ -210,6 +215,7 @@ export interface OrderDetailProduct {
 export interface Table {
   id: number
   name: string
+  capacity?: number         // Backend requiere capacity en request
   occupied: boolean
   status?: boolean
   order?: Order
@@ -218,7 +224,10 @@ export interface Table {
 
 // ===== AUTH =====
 
+// Backend usa MAYÚSCULAS internamente, pero el login devuelve el role mapeado
 export type UserRole = 'Admin' | 'Mozo' | 'Cajero' | 'Cocinero' | 'Delivery' | 'Cliente'
+// Roles internos del backend (para CreateUserDto)
+export type BackendUserRole = 'ADMIN' | 'MOZO' | 'CAJERO' | 'COCINERO' | 'DELIVERY'
 
 export interface AuthRequest {
   email: string

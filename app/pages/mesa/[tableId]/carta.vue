@@ -75,15 +75,6 @@
       v-model:open="isCartOpen"
       :items="cartItems"
       :loading="isSubmitting"
-        </p>
-      </div>
-    </div>
-
-    <!-- Cart Drawer -->
-    <ClientCartDrawer
-      v-model:open="isCartOpen"
-      :items="cartItems"
-      :loading="isSubmitting"
       @update-quantity="updateQuantity"
       @confirm="confirmOrder"
     />

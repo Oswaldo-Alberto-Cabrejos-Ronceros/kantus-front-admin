@@ -4,7 +4,7 @@ import type {
   MovementCashboxResponse,
   MovementCashboxRequest
 } from '~/api/types.gen'
-import type { CashBox, MovementCashbox } from '~/types'
+import type { CashBox, CashBoxStatus, MovementCashbox, MovementCashboxType } from '~/types'
 
 // CashBox
 export const mapCashBoxResponseToUI = (data: CashBoxResponse): CashBox => ({
@@ -15,7 +15,8 @@ export const mapCashBoxResponseToUI = (data: CashBoxResponse): CashBox => ({
   collectedSales: data.collectedSales || 0,
   openingTime: data.openingTime || new Date(),
   closingTime: data.closingTime,
-  status: (data.status === 'ABIERTA' ? 'Abierta' : 'Cerrada') as any
+  // Backend usa MAYÚSCULAS, el tipo UI ahora también usa MAYÚSCULAS
+  status: (data.status || 'CERRADA') as CashBoxStatus
 })
 
 export const mapCashBoxRequestFromUI = (data: Partial<CashBox>): CashBoxRequest => ({
@@ -26,20 +27,22 @@ export const mapCashBoxRequestFromUI = (data: Partial<CashBox>): CashBoxRequest 
 // Movement Cashbox
 export const mapMovementCashboxResponseToUI = (data: MovementCashboxResponse): MovementCashbox => ({
   id: data.id || 0,
+  cashBoxId: data.cashBoxId || 0,
   dia: data.dia || new Date(),
   hora: data.hora || '',
   codigoPedidos: data.codigoPedidos,
-  tipoComprobante: (data.tipoComprobante as any) || undefined,
-  descripcion: data.descripcion,
-  tipo: (data.tipo === 'INGRESO' ? 'Ingreso' : 'Egreso') as any,
+  tipoComprobante: data.tipoComprobante,
+  descripcion: data.descripcion || '',
+  // Backend usa MAYÚSCULAS, el tipo UI ahora también usa MAYÚSCULAS
+  tipo: (data.tipo || 'EGRESO') as MovementCashboxType,
   monto: data.monto || 0
 })
 
 export const mapMovementCashboxRequestFromUI = (data: Partial<MovementCashbox>, cashBoxId: number): MovementCashboxRequest => ({
-  cashBoxId,
+  cashBoxId: data.cashBoxId || cashBoxId,
   codigoPedidos: data.codigoPedidos,
   tipoComprobante: data.tipoComprobante,
   descripcion: data.descripcion || '',
-  tipo: data.tipo === 'Ingreso' ? 'INGRESO' : 'EGRESO',
+  tipo: (data.tipo || 'EGRESO') as 'INGRESO' | 'EGRESO',
   monto: data.monto || 0
 })

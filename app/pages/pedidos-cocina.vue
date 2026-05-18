@@ -82,20 +82,20 @@ const { useFindAllOrders, useUpdateOrderStatus } = useOrders()
 const { data: orders } = useFindAllOrders()
 const updateStatusMutation = useUpdateOrderStatus()
 
-const pendingCount = computed(() => orders.value?.filter(o => o.status === 'Pendiente').length || 0)
+const pendingCount = computed(() => orders.value?.filter((o: Order) => o.status === 'Pendiente').length || 0)
 
 const orderStats = computed(() => [{
   title: 'Pendientes',
   icon: 'i-lucide-clock-alert',
-  value: orders.value?.filter(o => o.status === 'Pendiente').length || 0
+  value: orders.value?.filter((o: Order) => o.status === 'Pendiente').length || 0
 }, {
   title: 'Preparando',
   icon: 'i-lucide-chef-hat',
-  value: orders.value?.filter(o => o.status === 'Preparando').length || 0
+  value: orders.value?.filter((o: Order) => o.status === 'Preparando').length || 0
 }, {
   title: 'Listos',
   icon: 'i-lucide-check-circle',
-  value: orders.value?.filter(o => o.status === 'Listo').length || 0
+  value: orders.value?.filter((o: Order) => o.status === 'Listo').length || 0
 }])
 
 const statusColumns = [
@@ -118,9 +118,9 @@ const items = computed(() => {
 })
 
 const getOrdersByTypeAndStatus = (typeValue?: string, status?: OrderStatus) => {
-  let filtered = orders.value || []
-  if (typeValue) filtered = filtered.filter(o => o.type === typeValue)
-  if (status) filtered = filtered.filter(o => o.status === status)
+  let filtered: Order[] = orders.value || []
+  if (typeValue) filtered = filtered.filter((o: Order) => o.type === typeValue)
+  if (status) filtered = filtered.filter((o: Order) => o.status === status)
   return filtered
 }
 

@@ -5,7 +5,7 @@ export default defineNuxtPlugin(() => {
   const config = useRuntimeConfig()
 
    client.setConfig({
-    baseURL: config.public.apiBaseUrl as string || 'http://localhost:8080/api',
+    baseURL: config.public.apiBaseUrl as string || 'http://localhost:8080',
     withCredentials: true
   })
 

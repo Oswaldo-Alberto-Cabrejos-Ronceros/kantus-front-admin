@@ -10,14 +10,15 @@
         Asignar usuario del sistema a: <span class="font-semibold text-highlighted">{{ employeeName }}</span>
       </p>
     </div>
-    <UFormField label="Correo Electrónico" name="email">
+
+    <UFormField label="Username / Email" name="username">
       <UInput
-        v-model="state.email"
-        type="email"
-        placeholder="correo@kantus.com"
+        v-model="state.username"
+        placeholder="ej. juan.perez"
         class="w-full"
       />
     </UFormField>
+
     <UFormField label="Contraseña" name="password">
       <UInput
         v-model="state.password"
@@ -26,9 +27,11 @@
         class="w-full"
       />
     </UFormField>
-    <UFormField label="Rol del Sistema" name="role">
-      <USelect v-model="state.role" :items="roles" class="w-full" />
+
+    <UFormField label="Rol del Sistema" name="roleId">
+      <USelect v-model="state.roleId" :items="roleOptions" value-key="value" label-key="label" class="w-full" />
     </UFormField>
+
     <div class="flex justify-end gap-2 mt-4">
       <UButton color="neutral" variant="ghost" @click="$emit('cancel')">
         Cancelar
@@ -50,15 +53,28 @@ import { reactive } from 'vue'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { assignUserSchema, type AssignUserRequest } from '~/utils/validations'
 
-defineProps<{ loading?: boolean, employeeName: string, employeeId: number | string }>()
+const props = defineProps<{ loading?: boolean, employeeName: string, employeeId: number | string }>()
 
 const emit = defineEmits<{ submit: [data: AssignUserRequest], cancel: [] }>()
 
-const roles = ['Admin', 'Mozo', 'Cajero', 'Cocinero', 'Delivery']
+// roleId mapea a: 1=ADMIN, 2=MOZO, 3=CAJERO, 4=COCINERO, 5=DELIVERY (ajustar según tu BD)
+const roleOptions = [
+  { label: 'Mozo', value: 2 },
+  { label: 'Cajero', value: 3 },
+  { label: 'Cocinero', value: 4 },
+  { label: 'Delivery', value: 5 },
+  { label: 'Admin', value: 1 }
+]
 
-const state = reactive<Partial<AssignUserRequest>>({ email: '', password: '', role: 'Mozo' })
+const state = reactive<Partial<AssignUserRequest>>({
+  username: '',
+  password: '',
+  roleId: 2,
+  employeeId: Number(props.employeeId),
+  status: true
+})
 
 async function onSubmit(event: FormSubmitEvent<AssignUserRequest>) {
-  emit('submit', event.data)
+  emit('submit', { ...event.data, employeeId: Number(props.employeeId) })
 }
 </script>

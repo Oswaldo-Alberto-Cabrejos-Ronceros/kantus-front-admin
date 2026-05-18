@@ -158,8 +158,7 @@ const {
   useCreateProduct,
   useUpdateProduct,
   useActivateProduct,
-  useDeactivateProduct,
-  useRemoveProduct
+  useDeactivateProduct
 } = useProducts()
 
 const { data: categories } = useFindAllCategories()
@@ -174,7 +173,6 @@ const createProductMutation = useCreateProduct()
 const updateProductMutation = useUpdateProduct()
 const activateProductMutation = useActivateProduct()
 const deactivateProductMutation = useDeactivateProduct()
-const removeProductMutation = useRemoveProduct()
 
 const activeCategories = computed(() => categories.value?.filter(c => c.status) || [])
 
@@ -247,10 +245,10 @@ async function toggleCategoryStatus(category: Category) {
 async function toggleProductStatus(product: Product) {
   try {
     if (product.status) {
-      await deactivateProductMutation.mutateAsync(product.id)
+      await deactivateProductMutation.mutateAsync(Number(product.id))
       toast.add({ title: 'Producto desactivado', color: 'info' })
     } else {
-      await activateProductMutation.mutateAsync(product.id)
+      await activateProductMutation.mutateAsync(Number(product.id))
       toast.add({ title: 'Producto reactivado', color: 'success' })
     }
   } catch {
@@ -291,7 +289,7 @@ function handleEditProduct(product: Product) {
 
 async function handleDeleteProduct(product: Product) {
   try {
-    await removeProductMutation.mutateAsync(product.id)
+    await deactivateProductMutation.mutateAsync(Number(product.id))
     toast.add({ title: 'Producto eliminado', description: product.name, color: 'warning' })
   } catch {
     toast.add({ title: 'Error al eliminar producto', color: 'error' })

@@ -2,7 +2,6 @@ import { z } from 'zod'
 
 export const loginSchema = z.object({
   email: z.email('El formato del correo no es válido'),
-
   password: z.string('La contraseña es obligatoria')
     .min(6, 'La contraseña debe tener al menos 6 caracteres')
 })
@@ -13,25 +12,25 @@ export type LoginRequest = z.infer<typeof loginSchema>
 
 export const categorySchema = z.object({
   name: z.string().min(1, 'El nombre es obligatorio'),
-  status: z.boolean().default(true)
+  description: z.string().min(1, 'La descripción es obligatoria')  // requerido por backend
 })
 
 export type CategoryRequest = z.infer<typeof categorySchema>
 
 export const productSchema = z.object({
-  categoryId: z.number('La categoría es obligatoria'),
-  imageUrl: z.string('La imagen es obligatoria').min(1, 'La imagen es obligatoria'),
+  categoryId: z.number({ message: 'La categoría es obligatoria' }),
   name: z.string().min(1, 'El nombre es obligatorio'),
   description: z.string().min(1, 'La descripción es obligatoria'),
-  price: z.number('El precio es obligatorio')
+  price: z.number({ message: 'El precio es obligatorio' })
     .positive('El precio debe ser mayor a 0')
+  // imageUrl no se envía al backend, se gestiona por separado si aplica
 })
 
 export type ProductRequest = z.infer<typeof productSchema>
 
 export const discountSchema = z.object({
-  tipo: z.enum(['porcentaje', 'precio'], 'El tipo de descuento es obligatorio'),
-  cantidad: z.number('La cantidad es obligatoria').positive('La cantidad debe ser mayor a 0')
+  tipo: z.enum(['porcentaje', 'precio'], { message: 'El tipo de descuento es obligatorio' }),
+  cantidad: z.number({ message: 'La cantidad es obligatoria' }).positive('La cantidad debe ser mayor a 0')
 })
 
 export type DiscountRequest = z.infer<typeof discountSchema>
@@ -39,9 +38,9 @@ export type DiscountRequest = z.infer<typeof discountSchema>
 // ===== INVENTORY =====
 
 export const movementInventorySchema = z.object({
-  tipo: z.enum(['entrada', 'salida'], 'El tipo de movimiento es obligatorio'),
-  productId: z.number('El producto es obligatorio'),
-  cantidad: z.number('La cantidad es obligatoria').positive('La cantidad debe ser mayor a 0'),
+  tipo: z.enum(['ENTRADA', 'SALIDA'], { message: 'El tipo de movimiento es obligatorio' }),
+  productInventoryId: z.number({ message: 'El producto es obligatorio' }),  // era productId
+  cantidad: z.number({ message: 'La cantidad es obligatoria' }).positive('La cantidad debe ser mayor a 0'),
   razon: z.string().min(1, 'La razón es obligatoria')
 })
 
@@ -49,20 +48,16 @@ export type MovementInventoryRequest = z.infer<typeof movementInventorySchema>
 
 export const productInventorySchema = z.object({
   name: z.string().min(1, 'El nombre es obligatorio'),
-  categoryId: z.number('La categoría es obligatoria'),
-  cantidad: z.number('La cantidad es obligatoria').min(0, 'La cantidad no puede ser negativa'),
-  stockMinimo: z.number().min(0, 'El stock mínimo no puede ser negativo').optional(),
-  unidad: z.enum(['Unidad', 'Kilogramo', 'Litro', 'Gramo', 'Mililitro'], 'La unidad es obligatoria'),
-  fechaVencimiento: z.string().min(1, 'La fecha de vencimiento es obligatoria'),
-  estado: z.boolean().default(true),
-  supplierId: z.number().optional()
+  description: z.string().optional(),
+  categoryId: z.number({ message: 'La categoría es obligatoria' }),
+  unitary: z.string().min(1, 'La unidad es obligatoria'),  // era unidad+enum
 })
 
 export type ProductInventoryRequest = z.infer<typeof productInventorySchema>
 
 export const categoryInventorySchema = z.object({
   name: z.string().min(1, 'El nombre es obligatorio'),
-  status: z.boolean().default(true)
+  description: z.string().optional()
 })
 
 export type CategoryInventoryRequest = z.infer<typeof categoryInventorySchema>
@@ -72,8 +67,8 @@ export const supplierSchema = z.object({
   ruc: z.string().min(1, 'El RUC es obligatorio'),
   contacto: z.string().min(1, 'El contacto es obligatorio'),
   email: z.email('El formato del correo no es válido'),
-  telefono: z.string().min(1, 'El teléfono es obligatorio'),
-  estado: z.boolean().default(true)
+  telefono: z.string().min(1, 'El teléfono es obligatorio')
+  // estado no lo envía el request (SupplierRequest no lo incluye)
 })
 
 export type SupplierRequest = z.infer<typeof supplierSchema>
@@ -83,21 +78,44 @@ export type SupplierRequest = z.infer<typeof supplierSchema>
 export const employeeSchema = z.object({
   name: z.string().min(1, 'El nombre es obligatorio'),
   lastname: z.string().min(1, 'El apellido es obligatorio'),
-  documentType: z.enum(['DNI', 'CE'], 'El tipo de documento es obligatorio'),
+  documentType: z.enum(['DNI', 'CE'], { message: 'El tipo de documento es obligatorio' }),
   documentNumber: z.string().min(1, 'El número de documento es obligatorio'),
-  birthdate: z.string().min(1, 'La fecha de nacimiento es obligatoria'),
-  hoursWeek: z.number('Debe ser un número').positive('Las horas a la semana deben ser mayor a 0'),
-  hourlyWage: z.number('Debe ser un número').positive('El salario debe ser mayor a 0'),
-  position: z.enum(['Administrative', 'Chef', 'Waiter', 'Cashier', 'Delivery'], 'El puesto es obligatorio'),
-  status: z.boolean()
+  position: z.enum(['Administrative', 'Chef', 'Waiter', 'Cashier', 'Delivery'], { message: 'El puesto es obligatorio' }),
+  contractType: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT'], { message: 'El tipo de contrato es obligatorio' }),
+  weeklyHours: z.number({ message: 'Debe ser un número' }).positive('Las horas semanales deben ser mayor a 0'),  // era hoursWeek
+  hourlyWage: z.number({ message: 'Debe ser un número' }).positive('El salario debe ser mayor a 0')
+  // birthdate eliminado (backend no lo pide)
+  // status eliminado (backend no lo pide en EmployeeRequest)
 })
 
 export type EmployeeRequest = z.infer<typeof employeeSchema>
 
+// Para crear empleado con usuario en un solo request (POST /api/employees/with-user)
+export const employeeWithUserSchema = z.object({
+  name: z.string().min(1, 'El nombre es obligatorio'),
+  lastname: z.string().min(1, 'El apellido es obligatorio'),
+  documentType: z.enum(['DNI', 'CE'], { message: 'El tipo de documento es obligatorio' }),
+  documentNumber: z.string().min(1, 'El número de documento es obligatorio'),
+  position: z.enum(['Administrative', 'Chef', 'Waiter', 'Cashier', 'Delivery'], { message: 'El puesto es obligatorio' }),
+  contractType: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT'], { message: 'El tipo de contrato es obligatorio' }),
+  weeklyHours: z.number({ message: 'Debe ser un número' }).positive(),
+  hourlyWage: z.number({ message: 'Debe ser un número' }).positive(),
+  user: z.object({
+    email: z.email('El formato del correo no es válido'),
+    password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+    role: z.enum(['ADMIN', 'MOZO', 'CAJERO', 'COCINERO', 'DELIVERY'], { message: 'El rol es obligatorio' })
+  })
+})
+
+export type EmployeeWithUserRequest = z.infer<typeof employeeWithUserSchema>
+
+// Para asignar usuario a empleado existente (POST /api/users)
 export const assignUserSchema = z.object({
-  email: z.email('El formato del correo no es válido'),
+  username: z.string().min(1, 'El username es obligatorio'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
-  role: z.enum(['Admin', 'Mozo', 'Cajero', 'Cocinero', 'Delivery'], 'El rol es obligatorio')
+  roleId: z.number({ message: 'El rol es obligatorio' }),
+  employeeId: z.number({ message: 'El empleado es obligatorio' }),
+  status: z.boolean().default(true)
 })
 
 export type AssignUserRequest = z.infer<typeof assignUserSchema>
@@ -105,6 +123,7 @@ export type AssignUserRequest = z.infer<typeof assignUserSchema>
 // ===== CASHBOX =====
 
 export const openCashboxSchema = z.object({
+  name: z.string().min(1, 'El nombre de la caja es obligatorio'),
   openingAmount: z.number({ message: 'Debe ser un número' }).min(0, 'El monto no puede ser negativo')
 })
 export type OpenCashboxRequest = z.infer<typeof openCashboxSchema>
@@ -114,25 +133,35 @@ export const closeCashboxSchema = z.object({
 })
 export type CloseCashboxRequest = z.infer<typeof closeCashboxSchema>
 
+export const movementCashboxSchema = z.object({
+  cashBoxId: z.number({ message: 'La caja es obligatoria' }),
+  descripcion: z.string().min(1, 'La descripción es obligatoria'),
+  tipo: z.enum(['INGRESO', 'EGRESO'], { message: 'El tipo es obligatorio' }),
+  monto: z.number({ message: 'Debe ser un número' }).positive('El monto debe ser mayor a 0'),
+  codigoPedidos: z.string().optional(),
+  tipoComprobante: z.string().optional()
+})
+export type MovementCashboxRequest = z.infer<typeof movementCashboxSchema>
+
 // ===== ORDERS =====
 
 export const processOrderSchema = z.object({
-  orderId: z.number('El ID de la orden es obligatorio'),
-  paymentMethod: z.enum(['efectivo', 'transferencia', 'tarjeta', 'yape/plin'], 'El método de pago es obligatorio'),
+  orderId: z.number({ message: 'El ID de la orden es obligatorio' }),
+  paymentMethod: z.enum(['EFECTIVO', 'TARJETA', 'YAPE', 'MERCADO_PAGO'], { message: 'El método de pago es obligatorio' }),
   tip: z.number().min(0, 'La propina no puede ser negativa').optional()
 })
 
 export type ProcessOrderRequest = z.infer<typeof processOrderSchema>
 
 export const processDeliveryOrderSchema = z.object({
-  orderId: z.number('El ID de la orden es obligatorio'),
-  status: z.enum(['Pendiente', 'Camino', 'Entregado'], 'El estado es obligatorio')
+  orderId: z.number({ message: 'El ID de la orden es obligatorio' }),
+  status: z.enum(['Pendiente', 'Camino', 'Entregado'], { message: 'El estado es obligatorio' })
 })
 
 export type ProcessDeliveryOrderRequest = z.infer<typeof processDeliveryOrderSchema>
 
 export const takeOrderSchema = z.object({
-  tableId: z.number('La mesa es obligatoria'),
+  tableId: z.number({ message: 'La mesa es obligatoria' }),
   products: z.array(z.object({
     productId: z.number(),
     name: z.string(),
@@ -165,7 +194,7 @@ export type DeliveryClientOrderRequest = z.infer<typeof deliveryClientOrderSchem
 
 export const tableSchema = z.object({
   name: z.string().min(1, 'El nombre es obligatorio'),
-  status: z.boolean().default(true)
+  capacity: z.number({ message: 'La capacidad es obligatoria' }).int().positive('La capacidad debe ser mayor a 0')
 })
 
 export type TableRequest = z.infer<typeof tableSchema>

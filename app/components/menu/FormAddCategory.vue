@@ -13,13 +13,12 @@
       />
     </UFormField>
 
-    <UFormField label="Estado" name="status">
-      <div class="flex items-center gap-3">
-        <USwitch v-model="state.status" />
-        <UBadge :color="state.status ? 'success' : 'error'" variant="subtle" size="xs">
-          {{ state.status ? 'Activa' : 'Inactiva' }}
-        </UBadge>
-      </div>
+    <UFormField label="Descripción" name="description">
+      <UInput
+        v-model="state.description"
+        placeholder="Ej. Platos a base de pollo a la brasa"
+        class="w-full"
+      />
     </UFormField>
 
     <div class="flex justify-end gap-2 mt-4">
@@ -52,16 +51,16 @@ const emit = defineEmits<{
 
 const state = reactive<Partial<CategoryRequest>>({
   name: props.initialData?.name || '',
-  status: props.initialData?.status ?? true
+  description: props.initialData?.description || ''
 })
 
 watch(() => props.initialData, (newData) => {
   if (newData) {
     state.name = newData.name
-    state.status = newData.status
+    state.description = newData.description || ''
   } else {
     state.name = ''
-    state.status = true
+    state.description = ''
   }
 })
 
