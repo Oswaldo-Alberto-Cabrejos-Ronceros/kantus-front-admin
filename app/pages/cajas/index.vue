@@ -26,13 +26,20 @@
 <script lang="ts" setup>
 import type { CashBox } from '~/types'
 
-const { user } = useAuth()
+definePageMeta({
+  middleware: [
+    (to) => {
+      const { user } = useAuth()
+      if (user.value?.role === 'CAJERO') {
+        to.meta.layout = 'cashier'
+      } else {
+        to.meta.layout = 'admin'
+      }
+    }
+  ]
+})
 
-if (user.value?.role === 'Cajero') {
-  setPageLayout('cashier')
-} else {
-  setPageLayout('default')
-}
+const { user } = useAuth()
 
 const { useFindAllCashBoxes } = useCashBoxes()
 const { data: boxes } = useFindAllCashBoxes()

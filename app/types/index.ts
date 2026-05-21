@@ -169,6 +169,7 @@ export interface Employee {
   // System user fields
   userRole?: UserRole
   hasSystemUser?: boolean
+  email?: string
 }
 
 // ===== CASHBOX =====
@@ -238,7 +239,7 @@ export interface AuthResponse {
   id: number | string
   name: string
   lastname: string
-  role: UserRole
+  role: BackendUserRole
   token?: string
 }
 

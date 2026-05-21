@@ -47,18 +47,19 @@
 import { h, resolveComponent, computed, ref } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import type { Employee } from '~/types'
-import type { EmployeeRequest, AssignUserRequest } from '~/utils/validations'
+import type { EmployeeWithUserRequest, AssignUserRequest } from '~/utils/validations'
 
 const UBadge = resolveComponent('UBadge')
 const UBtn = resolveComponent('UButton')
 const toast = useToast()
 
 const { useFindAllEmployees, useCreateEmployee } = useEmployees()
-const { useCreateUser } = useUsers()
+const { useCreateUser, useCreateEmployeeWithUser } = useUsers()
 
 const { data: employees, isPending } = useFindAllEmployees()
 const createEmployeeMutation = useCreateEmployee()
 const createUserMutation = useCreateUser()
+const createEmployeeWithUserMutation = useCreateEmployeeWithUser()
 
 const columns = computed<TableColumn<Employee>[]>(() => [
   { accessorKey: 'id', header: 'ID' },
@@ -90,10 +91,10 @@ const isAssignModalOpen = ref(false)
 const selectedEmployee = ref<Employee | null>(null)
 const isSubmitting = ref(false)
 
-async function handleCreate(data: EmployeeRequest) {
+async function handleCreate(data: EmployeeWithUserRequest) {
   isSubmitting.value = true
   try {
-    await createEmployeeMutation.mutateAsync(data)
+    await createEmployeeWithUserMutation.mutateAsync(data)
     isModalOpen.value = false
     toast.add({ title: '¡Empleado registrado!', color: 'success' })
   } catch {

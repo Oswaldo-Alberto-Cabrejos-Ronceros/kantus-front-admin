@@ -67,47 +67,56 @@
 import { computed } from 'vue'
 import type { Order, OrderStatus } from '~/types'
 
+definePageMeta({
+  middleware: [
+    (to) => {
+      const { user } = useAuth()
+      if (user.value?.role === 'ADMIN') {
+        to.meta.layout = 'admin'
+      } else if (user.value?.role === 'COCINERO') {
+        to.meta.layout = 'cook'
+      } else if (user.value?.role === 'MOZO') {
+        to.meta.layout = 'waiter'
+      } else {
+        to.meta.layout = 'default'
+      }
+    }
+  ]
+})
+
 const { user } = useAuth()
 const toast = useToast()
-
-if (user.value?.role === 'Cocinero') {
-  setPageLayout('cook')
-} else if (user.value?.role === 'Mozo') {
-  setPageLayout('waiter')
-} else {
-  setPageLayout('default')
-}
 
 const { useFindAllOrders, useUpdateOrderStatus } = useOrders()
 const { data: orders } = useFindAllOrders()
 const updateStatusMutation = useUpdateOrderStatus()
 
-const pendingCount = computed(() => orders.value?.filter((o: Order) => o.status === 'Pendiente').length || 0)
+const pendingCount = computed(() => orders.value?.filter((o: Order) => o.status === 'PENDIENTE').length || 0)
 
 const orderStats = computed(() => [{
   title: 'Pendientes',
   icon: 'i-lucide-clock-alert',
-  value: orders.value?.filter((o: Order) => o.status === 'Pendiente').length || 0
+  value: orders.value?.filter((o: Order) => o.status === 'PENDIENTE').length || 0
 }, {
   title: 'Preparando',
   icon: 'i-lucide-chef-hat',
-  value: orders.value?.filter((o: Order) => o.status === 'Preparando').length || 0
+  value: orders.value?.filter((o: Order) => o.status === 'PREPARANDO').length || 0
 }, {
   title: 'Listos',
   icon: 'i-lucide-check-circle',
-  value: orders.value?.filter((o: Order) => o.status === 'Listo').length || 0
+  value: orders.value?.filter((o: Order) => o.status === 'LISTO').length || 0
 }])
 
 const statusColumns = [
-  { value: 'Pendiente' as OrderStatus, label: 'Pendiente', color: 'error' as const },
-  { value: 'Preparando' as OrderStatus, label: 'Preparando', color: 'warning' as const },
-  { value: 'Listo' as OrderStatus, label: 'Listo', color: 'success' as const }
+  { value: 'PENDIENTE' as OrderStatus, label: 'Pendiente', color: 'error' as const },
+  { value: 'PREPARANDO' as OrderStatus, label: 'Preparando', color: 'warning' as const },
+  { value: 'LISTO' as OrderStatus, label: 'Listo', color: 'success' as const }
 ]
 
 const orderTypes = [
   { id: 'todos', label: 'Todos' },
-  { id: 'salon', label: 'Salón', value: 'salon' },
-  { id: 'delivery', label: 'Delivery', value: 'delivery' }
+  { id: 'salon', label: 'Salón', value: 'SALON' },
+  { id: 'delivery', label: 'Delivery', value: 'DELIVERY' }
 ]
 
 const items = computed(() => {

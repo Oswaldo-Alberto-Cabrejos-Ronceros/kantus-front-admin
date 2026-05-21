@@ -79,7 +79,8 @@ export const employeeSchema = z.object({
   name: z.string().min(1, 'El nombre es obligatorio'),
   lastname: z.string().min(1, 'El apellido es obligatorio'),
   documentType: z.enum(['DNI', 'CE'], { message: 'El tipo de documento es obligatorio' }),
-  documentNumber: z.string().min(1, 'El número de documento es obligatorio'),
+  documentNumber: z.string()
+    .regex(/^\d{8,10}$/, 'El número de documento debe contener entre 8 y 10 dígitos numéricos'),
   position: z.enum(['Administrative', 'Chef', 'Waiter', 'Cashier', 'Delivery'], { message: 'El puesto es obligatorio' }),
   contractType: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT'], { message: 'El tipo de contrato es obligatorio' }),
   weeklyHours: z.number({ message: 'Debe ser un número' }).positive('Las horas semanales deben ser mayor a 0'),  // era hoursWeek

@@ -123,41 +123,46 @@ const emit = defineEmits<{
   changeStatus: [orderId: number, status: OrderStatus]
 }>()
 
-const saleMethods: SaleMethod[] = ['efectivo', 'transferencia', 'tarjeta', 'yape/plin']
+const saleMethods = [
+  { label: 'Efectivo', value: 'EFECTIVO' as SaleMethod },
+  { label: 'Tarjeta', value: 'TARJETA' as SaleMethod },
+  { label: 'Yape', value: 'YAPE' as SaleMethod },
+  { label: 'Mercado Pago', value: 'MERCADO_PAGO' as SaleMethod }
+]
 
 const statusColor = computed(() => {
   const colors: Record<string, 'warning' | 'info' | 'success' | 'primary' | 'error'> = {
-    Pendiente: 'warning',
-    Preparando: 'info',
-    Listo: 'success',
-    Entregado: 'primary',
-    Pagado: 'success',
-    Cancelado: 'error'
+    PENDIENTE: 'warning',
+    PREPARANDO: 'info',
+    LISTO: 'success',
+    ENTREGADO: 'primary',
+
+    CANCELADO: 'error'
   }
   return colors[props.order.status] || 'neutral'
 })
 
 const availableStatuses = computed(() => {
   const all = [
-    { value: 'Pendiente' as OrderStatus, label: 'Pendiente', color: 'warning' as const, icon: 'i-lucide-clock' },
-    { value: 'Preparando' as OrderStatus, label: 'Preparando', color: 'info' as const, icon: 'i-lucide-chef-hat' },
-    { value: 'Listo' as OrderStatus, label: 'Listo', color: 'success' as const, icon: 'i-lucide-check' },
-    { value: 'Entregado' as OrderStatus, label: 'Entregado', color: 'primary' as const, icon: 'i-lucide-package-check' }
+    { value: 'PENDIENTE' as OrderStatus, label: 'Pendiente', color: 'warning' as const, icon: 'i-lucide-clock' },
+    { value: 'PREPARANDO' as OrderStatus, label: 'Preparando', color: 'info' as const, icon: 'i-lucide-chef-hat' },
+    { value: 'LISTO' as OrderStatus, label: 'Listo', color: 'success' as const, icon: 'i-lucide-check' },
+    { value: 'ENTREGADO' as OrderStatus, label: 'Entregado', color: 'primary' as const, icon: 'i-lucide-package-check' }
   ]
   return all
 })
 
 const canChangeStatus = computed(() => {
-  return props.order.status !== 'Pagado' && props.order.status !== 'Cancelado'
+  return props.order.status !== 'CANCELADO'
 })
 
 const canProcessPayment = computed(() => {
-  return ['Listo', 'Entregado'].includes(props.order.status)
+  return ['LISTO', 'ENTREGADO'].includes(props.order.status)
 })
 
 const state = reactive<ProcessOrderRequest>({
   orderId: props.order.id,
-  paymentMethod: 'efectivo' as SaleMethod,
+  paymentMethod: 'EFECTIVO',
   tip: undefined
 })
 

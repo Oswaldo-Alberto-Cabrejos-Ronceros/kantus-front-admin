@@ -65,7 +65,9 @@ import { ref, computed } from 'vue'
 import type { OrderDelivery } from '~/types'
 import type { ProcessDeliveryOrderRequest } from '~/utils/validations'
 
-setPageLayout('delivery')
+definePageMeta({
+  layout: 'delivery'
+})
 
 const toast = useToast()
 

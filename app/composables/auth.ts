@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { login as apiLogin } from '~/api/sdk.gen'
 import { useAuthStore } from '~/stores/auth'
-import type { AuthRequest, AuthResponse, UserRole } from '~/types'
+import type { AuthRequest, AuthResponse, BackendUserRole, UserRole } from '~/types'
 
 export const useAuth = () => {
   const authStore = useAuthStore()
@@ -11,19 +11,18 @@ export const useAuth = () => {
   const isAuthenticated = computed(() => authStore.isAuthenticated)
 
   // Computed properties for role checks
-  const isAdmin = computed(() => authStore.user?.role === 'Admin')
-  const isMozo = computed(() => authStore.user?.role === 'Mozo')
-  const isCajero = computed(() => authStore.user?.role === 'Cajero')
-  const isCocinero = computed(() => authStore.user?.role === 'Cocinero')
-  const isDelivery = computed(() => authStore.user?.role === 'Delivery')
-  const isCliente = computed(() => authStore.user?.role === 'Cliente')
+  const isAdmin = computed(() => authStore.user?.role === 'ADMIN')
+  const isMozo = computed(() => authStore.user?.role === 'MOZO')
+  const isCajero = computed(() => authStore.user?.role === 'CAJERO')
+  const isCocinero = computed(() => authStore.user?.role === 'COCINERO')
+  const isDelivery = computed(() => authStore.user?.role === 'DELIVERY')
 
   // Helper to check if user has a specific role
-  const hasRole = (role: UserRole) => computed(() => authStore.user?.role === role)
+  const hasRole = (role: BackendUserRole) => computed(() => authStore.user?.role === role)
 
   // Helper to check if user has any of the given roles
-  const hasAnyRole = (...roles: UserRole[]) => computed(() => {
-    return roles.includes(authStore.user?.role as UserRole)
+  const hasAnyRole = (...roles: BackendUserRole[]) => computed(() => {
+    return roles.includes(authStore.user?.role as BackendUserRole)
   })
 
   // User display name
@@ -52,19 +51,19 @@ export const useAuth = () => {
         authStore.setAuth(response)
 
         switch (response.role) {
-          case 'Admin':
+          case 'ADMIN':
             router.push('/')
             break
-          case 'Mozo':
+          case 'MOZO':
             router.push('/mozo/mesas')
             break
-          case 'Cajero':
+          case 'CAJERO':
             router.push('/cajas')
             break
-          case 'Cocinero':
+          case 'COCINERO':
             router.push('/pedidos-cocina')
             break
-          case 'Delivery':
+          case 'DELIVERY':
             router.push('/delivery/pedidos')
             break
           default:
@@ -91,7 +90,6 @@ export const useAuth = () => {
     isCajero,
     isCocinero,
     isDelivery,
-    isCliente,
     hasRole,
     hasAnyRole,
     displayName,

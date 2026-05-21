@@ -112,7 +112,7 @@
                 :name="product.name"
                 :description="product.description"
                 :price="product.price"
-                :image-url="product.imageUrl"
+                :image-url="product.imageUrl || ''"
                 :status="product.status"
                 :promotion="product.promotion"
                 class="stagger-item"

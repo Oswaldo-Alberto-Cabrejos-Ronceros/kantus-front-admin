@@ -24,8 +24,8 @@ export const mapEmployeeUserRequestFromUI = (employeeData: any, userData: any): 
   documentType: employeeData.documentType || 'DNI',
   documentNumber: employeeData.documentNumber || '',
   position: employeeData.position || 'Administrative',
-  contractType: 'Full-Time',
-  weeklyHours: employeeData.hoursWeek || 40,
+  contractType: employeeData.contractType || 'FULL_TIME',
+  weeklyHours: employeeData.weeklyHours || 40,
   hourlyWage: employeeData.hourlyWage || 0,
   user: mapUserRequestFromUI(userData)
 })

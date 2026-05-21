@@ -55,8 +55,8 @@
           :name="product.name"
           :description="product.description"
           :price="product.price"
-          :image-url="product.imageUrl"
-          :promotion="product.promotion"
+          :image-url="product.imageUrl || ''"
+          :promotion="product.promotion"  
           class="stagger-item"
           @add="addToCart(product)"
         />
@@ -139,7 +139,7 @@ function updateQuantity(productId: number, quantity: number) {
   if (quantity <= 0) {
     cartItems.value = cartItems.value.filter(i => i.productId !== productId)
   } else {
-    const item = cartItems.value.find(i => i.productId !== productId)
+    const item = cartItems.value.find(i => i.productId === productId)
     if (item) item.quantity = quantity
   }
 }
@@ -149,7 +149,7 @@ async function confirmOrder() {
   try {
     await createOrderMutation.mutateAsync({
       tableId: parseInt(tableId),
-      type: 'salon',
+      type: 'SALON',
       products: cartItems.value.map(item => ({ id: item.productId, quantity: item.quantity, name: '', priceUnitary: 0 }))
     })
     cartItems.value = []

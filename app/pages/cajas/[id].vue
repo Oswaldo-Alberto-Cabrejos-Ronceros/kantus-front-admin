@@ -94,13 +94,20 @@ import type { OpenCashboxRequest, CloseCashboxRequest } from '~/utils/validation
 const route = useRoute()
 const cashBoxId = computed(() => Number(route.params.id))
 
-const { user } = useAuth()
+definePageMeta({
+  middleware: [
+    (to) => {
+      const { user } = useAuth()
+      if (user.value?.role === 'CAJERO') {
+        to.meta.layout = 'cashier'
+      } else {
+        to.meta.layout = 'admin'
+      }
+    }
+  ]
+})
 
-if (user.value?.role === 'Cajero') {
-  setPageLayout('cashier')
-} else {
-  setPageLayout('default')
-}
+const { user } = useAuth()
 
 const UBadge = resolveComponent('UBadge')
 const toast = useToast()
@@ -112,16 +119,16 @@ const { data: movements, isPending } = useFindCashBoxMovements(cashBoxId)
 const openMutation = useOpenCashBox()
 const closeMutation = useCloseCashBox()
 
-const isCashboxOpen = computed(() => cashBox.value?.estado || false)
+const isCashboxOpen = computed(() => cashBox.value?.status === 'ABIERTA')
 
 const isOpenModalOpen = ref(false)
 const isCloseModalOpen = ref(false)
 const isSubmitting = ref(false)
 
 const cashboxStats = computed(() => [
-  { title: 'Saldo Inicial', icon: 'i-lucide-wallet', value: isCashboxOpen.value ? `S/ ${cashBox.value?.saldoInicial?.toFixed(2) || '0.00'}` : 'S/ 0.00' },
-  { title: 'Saldo Actual', icon: 'i-lucide-circle-dollar-sign', value: isCashboxOpen.value ? `S/ ${cashBox.value?.saldoFinal?.toFixed(2) || '0.00'}` : 'S/ 0.00' },
-  { title: 'Día y hora de apertura', icon: 'i-lucide-clock', value: isCashboxOpen.value && cashBox.value?.fechaApertura ? new Date(cashBox.value.fechaApertura).toLocaleString() : '-' }
+  { title: 'Saldo Inicial', icon: 'i-lucide-wallet', value: isCashboxOpen.value ? `S/ ${cashBox.value?.openingAmount?.toFixed(2) || '0.00'}` : 'S/ 0.00' },
+  { title: 'Saldo Actual', icon: 'i-lucide-circle-dollar-sign', value: isCashboxOpen.value ? `S/ ${cashBox.value?.currentBalance?.toFixed(2) || '0.00'}` : 'S/ 0.00' },
+  { title: 'Día y hora de apertura', icon: 'i-lucide-clock', value: isCashboxOpen.value && cashBox.value?.openingTime ? new Date(cashBox.value.openingTime).toLocaleString() : '-' }
 ])
 
 const columns = computed<TableColumn<MovementCashbox>[]>(() => [
@@ -131,14 +138,14 @@ const columns = computed<TableColumn<MovementCashbox>[]>(() => [
   { accessorKey: 'codigoPedidos', header: 'Pedido', cell: ({ row }) => row.original.codigoPedidos || '-' },
   { accessorKey: 'tipoComprobante', header: 'Comprobante', cell: ({ row }) => row.original.tipoComprobante || '-' },
   { accessorKey: 'descripcion', header: 'Descripción', cell: ({ row }) => row.original.descripcion || '-' },
-  { id: 'tipo', header: 'Tipo', cell: ({ row }) => h(UBadge, { color: row.original.tipo === 'Ingreso' ? 'success' : 'error', variant: 'subtle' }, () => row.original.tipo) },
+  { id: 'tipo', header: 'Tipo', cell: ({ row }) => h(UBadge, { color: row.original.tipo === 'INGRESO' ? 'success' : 'error', variant: 'subtle' }, () => row.original.tipo) },
   { accessorKey: 'monto', header: 'Monto', cell: ({ row }) => `S/ ${row.original.monto.toFixed(2)}` }
 ])
 
 async function handleOpenCashbox(data: OpenCashboxRequest) {
   isSubmitting.value = true
   try {
-    await openMutation.mutateAsync({ saldoInicial: data.initialAmount, id: cashBoxId.value })
+    await openMutation.mutateAsync({ name: data.name, openingAmount: data.openingAmount, id: cashBoxId.value })
     isOpenModalOpen.value = false
     toast.add({ title: 'Caja abierta correctamente', color: 'success' })
   } catch {

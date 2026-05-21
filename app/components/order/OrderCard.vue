@@ -10,8 +10,8 @@
         </span>
       </div>
       <div class="flex gap-2">
-        <UBadge :color="type === 'delivery' ? 'secondary' : 'info'" variant="soft" size="xs">
-          {{ type === 'delivery' ? '🛵 DELIVERY' : '🍽️ SALÓN' }}
+        <UBadge :color="type === 'DELIVERY' ? 'secondary' : 'info'" variant="soft" size="xs">
+          {{ type === 'DELIVERY' ? '🛵 DELIVERY' : '🍽️ SALÓN' }}
         </UBadge>
         <UBadge
           :color="statusInfo.color"
@@ -19,14 +19,14 @@
           size="xs"
           :class="statusInfo.glowClass"
         >
-          {{ status }}
+          {{ statusLabels[status] || status }}
         </UBadge>
       </div>
     </template>
 
     <div class="flex flex-col gap-4">
       <!-- Delivery customer info -->
-      <div v-if="type === 'delivery'" class="text-sm space-y-1 bg-elevated/50 p-3 rounded-lg">
+      <div v-if="type === 'DELIVERY'" class="text-sm space-y-1 bg-elevated/50 p-3 rounded-lg">
         <div v-if="customerName" class="flex items-center gap-2">
           <UIcon name="i-lucide-user" class="w-4 h-4 text-muted" />
           <span class="text-highlighted">{{ customerName }}</span>
@@ -42,7 +42,7 @@
       </div>
 
       <!-- Table info for salon -->
-      <div v-if="type === 'salon' && tableName" class="text-sm bg-elevated/50 p-2 rounded-lg flex items-center gap-2">
+      <div v-if="type === 'SALON' && tableName" class="text-sm bg-elevated/50 p-2 rounded-lg flex items-center gap-2">
         <UIcon name="i-lucide-armchair" class="w-4 h-4 text-muted" />
         <span class="font-medium text-highlighted">{{ tableName }}</span>
       </div>
@@ -90,10 +90,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { useTimeAgo } from '@vueuse/core'
-
-type OrderStatus = 'Pendiente' | 'Preparando' | 'Listo' | 'Entregado' | 'Pagado' | 'Cancelado'
-type OrderType = 'salon' | 'delivery'
-type ThemeColor = 'error' | 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'neutral'
+import type { OrderStatus, OrderType } from '~/types'
 
 interface OrderProduct {
   name: string
@@ -118,26 +115,35 @@ const emit = defineEmits(['action'])
 
 const timeAgo = useTimeAgo(() => new Date(props.time))
 
+type ThemeColor = 'error' | 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'neutral'
+
+const statusLabels: Record<OrderStatus, string> = {
+  PENDIENTE: 'Pendiente',
+  PREPARANDO: 'Preparando',
+  LISTO: 'Listo',
+  CAMINO: 'En Camino',
+  ENTREGADO: 'Entregado',
+  CANCELADO: 'Cancelado'
+}
+
 const statusInfo = computed<{
   color: ThemeColor
   actionLabel: string
   actionColor: ThemeColor
   icon: string
-  nextStatus: string
+  nextStatus: OrderStatus | ''
   glowClass: string
 }>(() => {
   switch (props.status) {
-    case 'Pendiente':
-      return { color: 'error', actionLabel: 'Iniciar Preparación', actionColor: 'primary', icon: 'i-lucide-play', nextStatus: 'Preparando', glowClass: 'badge-glow-error animate-pulse-soft' }
-    case 'Preparando':
-      return { color: 'warning', actionLabel: 'Marcar Listo', actionColor: 'warning', icon: 'i-lucide-check-circle', nextStatus: 'Listo', glowClass: 'badge-glow-warning' }
-    case 'Listo':
-      return { color: 'success', actionLabel: 'Marcar Entregado', actionColor: 'success', icon: 'i-lucide-package-check', nextStatus: 'Entregado', glowClass: 'badge-glow-success' }
-    case 'Entregado':
+    case 'PENDIENTE':
+      return { color: 'error', actionLabel: 'Iniciar Preparación', actionColor: 'primary', icon: 'i-lucide-play', nextStatus: 'PREPARANDO', glowClass: 'badge-glow-error animate-pulse-soft' }
+    case 'PREPARANDO':
+      return { color: 'warning', actionLabel: 'Marcar Listo', actionColor: 'warning', icon: 'i-lucide-check-circle', nextStatus: 'LISTO', glowClass: 'badge-glow-warning' }
+    case 'LISTO':
+      return { color: 'success', actionLabel: 'Marcar Entregado', actionColor: 'success', icon: 'i-lucide-package-check', nextStatus: 'ENTREGADO', glowClass: 'badge-glow-success' }
+    case 'ENTREGADO':
       return { color: 'primary', actionLabel: '', actionColor: 'neutral', icon: '', nextStatus: '', glowClass: '' }
-    case 'Pagado':
-      return { color: 'success', actionLabel: '', actionColor: 'neutral', icon: '', nextStatus: '', glowClass: '' }
-    case 'Cancelado':
+    case 'CANCELADO':
       return { color: 'error', actionLabel: '', actionColor: 'neutral', icon: '', nextStatus: '', glowClass: '' }
     default:
       return { color: 'neutral', actionLabel: 'Actualizar', actionColor: 'neutral', icon: 'i-lucide-arrow-right', nextStatus: props.status, glowClass: '' }

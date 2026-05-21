@@ -250,7 +250,7 @@ async function submitOrder() {
   try {
     await createOrderMutation.mutateAsync({
       tableId: undefined,
-      type: 'delivery',
+      type: 'DELIVERY',
       products: cartItems.value.map(item => ({ id: item.productId, quantity: item.quantity, name: '', priceUnitary: 0 }))
     })
     cartItems.value = []

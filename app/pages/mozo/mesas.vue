@@ -82,10 +82,12 @@
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
-import type { Table, Product, OrderStatus } from '~/types'
+import type { Table, OrderStatus } from '~/types'
 import type { ProcessOrderRequest, TakeOrderRequest } from '~/utils/validations'
 
-setPageLayout('waiter')
+definePageMeta({
+  layout: 'waiter'
+})
 
 const toast = useToast()
 
@@ -133,8 +135,8 @@ async function handleTakeOrder(data: TakeOrderRequest) {
   try {
     await createOrderMutation.mutateAsync({
       tableId: selectedTable.value?.id,
-      type: 'salon',
-      products: data.items.map(item => ({ id: item.productId, quantity: item.quantity, name: '', priceUnitary: 0 }))
+      type: 'SALON',
+      products: data.products.map(item => ({ id: item.productId, quantity: item.quantity, name: '', priceUnitary: 0 }))
     })
     isTakeOrderOpen.value = false
     toast.add({ title: '¡Pedido enviado a cocina!', color: 'success' })
@@ -156,15 +158,15 @@ async function handleChangeStatus(orderId: number, status: OrderStatus) {
 
 const stats = computed(() => [{
   title: 'Mesas Ocupadas',
-  value: tables.value?.filter(t => t.occupied).length || 0,
+  value: tables.value?.filter((t: Table) => t.occupied).length || 0,
   icon: 'i-lucide-users'
 }, {
   title: 'Órdenes Pendientes',
-  value: tables.value?.filter(t => t.order && t.order.status === 'Pendiente').length || 0,
+  value: tables.value?.filter((t: Table) => t.order && t.order.status === 'PENDIENTE').length || 0,
   icon: 'i-lucide-clock-alert'
 }, {
   title: 'Órdenes Listas',
-  value: tables.value?.filter(t => t.order && t.order.status === 'Listo').length || 0,
+  value: tables.value?.filter((t: Table) => t.order && t.order.status === 'LISTO').length || 0,
   icon: 'i-lucide-check'
 }])
 </script>
