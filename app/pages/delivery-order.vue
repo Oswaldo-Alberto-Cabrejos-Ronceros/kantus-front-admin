@@ -56,7 +56,12 @@
             <ClientProductCard
               v-for="product in filteredProducts"
               :key="product.id"
-              v-bind="product"
+              :id="product.id"
+              :name="product.name"
+              :description="product.description"
+              :price="product.price"
+              :image-url="product.imageUrl || ''"
+              :promotion="product.promotion"
               class="stagger-item"
               @add="addToCart(product)"
             />

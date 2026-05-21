@@ -60,23 +60,7 @@
             @cancel="isTakeOrderOpen = false"
           />
         </template>
-      </UModal>
-
-      <!-- Take Order Modal -->
-      <UModal v-model:open="isTakeOrderOpen" title="Tomar Pedido">
-        <template #body>
-          <TableFormTakeOrder
-            v-if="selectedTable"
-            :table-id="selectedTable.id"
-            :table-name="selectedTable.name"
-            :products="menuProducts || []"
-            :loading="isSubmitting"
-            @submit="handleTakeOrder"
-            @cancel="isTakeOrderOpen = false"
-          />
-        </template>
-      </UModal>
-    </template>
+      </UModal>    </template>
   </UDashboardPanel>
 </template>
 
@@ -91,16 +75,30 @@ definePageMeta({
 
 const toast = useToast()
 
-const { useFindAllTables } = useTables()
+const { useFindAllTables, useOccupyTable, useFreeTable } = useTables()
 const { useFindAllProducts } = useProducts()
-const { useUpdateOrderStatus, useCreateOrder } = useOrders()
+const { useUpdateOrderStatus, useCreateOrder, useFindAllOrders } = useOrders()
 const { useCreateSale } = useSales()
 
-const { data: tables } = useFindAllTables()
+const { data: rawTables } = useFindAllTables()
 const { data: menuProducts } = useFindAllProducts()
+const { data: orders } = useFindAllOrders()
 const updateStatusMutation = useUpdateOrderStatus()
 const createOrderMutation = useCreateOrder()
 const createSaleMutation = useCreateSale()
+const occupyTableMutation = useOccupyTable()
+const freeTableMutation = useFreeTable()
+
+const tables = computed<Table[]>(() => {
+  if (!rawTables.value) return []
+  return (rawTables.value as Table[]).map((table: Table) => {
+    const tableOrder = orders.value?.find((o: { tableId: number; status: string }) => o.tableId === table.id && o.status !== 'ENTREGADO' && o.status !== 'CANCELADO')
+    return {
+      ...table,
+      order: tableOrder
+    }
+  })
+})
 
 const isModalOpen = ref(false)
 const isTakeOrderOpen = ref(false)
@@ -121,6 +119,9 @@ async function handleSubmit(data: ProcessOrderRequest) {
   isSubmitting.value = true
   try {
     await createSaleMutation.mutateAsync({ sale: { metodo: data.paymentMethod as any }, orderId: data.orderId })
+    if (selectedTable.value) {
+      await freeTableMutation.mutateAsync(selectedTable.value.id)
+    }
     isModalOpen.value = false
     toast.add({ title: '¡Pago registrado exitosamente!', color: 'success' })
   } catch {
@@ -133,6 +134,9 @@ async function handleSubmit(data: ProcessOrderRequest) {
 async function handleTakeOrder(data: TakeOrderRequest) {
   isSubmitting.value = true
   try {
+    if (selectedTable.value && !selectedTable.value.occupied) {
+      await occupyTableMutation.mutateAsync(selectedTable.value.id)
+    }
     await createOrderMutation.mutateAsync({
       tableId: selectedTable.value?.id,
       type: 'SALON',

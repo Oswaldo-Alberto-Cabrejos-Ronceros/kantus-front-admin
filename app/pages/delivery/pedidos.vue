@@ -71,8 +71,9 @@ definePageMeta({
 
 const toast = useToast()
 
-const { useGetDeliveryOrders } = useOrders()
+const { useGetDeliveryOrders, useUpdateOrderStatus } = useOrders()
 const { data: deliveries } = useGetDeliveryOrders()
+const updateStatusMutation = useUpdateOrderStatus()
 
 const isModalOpen = ref(false)
 const selectedOrder = ref<OrderDelivery | null>(null)
@@ -89,10 +90,22 @@ function openOrderDetails(order: OrderDelivery) {
 
 async function handleSubmit(data: ProcessDeliveryOrderRequest) {
   isSubmitting.value = true
-  setTimeout(() => {
-    isSubmitting.value = false
+  try {
+    const statusMap: Record<'Pendiente' | 'Camino' | 'Entregado', 'PENDIENTE' | 'CAMINO' | 'ENTREGADO'> = {
+      'Pendiente': 'PENDIENTE',
+      'Camino': 'CAMINO',
+      'Entregado': 'ENTREGADO'
+    }
+    await updateStatusMutation.mutateAsync({
+      id: data.orderId,
+      status: statusMap[data.status]
+    })
     isModalOpen.value = false
     toast.add({ title: '¡Estado actualizado!', color: 'success' })
-  }, 1000)
+  } catch {
+    toast.add({ title: 'Error al actualizar el estado', color: 'error' })
+  } finally {
+    isSubmitting.value = false
+  }
 }
 </script>
