@@ -42,6 +42,7 @@
                   v-for="order in getOrdersByTypeAndStatus(type.value, statusCol.value)"
                   :key="order.id"
                   v-bind="order"
+                  :hide-deliver-action="true"
                   class="stagger-item"
                   @action="handleOrderAction"
                 />

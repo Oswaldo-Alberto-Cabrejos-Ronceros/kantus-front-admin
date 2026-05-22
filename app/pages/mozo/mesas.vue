@@ -5,6 +5,23 @@
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
+        <template #right>
+          <div class="flex items-center gap-3">
+            <template v-if="employee">
+              <UBadge v-if="hasOpenCashbox" color="success" variant="soft" size="sm">
+                Caja Abierta: {{ activeCashbox?.name }}
+              </UBadge>
+              <UButton
+                v-else
+                icon="i-lucide-plus"
+                color="primary"
+                size="sm"
+                label="Abrir Caja"
+                @click="isCashboxModalOpen = true"
+              />
+            </template>
+          </div>
+        </template>
       </UDashboardNavbar>
     </template>
 
@@ -17,7 +34,7 @@
             v-for="table in tables"
             :key="table.id"
             :table-name="table.name"
-            :is-occupied="table.occupied"
+            :is-occupied="table.occupied || !!table.order"
             :order="table.order"
             class="stagger-item"
             @click="openOrderDetails(table)"
@@ -60,18 +77,32 @@
             @cancel="isTakeOrderOpen = false"
           />
         </template>
-      </UModal>    </template>
+      </UModal>
+
+      <!-- Open Cashbox Modal -->
+      <UModal v-model:open="isCashboxModalOpen" title="Abrir Caja">
+        <template #body>
+          <CashboxFormOpenCashbox
+            :loading="isSubmittingCashbox"
+            @submit="handleOpenCashbox"
+            @cancel="isCashboxModalOpen = false"
+          />
+        </template>
+      </UModal>
+    </template>
   </UDashboardPanel>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
-import type { Table, OrderStatus } from '~/types'
-import type { ProcessOrderRequest, TakeOrderRequest } from '~/utils/validations'
-
 definePageMeta({
   layout: 'waiter'
 })
+import { ref, computed, watch } from 'vue'
+import type { Table, OrderStatus } from '~/types'
+import type { ProcessOrderRequest, TakeOrderRequest, OpenCashboxRequest } from '~/utils/validations'
+import { useAuth } from '~/composables/auth'
+import { useEmployees } from '~/composables/useEmployees'
+import { useCashBoxes } from '~/composables/useCashBoxes'
 
 const toast = useToast()
 
@@ -89,6 +120,58 @@ const createSaleMutation = useCreateSale()
 const occupyTableMutation = useOccupyTable()
 const freeTableMutation = useFreeTable()
 
+// Session & Cashbox variables
+const { user } = useAuth()
+const userId = computed(() => Number(user.value?.id) || 0)
+
+const { useFindEmployeeByUserId } = useEmployees()
+const { data: employee } = useFindEmployeeByUserId(userId)
+
+const employeeId = computed(() => Number(employee.value?.id) || 0)
+
+const { useFindLatestCashBoxByEmployee, useOpenCashBox } = useCashBoxes()
+const { data: activeCashbox } = useFindLatestCashBoxByEmployee(employeeId)
+const openMutation = useOpenCashBox()
+
+const hasOpenCashbox = computed(() => activeCashbox.value?.status === 'ABIERTA')
+
+const isCashboxModalOpen = ref(false)
+const isSubmittingCashbox = ref(false)
+
+// Debugging console logs
+console.log('[Mesas Debug] User in session:', user.value)
+watch(userId, (id) => {
+  console.log('[Mesas Debug] Computed userId:', id)
+})
+watch(employee, (emp) => {
+  console.log('[Mesas Debug] Fetched employee profile:', emp)
+})
+watch(activeCashbox, (cb) => {
+  console.log('[Mesas Debug] Fetched latest cashbox status:', cb?.status, cb)
+})
+
+async function handleOpenCashbox(data: OpenCashboxRequest) {
+  if (!employeeId.value) {
+    toast.add({ title: 'Error: No se encontró perfil de empleado', color: 'error' })
+    return
+  }
+  isSubmittingCashbox.value = true
+  try {
+    await openMutation.mutateAsync({
+      name: data.name,
+      openingAmount: data.openingAmount,
+      employeeId: employeeId.value
+    })
+    isCashboxModalOpen.value = false
+    toast.add({ title: 'Caja abierta correctamente', color: 'success' })
+  } catch (error) {
+    console.error('[Mesas Debug] Error opening cashbox:', error)
+    toast.add({ title: 'Error al abrir caja', color: 'error' })
+  } finally {
+    isSubmittingCashbox.value = false
+  }
+}
+
 const tables = computed<Table[]>(() => {
   if (!rawTables.value) return []
   return (rawTables.value as Table[]).map((table: Table) => {
@@ -102,16 +185,21 @@ const tables = computed<Table[]>(() => {
 
 const isModalOpen = ref(false)
 const isTakeOrderOpen = ref(false)
-const selectedTable = ref<Table | null>(null)
+const selectedTableId = ref<number | null>(null)
 const isSubmitting = ref(false)
 
+const selectedTable = computed(() => {
+  if (selectedTableId.value === null) return null
+  return tables.value.find(t => t.id === selectedTableId.value) || null
+})
+
 function openOrderDetails(table: Table) {
-  selectedTable.value = table
+  selectedTableId.value = table.id
   isModalOpen.value = true
 }
 
 function openTakeOrder(table: Table) {
-  selectedTable.value = table
+  selectedTableId.value = table.id
   isTakeOrderOpen.value = true
 }
 
@@ -140,6 +228,7 @@ async function handleTakeOrder(data: TakeOrderRequest) {
     await createOrderMutation.mutateAsync({
       tableId: selectedTable.value?.id,
       type: 'SALON',
+      customerName: data.customerName || undefined,
       products: data.products.map(item => ({ id: item.productId, quantity: item.quantity, name: '', priceUnitary: 0 }))
     })
     isTakeOrderOpen.value = false
@@ -162,7 +251,7 @@ async function handleChangeStatus(orderId: number, status: OrderStatus) {
 
 const stats = computed(() => [{
   title: 'Mesas Ocupadas',
-  value: tables.value?.filter((t: Table) => t.occupied).length || 0,
+  value: tables.value?.filter((t: Table) => t.occupied || !!t.order).length || 0,
   icon: 'i-lucide-users'
 }, {
   title: 'Órdenes Pendientes',

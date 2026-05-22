@@ -11,7 +11,7 @@
       <div class="flex items-center gap-2 mt-1">
         <template v-if="isOccupied && order">
           <UBadge :color="statusColor" variant="subtle" size="xs">
-            {{ order.status }}
+            {{ statusDisplay }}
           </UBadge>
           <span class="text-xs text-muted">{{ formatPrice(order.totalPrice) }}</span>
         </template>
@@ -54,15 +54,26 @@ defineEmits<{
   takeOrder: []
 }>()
 
+const statusDisplay = computed(() => {
+  if (!props.order) return ''
+  const displays: Record<string, string> = {
+    PENDIENTE: 'Pendiente',
+    PREPARANDO: 'Preparando',
+    LISTO: 'Listo',
+    ENTREGADO: 'Entregado',
+    CANCELADO: 'Cancelado'
+  }
+  return displays[props.order.status] || props.order.status
+})
+
 const statusColor = computed(() => {
   if (!props.isOccupied || !props.order) return 'neutral'
   const colors: Record<string, 'warning' | 'info' | 'success' | 'primary' | 'error'> = {
-    Pendiente: 'warning',
-    Preparando: 'info',
-    Listo: 'success',
-    Entregado: 'primary',
-    Pagado: 'success',
-    Cancelado: 'error'
+    PENDIENTE: 'warning',
+    PREPARANDO: 'info',
+    LISTO: 'success',
+    ENTREGADO: 'primary',
+    CANCELADO: 'error'
   }
   return colors[props.order.status] || 'neutral'
 })
@@ -70,12 +81,11 @@ const statusColor = computed(() => {
 const currentIcon = computed(() => {
   if (!props.isOccupied || !props.order) return 'i-lucide-armchair'
   const icons: Record<string, string> = {
-    Pendiente: 'i-lucide-clock-alert',
-    Preparando: 'i-lucide-timer',
-    Listo: 'i-lucide-check',
-    Entregado: 'i-lucide-package-check',
-    Pagado: 'i-lucide-banknote',
-    Cancelado: 'i-lucide-x-circle'
+    PENDIENTE: 'i-lucide-clock-alert',
+    PREPARANDO: 'i-lucide-timer',
+    LISTO: 'i-lucide-check',
+    ENTREGADO: 'i-lucide-package-check',
+    CANCELADO: 'i-lucide-x-circle'
   }
   return icons[props.order.status] || 'i-lucide-armchair'
 })

@@ -7,6 +7,19 @@
       </h2>
     </div>
 
+    <!-- Customer Name -->
+    <div class="space-y-1">
+      <label class="text-sm font-semibold text-muted uppercase tracking-wider block">
+        Nombre del Cliente (Opcional)
+      </label>
+      <UInput
+        v-model="customerName"
+        placeholder="Nombre del cliente..."
+        icon="i-lucide-user"
+        class="w-full"
+      />
+    </div>
+
     <!-- Product selection -->
     <div class="space-y-3">
       <h3 class="text-sm font-semibold text-muted uppercase tracking-wider">
@@ -43,7 +56,7 @@
               size="xs"
               color="neutral"
               variant="soft"
-              :ui="{ rounded: 'rounded-full' }"
+              :ui="{ base: 'rounded-full' }"
               @click="removeItem(product)"
             />
             <span v-if="getItemQuantity(product.id) > 0" class="text-sm font-semibold w-6 text-center">
@@ -54,7 +67,7 @@
               size="xs"
               color="primary"
               variant="soft"
-              :ui="{ rounded: 'rounded-full' }"
+              :ui="{ base: 'rounded-full' }"
               @click="addItem(product)"
             />
           </div>
@@ -125,6 +138,7 @@ const emit = defineEmits<{
 }>()
 
 const search = ref('')
+const customerName = ref('')
 const selectedItems = ref<SelectedItem[]>([])
 
 const filteredProducts = computed(() => {
@@ -170,6 +184,7 @@ function removeItem(product: Product) {
 function handleSubmit() {
   emit('submit', {
     tableId: props.tableId,
+    customerName: customerName.value || undefined,
     products: selectedItems.value
   })
 }

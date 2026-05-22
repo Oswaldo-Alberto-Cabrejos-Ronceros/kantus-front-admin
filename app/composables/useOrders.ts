@@ -10,7 +10,7 @@ import {
 } from '~/api/sdk.gen'
 import type { OrderResponse } from '~/api/types.gen'
 import { mapOrderResponseToUI, mapOrderRequestFromUI } from '~/adapters/order'
-import type { Order, OrderDelivery } from '~/types'
+import type { Order, OrderDelivery, OrderDeliveryStatus } from '~/types'
 
 export const useOrders = () => {
   const queryClient = useQueryClient()
@@ -47,7 +47,21 @@ export const useOrders = () => {
         const res = await getDeliveryOrders()
         if (res.error) throw res.error
         const data = res.data || []
-        return (Array.isArray(data) ? data : (data as any)?.content || []) as OrderDelivery[]
+        const rawList = (Array.isArray(data) ? data : (data as any)?.content || []) as any[]
+        
+        const statusMapFromBackend: Record<string, OrderDeliveryStatus> = {
+          'PENDIENTE': 'Pendiente',
+          'CAMINO': 'Camino',
+          'ENTREGADO': 'Entregado',
+          'Pendiente': 'Pendiente',
+          'Camino': 'Camino',
+          'Entregado': 'Entregado'
+        }
+
+        return rawList.map((item: any) => ({
+          ...item,
+          status: statusMapFromBackend[item.status] || item.status
+        })) as OrderDelivery[]
       }
     })
   }

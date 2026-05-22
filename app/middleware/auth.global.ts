@@ -32,7 +32,7 @@ function getDefaultRoute(role: string): string {
   switch (normalizedRole) {
     case 'ADMIN': return '/'
     case 'MOZO': return '/mozo/mesas'
-    case 'CAJERO': return '/cajas'
+    case 'CAJERO': return '/cajero/cajas'
     case 'COCINERO': return '/pedidos-cocina'
     case 'DELIVERY': return '/delivery/pedidos'
     case 'CLIENTE': return '/delivery-order'

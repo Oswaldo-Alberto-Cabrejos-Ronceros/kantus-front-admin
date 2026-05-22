@@ -186,6 +186,8 @@ export interface CashBox {
   openingTime: string | Date
   closingTime?: string | Date
   status: CashBoxStatus
+  employeeId?: number
+  employeeName?: string
 }
 
 export type ComprobanteType = 'Boleta' | 'Factura'

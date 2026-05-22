@@ -7,7 +7,9 @@ import {
   openCashBox,
   closeCashBox,
   getMovements1, // Cashbox movements
-  addMovement1 // Add Cashbox movement
+  addMovement1, // Add Cashbox movement
+  getCashBoxesByEmployeeId,
+  getLatestCashBoxByEmployeeId
 } from '~/api/sdk.gen'
 import type { CashBoxResponse, MovementCashboxResponse } from '~/api/types.gen'
 import {
@@ -31,6 +33,43 @@ export const useCashBoxes = () => {
           ? data.map((item) => mapCashBoxResponseToUI(item as CashBoxResponse)) 
           : (data as any)?.content?.map((item: any) => mapCashBoxResponseToUI(item as CashBoxResponse)) || []
       }
+    })
+  }
+
+  const useFindCashBoxesByEmployee = (employeeId: MaybeRef<number>, page: MaybeRef<number> = 0, size: MaybeRef<number> = 10) => {
+    return useQuery({
+      queryKey: ['cashboxes', 'employee', employeeId, page, size],
+      queryFn: async () => {
+        const res = await getCashBoxesByEmployeeId({
+          path: { employeeId: toValue(employeeId) },
+          query: { page: toValue(page), size: toValue(size) }
+        })
+        const data = res.data?.content || []
+        return {
+          content: data.map((item) => mapCashBoxResponseToUI(item as CashBoxResponse)),
+          totalElements: res.data?.totalElements || 0,
+          totalPages: res.data?.totalPages || 0
+        }
+      },
+      enabled: computed(() => !!toValue(employeeId))
+    })
+  }
+
+  const useFindLatestCashBoxByEmployee = (employeeId: MaybeRef<number>) => {
+    return useQuery({
+      queryKey: ['cashboxes', 'employee', employeeId, 'latest'],
+      queryFn: async () => {
+        try {
+          const res = await getLatestCashBoxByEmployeeId({
+            path: { employeeId: toValue(employeeId) }
+          })
+          if (res.error) return null
+          return res.data ? mapCashBoxResponseToUI(res.data as CashBoxResponse) : null
+        } catch {
+          return null
+        }
+      },
+      enabled: computed(() => !!toValue(employeeId))
     })
   }
 
@@ -70,6 +109,7 @@ export const useCashBoxes = () => {
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['cashboxes'] })
+        queryClient.invalidateQueries({ queryKey: ['cashboxes', 'employee'] })
       }
     })
   }
@@ -83,6 +123,7 @@ export const useCashBoxes = () => {
       },
       onSuccess: (_, id) => {
         queryClient.invalidateQueries({ queryKey: ['cashboxes'] })
+        queryClient.invalidateQueries({ queryKey: ['cashboxes', 'employee'] })
         queryClient.invalidateQueries({ queryKey: ['cashboxes', id] })
       }
     })
@@ -98,6 +139,7 @@ export const useCashBoxes = () => {
       },
       onSuccess: (_, variables) => {
         queryClient.invalidateQueries({ queryKey: ['cashboxes'] })
+        queryClient.invalidateQueries({ queryKey: ['cashboxes', 'employee'] })
         queryClient.invalidateQueries({ queryKey: ['cashbox', variables.cashBoxId, 'movements'] })
       }
     })
@@ -105,6 +147,8 @@ export const useCashBoxes = () => {
 
   return {
     useFindAllCashBoxes,
+    useFindCashBoxesByEmployee,
+    useFindLatestCashBoxByEmployee,
     useFindOneCashBox,
     useFindCashBoxMovements,
     useOpenCashBox,

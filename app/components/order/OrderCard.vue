@@ -109,6 +109,7 @@ const props = defineProps<{
   customerName?: string
   customerPhone?: string
   tableName?: string
+  hideDeliverAction?: boolean
 }>()
 
 const emit = defineEmits(['action'])
@@ -140,7 +141,14 @@ const statusInfo = computed<{
     case 'PREPARANDO':
       return { color: 'warning', actionLabel: 'Marcar Listo', actionColor: 'warning', icon: 'i-lucide-check-circle', nextStatus: 'LISTO', glowClass: 'badge-glow-warning' }
     case 'LISTO':
-      return { color: 'success', actionLabel: 'Marcar Entregado', actionColor: 'success', icon: 'i-lucide-package-check', nextStatus: 'ENTREGADO', glowClass: 'badge-glow-success' }
+      return {
+        color: 'success',
+        actionLabel: props.hideDeliverAction ? '' : 'Marcar Entregado',
+        actionColor: 'success',
+        icon: props.hideDeliverAction ? '' : 'i-lucide-package-check',
+        nextStatus: props.hideDeliverAction ? '' : 'ENTREGADO',
+        glowClass: 'badge-glow-success'
+      }
     case 'ENTREGADO':
       return { color: 'primary', actionLabel: '', actionColor: 'neutral', icon: '', nextStatus: '', glowClass: '' }
     case 'CANCELADO':

@@ -83,10 +83,8 @@ export const employeeSchema = z.object({
     .regex(/^\d{8,10}$/, 'El número de documento debe contener entre 8 y 10 dígitos numéricos'),
   position: z.enum(['Administrative', 'Chef', 'Waiter', 'Cashier', 'Delivery'], { message: 'El puesto es obligatorio' }),
   contractType: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT'], { message: 'El tipo de contrato es obligatorio' }),
-  weeklyHours: z.number({ message: 'Debe ser un número' }).positive('Las horas semanales deben ser mayor a 0'),  // era hoursWeek
+  weeklyHours: z.number({ message: 'Debe ser un número' }).positive('Las horas semanales deben ser mayor a 0'),
   hourlyWage: z.number({ message: 'Debe ser un número' }).positive('El salario debe ser mayor a 0')
-  // birthdate eliminado (backend no lo pide)
-  // status eliminado (backend no lo pide en EmployeeRequest)
 })
 
 export type EmployeeRequest = z.infer<typeof employeeSchema>
@@ -163,6 +161,7 @@ export type ProcessDeliveryOrderRequest = z.infer<typeof processDeliveryOrderSch
 
 export const takeOrderSchema = z.object({
   tableId: z.number({ message: 'La mesa es obligatoria' }),
+  customerName: z.string().optional(),
   products: z.array(z.object({
     productId: z.number(),
     name: z.string(),
