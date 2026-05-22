@@ -58,7 +58,7 @@ export const useAuth = () => {
             router.push('/mozo/mesas')
             break
           case 'CAJERO':
-            router.push('/cajas')
+            router.push('/cajero/cajas')
             break
           case 'COCINERO':
             router.push('/pedidos-cocina')

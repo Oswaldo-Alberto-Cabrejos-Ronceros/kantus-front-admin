@@ -17,7 +17,7 @@
             v-for="table in tables"
             :key="table.id"
             :table-name="table.name"
-            :is-occupied="table.occupied"
+            :is-occupied="table.occupied || !!table.order"
             :order="table.order"
             class="stagger-item"
             @click="openOrderDetails(table)"
@@ -102,16 +102,21 @@ const tables = computed<Table[]>(() => {
 
 const isModalOpen = ref(false)
 const isTakeOrderOpen = ref(false)
-const selectedTable = ref<Table | null>(null)
+const selectedTableId = ref<number | null>(null)
 const isSubmitting = ref(false)
 
+const selectedTable = computed(() => {
+  if (selectedTableId.value === null) return null
+  return tables.value.find(t => t.id === selectedTableId.value) || null
+})
+
 function openOrderDetails(table: Table) {
-  selectedTable.value = table
+  selectedTableId.value = table.id
   isModalOpen.value = true
 }
 
 function openTakeOrder(table: Table) {
-  selectedTable.value = table
+  selectedTableId.value = table.id
   isTakeOrderOpen.value = true
 }
 
@@ -140,6 +145,7 @@ async function handleTakeOrder(data: TakeOrderRequest) {
     await createOrderMutation.mutateAsync({
       tableId: selectedTable.value?.id,
       type: 'SALON',
+      customerName: data.customerName || undefined,
       products: data.products.map(item => ({ id: item.productId, quantity: item.quantity, name: '', priceUnitary: 0 }))
     })
     isTakeOrderOpen.value = false
@@ -162,7 +168,7 @@ async function handleChangeStatus(orderId: number, status: OrderStatus) {
 
 const stats = computed(() => [{
   title: 'Mesas Ocupadas',
-  value: tables.value?.filter((t: Table) => t.occupied).length || 0,
+  value: tables.value?.filter((t: Table) => t.occupied || !!t.order).length || 0,
   icon: 'i-lucide-users'
 }, {
   title: 'Órdenes Pendientes',

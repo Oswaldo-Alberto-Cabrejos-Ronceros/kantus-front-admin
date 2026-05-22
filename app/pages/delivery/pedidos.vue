@@ -36,7 +36,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           <DeliveryOrderCard
-            v-for="order in deliveries"
+            v-for="order in activeDeliveries"
             :key="order.id"
             :order="order as any"
             class="stagger-item"
@@ -78,6 +78,8 @@ const updateStatusMutation = useUpdateOrderStatus()
 const isModalOpen = ref(false)
 const selectedOrder = ref<OrderDelivery | null>(null)
 const isSubmitting = ref(false)
+
+const activeDeliveries = computed(() => deliveries.value?.filter((o: any) => o.status !== 'Entregado') ?? [])
 
 const deliveredCount = computed(() => deliveries.value?.filter((o: any) => o.status === 'Entregado').length ?? 0)
 const pendingCount = computed(() => deliveries.value?.filter((o: any) => o.status === 'Pendiente').length ?? 0)

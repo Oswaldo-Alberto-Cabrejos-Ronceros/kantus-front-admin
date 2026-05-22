@@ -235,6 +235,7 @@ export type UserRequest = {
 export type CashBoxRequest = {
     name: string;
     openingAmount: number;
+    employeeId: number;
 };
 
 export type CashBoxResponse = {
@@ -246,6 +247,9 @@ export type CashBoxResponse = {
     openingTime?: string;
     closingTime?: string;
     status?: 'ABIERTA' | 'CERRADA';
+    employeeId?: number;
+    employeeName?: string;
+    employeeLastname?: string;
 };
 
 export type MovementCashboxRequest = {
@@ -275,8 +279,8 @@ export type AuthRequest = {
 };
 
 export type PageUserResponse = {
-    totalPages?: number;
     totalElements?: number;
+    totalPages?: number;
     size?: number;
     content?: Array<UserResponse>;
     number?: number;
@@ -291,9 +295,9 @@ export type PageUserResponse = {
 export type PageableObject = {
     offset?: number;
     sort?: SortObject;
-    paged?: boolean;
     pageSize?: number;
     pageNumber?: number;
+    paged?: boolean;
     unpaged?: boolean;
 };
 
@@ -304,8 +308,8 @@ export type SortObject = {
 };
 
 export type PageRestaurantTableResponse = {
-    totalPages?: number;
     totalElements?: number;
+    totalPages?: number;
     size?: number;
     content?: Array<RestaurantTableResponse>;
     number?: number;
@@ -318,8 +322,8 @@ export type PageRestaurantTableResponse = {
 };
 
 export type PageSupplierResponse = {
-    totalPages?: number;
     totalElements?: number;
+    totalPages?: number;
     size?: number;
     content?: Array<SupplierResponse>;
     number?: number;
@@ -332,8 +336,8 @@ export type PageSupplierResponse = {
 };
 
 export type PageSaleResponse = {
-    totalPages?: number;
     totalElements?: number;
+    totalPages?: number;
     size?: number;
     content?: Array<SaleResponse>;
     number?: number;
@@ -363,8 +367,8 @@ export type ProductTopDto = {
 };
 
 export type PageProductResponse = {
-    totalPages?: number;
     totalElements?: number;
+    totalPages?: number;
     size?: number;
     content?: Array<ProductResponse>;
     number?: number;
@@ -377,8 +381,8 @@ export type PageProductResponse = {
 };
 
 export type PageProductInventoryResponse = {
-    totalPages?: number;
     totalElements?: number;
+    totalPages?: number;
     size?: number;
     content?: Array<ProductInventoryResponse>;
     number?: number;
@@ -391,8 +395,8 @@ export type PageProductInventoryResponse = {
 };
 
 export type PageOrderResponse = {
-    totalPages?: number;
     totalElements?: number;
+    totalPages?: number;
     size?: number;
     content?: Array<OrderResponse>;
     number?: number;
@@ -427,8 +431,8 @@ export type OrderDeliveryItemDto = {
 };
 
 export type PageMovementInventoryResponse = {
-    totalPages?: number;
     totalElements?: number;
+    totalPages?: number;
     size?: number;
     content?: Array<MovementInventoryResponse>;
     number?: number;
@@ -441,8 +445,8 @@ export type PageMovementInventoryResponse = {
 };
 
 export type PageEmployeeResponse = {
-    totalPages?: number;
     totalElements?: number;
+    totalPages?: number;
     size?: number;
     content?: Array<EmployeeResponse>;
     number?: number;
@@ -455,8 +459,8 @@ export type PageEmployeeResponse = {
 };
 
 export type PageCategoryResponse = {
-    totalPages?: number;
     totalElements?: number;
+    totalPages?: number;
     size?: number;
     content?: Array<CategoryResponse>;
     number?: number;
@@ -469,8 +473,8 @@ export type PageCategoryResponse = {
 };
 
 export type PageCategoryInventoryResponse = {
-    totalPages?: number;
     totalElements?: number;
+    totalPages?: number;
     size?: number;
     content?: Array<CategoryInventoryResponse>;
     number?: number;
@@ -483,8 +487,8 @@ export type PageCategoryInventoryResponse = {
 };
 
 export type PageCashBoxResponse = {
-    totalPages?: number;
     totalElements?: number;
+    totalPages?: number;
     size?: number;
     content?: Array<CashBoxResponse>;
     number?: number;
@@ -497,8 +501,8 @@ export type PageCashBoxResponse = {
 };
 
 export type PageMovementCashboxResponse = {
-    totalPages?: number;
     totalElements?: number;
+    totalPages?: number;
     size?: number;
     content?: Array<MovementCashboxResponse>;
     number?: number;
@@ -1818,6 +1822,24 @@ export type GetMovementByIdResponses = {
 
 export type GetMovementByIdResponse = GetMovementByIdResponses[keyof GetMovementByIdResponses];
 
+export type GetEmployeeByUserIdData = {
+    body?: never;
+    path: {
+        userId: number;
+    };
+    query?: never;
+    url: '/api/employees/user/{userId}';
+};
+
+export type GetEmployeeByUserIdResponses = {
+    /**
+     * OK
+     */
+    200: EmployeeResponse;
+};
+
+export type GetEmployeeByUserIdResponse = GetEmployeeByUserIdResponses[keyof GetEmployeeByUserIdResponses];
+
 export type SearchEmployeesData = {
     body?: never;
     path?: never;
@@ -1953,3 +1975,42 @@ export type GetMovements1Responses = {
 };
 
 export type GetMovements1Response = GetMovements1Responses[keyof GetMovements1Responses];
+
+export type GetCashBoxesByEmployeeIdData = {
+    body?: never;
+    path: {
+        employeeId: number;
+    };
+    query?: {
+        page?: number;
+        size?: number;
+    };
+    url: '/api/cashboxes/employee/{employeeId}';
+};
+
+export type GetCashBoxesByEmployeeIdResponses = {
+    /**
+     * OK
+     */
+    200: PageCashBoxResponse;
+};
+
+export type GetCashBoxesByEmployeeIdResponse = GetCashBoxesByEmployeeIdResponses[keyof GetCashBoxesByEmployeeIdResponses];
+
+export type GetLatestCashBoxByEmployeeIdData = {
+    body?: never;
+    path: {
+        employeeId: number;
+    };
+    query?: never;
+    url: '/api/cashboxes/employee/{employeeId}/latest';
+};
+
+export type GetLatestCashBoxByEmployeeIdResponses = {
+    /**
+     * OK
+     */
+    200: CashBoxResponse;
+};
+
+export type GetLatestCashBoxByEmployeeIdResponse = GetLatestCashBoxByEmployeeIdResponses[keyof GetLatestCashBoxByEmployeeIdResponses];

@@ -13,29 +13,31 @@
         </span>
       </h2>
       <UBadge :color="statusColor" variant="subtle">
-        {{ order.status }}
+        {{ statusDisplay }}
       </UBadge>
     </div>
 
+    <!-- Customer Info -->
+    <div v-if="order.customerName" class="flex items-center gap-2 text-sm text-muted bg-elevated/30 p-3 rounded-lg border border-default">
+      <UIcon name="i-lucide-user" class="w-4 h-4 text-primary" />
+      <span class="font-medium text-highlighted">Cliente:</span>
+      <span>{{ order.customerName }}</span>
+    </div>
+
     <!-- Status change (for Mozo/Chef) -->
-    <div v-if="canChangeStatus" class="space-y-2">
+     <!--     <div v-if="canChangeStatus && nextStatusInfo" class="space-y-2">
       <h3 class="text-sm font-semibold text-muted uppercase tracking-wider">
         Cambiar Estado
       </h3>
-      <div class="flex gap-2 flex-wrap">
-        <UButton
-          v-for="s in availableStatuses"
-          :key="s.value"
-          size="sm"
-          :color="s.color"
-          :variant="order.status === s.value ? 'solid' : 'soft'"
-          :icon="s.icon"
-          @click="emit('changeStatus', order.id, s.value)"
-        >
-          {{ s.label }}
-        </UButton>
-      </div>
-    </div>
+      <UButton
+        size="sm"
+        :color="nextStatusInfo.color"
+        :icon="nextStatusInfo.icon"
+        @click="emit('changeStatus', order.id, nextStatus!)"
+      >
+        {{ nextStatusInfo.label }}
+      </UButton>
+    </div> -->
 
     <div class="flex flex-col gap-3">
       <h3 class="text-sm font-semibold text-muted uppercase tracking-wider">
@@ -136,20 +138,32 @@ const statusColor = computed(() => {
     PREPARANDO: 'info',
     LISTO: 'success',
     ENTREGADO: 'primary',
-
     CANCELADO: 'error'
   }
   return colors[props.order.status] || 'neutral'
 })
 
-const availableStatuses = computed(() => {
-  const all = [
-    { value: 'PENDIENTE' as OrderStatus, label: 'Pendiente', color: 'warning' as const, icon: 'i-lucide-clock' },
-    { value: 'PREPARANDO' as OrderStatus, label: 'Preparando', color: 'info' as const, icon: 'i-lucide-chef-hat' },
-    { value: 'LISTO' as OrderStatus, label: 'Listo', color: 'success' as const, icon: 'i-lucide-check' },
-    { value: 'ENTREGADO' as OrderStatus, label: 'Entregado', color: 'primary' as const, icon: 'i-lucide-package-check' }
-  ]
-  return all
+const statusDisplay = computed(() => {
+  const displays: Record<string, string> = {
+    PENDIENTE: 'Pendiente',
+    PREPARANDO: 'Preparando',
+    LISTO: 'Listo',
+    ENTREGADO: 'Entregado',
+    CANCELADO: 'Cancelado'
+  }
+  return displays[props.order.status] || props.order.status
+})
+
+const nextStatus = computed<OrderStatus | null>(() => {
+  if (props.order.status === 'LISTO') return 'ENTREGADO'
+  return null
+})
+
+const nextStatusInfo = computed(() => {
+  const info: Record<string, { label: string; color: 'info' | 'success' | 'primary'; icon: string }> = {
+    ENTREGADO: { label: 'Marcar como Entregado', color: 'primary', icon: 'i-lucide-package-check' }
+  }
+  return nextStatus.value ? info[nextStatus.value] : null
 })
 
 const canChangeStatus = computed(() => {
@@ -166,8 +180,8 @@ const state = reactive<ProcessOrderRequest>({
   tip: undefined
 })
 
-watch(() => props.order.id, (newId) => {
-  state.orderId = newId
+watch(() => props.order, (o) => {
+  state.orderId = o.id
 })
 
 const subtotal = computed(() => {

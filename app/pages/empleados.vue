@@ -79,10 +79,6 @@ const columns = computed<TableColumn<Employee>[]>(() => [
       return labels[row.original.position] || row.original.position
     }
   },
-  { id: 'systemUser', header: 'Usuario', cell: ({ row }) => {
-    if (row.original.hasSystemUser) return h('div', { class: 'flex items-center gap-1' }, [h(UBadge, { color: 'info', variant: 'subtle', size: 'xs' }, () => row.original.userRole), h('span', { class: 'text-xs text-muted' }, row.original.email)])
-    return h(UBtn, { size: 'xs', color: 'primary', variant: 'soft', onClick: () => { selectedEmployee.value = row.original; isAssignModalOpen.value = true } }, () => 'Asignar')
-  } },
   { id: 'status', header: 'Estado', cell: ({ row }) => h(UBadge, { color: row.original.status ? 'success' : 'error', variant: 'subtle' }, () => row.original.status ? 'Activo' : 'Baja') }
 ])
 

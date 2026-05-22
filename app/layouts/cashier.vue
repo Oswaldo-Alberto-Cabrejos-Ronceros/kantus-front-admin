@@ -5,9 +5,9 @@ const open = ref(false)
 
 const links = [
   {
-    label: 'Caja',
+    label: 'Cajas',
     icon: 'i-lucide-hand-coins',
-    to: '/cajas',
+    to: '/cajero/cajas',
     onSelect: () => { open.value = false }
   }
 ] as NavigationMenuItem[]

@@ -108,18 +108,13 @@ definePageMeta({
 })
 
 const { user } = useAuth()
-const userId = computed(() => Number(user.value?.id) || 0)
 
 const UBadge = resolveComponent('UBadge')
 const toast = useToast()
 
 const { useFindCashBoxMovements, useOpenCashBox, useCloseCashBox, useFindOneCashBox } = useCashBoxes()
-const { useFindEmployeeByUserId } = useEmployees()
-
 const { data: cashBox } = useFindOneCashBox(cashBoxId)
 const { data: movements, isPending } = useFindCashBoxMovements(cashBoxId)
-const { data: employee } = useFindEmployeeByUserId(userId)
-const employeeId = computed(() => Number(employee.value?.id) || 0)
 
 const openMutation = useOpenCashBox()
 const closeMutation = useCloseCashBox()
@@ -150,11 +145,7 @@ const columns = computed<TableColumn<MovementCashbox>[]>(() => [
 async function handleOpenCashbox(data: OpenCashboxRequest) {
   isSubmitting.value = true
   try {
-    await openMutation.mutateAsync({
-      name: data.name,
-      openingAmount: data.openingAmount,
-      employeeId: employeeId.value
-    })
+    await openMutation.mutateAsync({ name: data.name, openingAmount: data.openingAmount, id: cashBoxId.value })
     isOpenModalOpen.value = false
     toast.add({ title: 'Caja abierta correctamente', color: 'success' })
   } catch {

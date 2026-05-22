@@ -44,16 +44,6 @@
       </div>
     </div>
 
-    <UFormField label="Actualizar Estado" name="status">
-      <URadioGroup
-        v-model="state.status"
-        orientation="horizontal"
-        variant="list"
-        :items="deliveryStatuses"
-        class="w-full"
-      />
-    </UFormField>
-
     <div class="flex justify-between items-center border-t border-default pt-4 gap-3">
       <UButton
         v-if="order.customerPhone"
@@ -71,12 +61,13 @@
           Cancelar
         </UButton>
         <UButton
+          v-if="nextStatus"
           type="submit"
           color="primary"
           :loading="loading"
           icon="i-lucide-save"
         >
-          Actualizar
+          {{ updateButtonText }}
         </UButton>
       </div>
     </div>
@@ -92,15 +83,38 @@ import { processDeliveryOrderSchema, type ProcessDeliveryOrderRequest } from '~/
 const props = defineProps<{ loading?: boolean, order: OrderDelivery }>()
 const emit = defineEmits<{ submit: [data: ProcessDeliveryOrderRequest], cancel: [] }>()
 
-const deliveryStatuses: OrderDeliveryStatus[] = ['Pendiente', 'Camino', 'Entregado']
+const nextStatus = computed<OrderDeliveryStatus | null>(() => {
+  if (props.order.status === 'Pendiente') return 'Camino'
+  if (props.order.status === 'Camino') return 'Entregado'
+  return null
+})
 
 const statusColor = computed(() => {
   const c: Record<OrderDeliveryStatus, 'warning' | 'info' | 'success'> = { Pendiente: 'warning', Camino: 'info', Entregado: 'success' }
   return c[props.order.status] || 'neutral'
 })
 
-const state = reactive<ProcessDeliveryOrderRequest>({ orderId: props.order.id, status: props.order.status })
-watch(() => props.order, (o) => { state.orderId = o.id; state.status = o.status })
+const getNextStatusValue = (status: OrderDeliveryStatus): OrderDeliveryStatus => {
+  if (status === 'Pendiente') return 'Camino'
+  if (status === 'Camino') return 'Entregado'
+  return status
+}
+
+const state = reactive<ProcessDeliveryOrderRequest>({ 
+  orderId: props.order.id, 
+  status: getNextStatusValue(props.order.status) 
+})
+
+watch(() => props.order, (o) => { 
+  state.orderId = o.id
+  state.status = getNextStatusValue(o.status) 
+})
+
+const updateButtonText = computed(() => {
+  if (props.order.status === 'Pendiente') return 'Marcar como En Camino'
+  if (props.order.status === 'Camino') return 'Marcar como Entregado'
+  return 'Actualizar'
+})
 
 async function onSubmit(event: FormSubmitEvent<ProcessDeliveryOrderRequest>) { emit('submit', event.data) }
 </script>

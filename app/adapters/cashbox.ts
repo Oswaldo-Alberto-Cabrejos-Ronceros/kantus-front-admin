@@ -16,12 +16,15 @@ export const mapCashBoxResponseToUI = (data: CashBoxResponse): CashBox => ({
   openingTime: data.openingTime || new Date(),
   closingTime: data.closingTime,
   // Backend usa MAYÚSCULAS, el tipo UI ahora también usa MAYÚSCULAS
-  status: (data.status || 'CERRADA') as CashBoxStatus
+  status: (data.status || 'CERRADA') as CashBoxStatus,
+  employeeId: data.employeeId,
+  employeeName: data.employeeName
 })
 
 export const mapCashBoxRequestFromUI = (data: Partial<CashBox>): CashBoxRequest => ({
   name: data.name || '',
-  openingAmount: data.openingAmount || 0
+  openingAmount: data.openingAmount || 0,
+  employeeId: data.employeeId || 0
 })
 
 // Movement Cashbox

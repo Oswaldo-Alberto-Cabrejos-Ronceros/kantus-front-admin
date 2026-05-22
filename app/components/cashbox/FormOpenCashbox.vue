@@ -5,6 +5,14 @@
     class="flex flex-col gap-4"
     @submit="onSubmit"
   >
+    <UFormField label="Nombre de la Caja" name="name">
+      <UInput
+        v-model="state.name"
+        placeholder="Ej. Caja Principal"
+        class="w-full"
+      />
+    </UFormField>
+
     <UFormField label="Monto de Apertura (S/)" name="openingAmount">
       <UInput
         v-model.number="state.openingAmount"
@@ -33,7 +41,7 @@ import { openCashboxSchema, type OpenCashboxRequest } from '~/utils/validations'
 defineProps<{ loading?: boolean }>()
 const emit = defineEmits<{ (e: 'submit', data: OpenCashboxRequest): void, (e: 'cancel'): void }>()
 
-const state = reactive<Partial<OpenCashboxRequest>>({ openingAmount: 0 })
+const state = reactive<Partial<OpenCashboxRequest>>({ name: '', openingAmount: 0 })
 
 async function onSubmit(event: FormSubmitEvent<OpenCashboxRequest>) {
   emit('submit', event.data)

@@ -8,7 +8,8 @@ import {
   updateEmployee,
   activateEmployee,
   deactivateEmployee,
-  getEmployeeById
+  getEmployeeById,
+  getEmployeeByUserId
 } from '~/api/sdk.gen'
 import type { EmployeeResponse } from '~/api/types.gen'
 import { mapEmployeeResponseToUI, mapEmployeeRequestFromUI } from '~/adapters/employee'
@@ -40,6 +41,18 @@ export const useEmployees = () => {
         return res.data ? mapEmployeeResponseToUI(res.data as EmployeeResponse) : null
       },
       enabled: computed(() => !!toValue(id))
+    })
+  }
+
+  const useFindEmployeeByUserId = (userId: MaybeRef<number>) => {
+    return useQuery({
+      queryKey: ['employees', 'user', userId],
+      queryFn: async () => {
+        const res = await getEmployeeByUserId({ path: { userId: toValue(userId) } })
+        if (res.error) throw res.error
+        return res.data ? mapEmployeeResponseToUI(res.data as EmployeeResponse) : null
+      },
+      enabled: computed(() => !!toValue(userId))
     })
   }
 
@@ -117,6 +130,7 @@ export const useEmployees = () => {
   return {
     useFindAllEmployees,
     useFindOneEmployee,
+    useFindEmployeeByUserId,
     useCreateEmployee,
     useCreateEmployeeWithUser,
     useUpdateEmployee,

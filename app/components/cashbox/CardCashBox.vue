@@ -6,7 +6,7 @@
           <h3 class="text-lg font-bold text-gray-900 dark:text-white">
             {{ name }}
           </h3>
-          <UBadge :color="status === 'Abierta' ? 'success' : 'error'" variant="soft" size="xs">
+          <UBadge :color="status === 'ABIERTA' ? 'success' : 'error'" variant="soft" size="xs">
             {{ status.toUpperCase() }}
           </UBadge>
         </div>
