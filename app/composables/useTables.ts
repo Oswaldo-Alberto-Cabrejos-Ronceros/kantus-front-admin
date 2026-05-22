@@ -13,6 +13,7 @@ import {
 } from '~/api/sdk.gen'
 import type { RestaurantTableResponse } from '~/api/types.gen'
 import { mapTableResponseToUI, mapTableRequestFromUI } from '~/adapters/table'
+import { extractItems, STALE } from '~/utils/query'
 import type { Table } from '~/types'
 
 export const useTables = () => {
@@ -21,12 +22,10 @@ export const useTables = () => {
   const useFindAllTables = () => {
     return useQuery({
       queryKey: ['tables'],
-      queryFn: async () => {
+      staleTime: STALE.LIVE,
+      queryFn: async (): Promise<Table[]> => {
         const res = await getAllTables()
-        const data = res.data || []
-        return Array.isArray(data) 
-          ? data.map((item) => mapTableResponseToUI(item as RestaurantTableResponse)) 
-          : (data as any)?.content?.map((item: any) => mapTableResponseToUI(item as RestaurantTableResponse)) || []
+        return extractItems<RestaurantTableResponse>(res.data as any).map(mapTableResponseToUI)
       }
     })
   }
@@ -34,6 +33,7 @@ export const useTables = () => {
   const useFindOneTable = (id: MaybeRef<number>) => {
     return useQuery({
       queryKey: ['tables', id],
+      staleTime: STALE.LIVE,
       queryFn: async () => {
         const res = await getTableById({ path: { id: toValue(id) } })
         if (res.error) throw res.error
@@ -52,7 +52,7 @@ export const useTables = () => {
         return res.data ? mapTableResponseToUI(res.data as RestaurantTableResponse) : null
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['tables'] })
+        queryClient.invalidateQueries({ queryKey: ['tables'], exact: true })
       }
     })
   }
@@ -65,9 +65,9 @@ export const useTables = () => {
         if (res.error) throw res.error
         return res.data ? mapTableResponseToUI(res.data as RestaurantTableResponse) : null
       },
-      onSuccess: (_, variables) => {
-        queryClient.invalidateQueries({ queryKey: ['tables'] })
-        queryClient.invalidateQueries({ queryKey: ['tables', variables.id] })
+      onSuccess: (updated, variables) => {
+        if (updated) queryClient.setQueryData(['tables', variables.id], updated)
+        queryClient.invalidateQueries({ queryKey: ['tables'], exact: true })
       }
     })
   }
@@ -79,9 +79,9 @@ export const useTables = () => {
         if (res.error) throw res.error
         return res.data ? mapTableResponseToUI(res.data as RestaurantTableResponse) : null
       },
-      onSuccess: (_, id) => {
-        queryClient.invalidateQueries({ queryKey: ['tables'] })
-        queryClient.invalidateQueries({ queryKey: ['tables', id] })
+      onSuccess: (updated, id) => {
+        if (updated) queryClient.setQueryData(['tables', id], updated)
+        queryClient.invalidateQueries({ queryKey: ['tables'], exact: true })
       }
     })
   }
@@ -93,9 +93,9 @@ export const useTables = () => {
         if (res.error) throw res.error
         return res.data ? mapTableResponseToUI(res.data as RestaurantTableResponse) : null
       },
-      onSuccess: (_, id) => {
-        queryClient.invalidateQueries({ queryKey: ['tables'] })
-        queryClient.invalidateQueries({ queryKey: ['tables', id] })
+      onSuccess: (updated, id) => {
+        if (updated) queryClient.setQueryData(['tables', id], updated)
+        queryClient.invalidateQueries({ queryKey: ['tables'], exact: true })
       }
     })
   }
@@ -107,9 +107,9 @@ export const useTables = () => {
         if (res.error) throw res.error
         return res.data ? mapTableResponseToUI(res.data as RestaurantTableResponse) : null
       },
-      onSuccess: (_, id) => {
-        queryClient.invalidateQueries({ queryKey: ['tables'] })
-        queryClient.invalidateQueries({ queryKey: ['tables', id] })
+      onSuccess: (updated, id) => {
+        if (updated) queryClient.setQueryData(['tables', id], updated)
+        queryClient.invalidateQueries({ queryKey: ['tables'], exact: true })
       }
     })
   }
@@ -121,9 +121,9 @@ export const useTables = () => {
         if (res.error) throw res.error
         return res.data ? mapTableResponseToUI(res.data as RestaurantTableResponse) : null
       },
-      onSuccess: (_, id) => {
-        queryClient.invalidateQueries({ queryKey: ['tables'] })
-        queryClient.invalidateQueries({ queryKey: ['tables', id] })
+      onSuccess: (updated, id) => {
+        if (updated) queryClient.setQueryData(['tables', id], updated)
+        queryClient.invalidateQueries({ queryKey: ['tables'], exact: true })
       }
     })
   }

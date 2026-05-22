@@ -77,6 +77,96 @@
           icon="i-lucide-coins"
         />
       </UFormField>
+
+      <!-- Vuelto — solo cuando el método es efectivo -->
+      <template v-if="state.paymentMethod === 'EFECTIVO'">
+        <UFormField label="Monto Recibido (S/)" class="mt-2">
+          <UInput
+            v-model.number="state.amountReceived"
+            type="number"
+            min="0"
+            step="0.5"
+            :placeholder="`Mín. ${formatPrice(total)}`"
+            icon="i-lucide-banknote"
+          />
+        </UFormField>
+        <div
+          v-if="vuelto !== null && vuelto >= 0"
+          class="flex justify-between items-center rounded-lg border border-success/30 bg-success/10 px-4 py-3"
+        >
+          <span class="font-semibold text-success">Vuelto:</span>
+          <span class="text-xl font-bold text-success">{{ formatPrice(vuelto) }}</span>
+        </div>
+        <p v-else-if="state.amountReceived && state.amountReceived < total" class="text-center text-sm text-error">
+          El monto recibido es menor al total
+        </p>
+        <!-- Warning: vuelto supera el efectivo disponible en caja -->
+        <div
+          v-if="insufficientCash"
+          class="flex items-start gap-2 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2.5 text-sm text-warning"
+        >
+          <UIcon name="i-lucide-triangle-alert" class="w-4 h-4 mt-0.5 shrink-0" />
+          <span>
+            El vuelto <strong>({{ formatPrice(vuelto!) }})</strong> supera el efectivo disponible en caja
+            <strong>({{ formatPrice(cashBalance ?? 0) }})</strong>. Verifica que haya billetes suficientes.
+          </span>
+        </div>
+        <!-- Aviso de auditoría -->
+        <p class="flex items-center gap-1.5 text-xs text-muted mt-1">
+          <UIcon name="i-lucide-shield-check" class="w-3.5 h-3.5 text-primary shrink-0" />
+          Tu nombre quedará registrado en este cobro para fines de auditoría.
+        </p>
+      </template>
+    </template>
+
+    <!-- Sección de comprobante (opcional) — visible solo cuando se puede cobrar -->
+    <template v-if="canProcessPayment">
+      <div class="rounded-xl border border-default bg-elevated/20 p-4 mt-2">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2 text-sm font-semibold text-highlighted">
+            <UIcon name="i-lucide-receipt" class="w-4 h-4 text-primary" />
+            Comprobante
+          </div>
+          <UButton
+            size="xs"
+            :color="wantsComprobante ? 'primary' : 'neutral'"
+            :variant="wantsComprobante ? 'soft' : 'ghost'"
+            :icon="wantsComprobante ? 'i-lucide-check-circle' : 'i-lucide-plus-circle'"
+            @click="wantsComprobante = !wantsComprobante"
+          >
+            {{ wantsComprobante ? 'Solicitado' : 'Solicitar' }}
+          </UButton>
+        </div>
+
+        <Transition name="slide-down">
+          <div v-if="wantsComprobante" class="flex flex-col gap-3">
+            <UFormField label="Tipo" name="comprobante.tipo">
+              <URadioGroup
+                v-model="comprobanteState.tipo"
+                orientation="horizontal"
+                :items="comprobanteTypes"
+                class="w-full"
+              />
+            </UFormField>
+            <UFormField :label="comprobanteState.tipo === 'BOLETA' ? 'Nombre del cliente' : 'Razón social'" name="comprobante.clienteNombre">
+              <UInput
+                v-model="comprobanteState.clienteNombre"
+                :placeholder="comprobanteState.tipo === 'BOLETA' ? 'Ej. Juan Pérez' : 'Ej. Empresa SAC'"
+                icon="i-lucide-user"
+              />
+            </UFormField>
+            <UFormField :label="comprobanteState.tipo === 'BOLETA' ? 'DNI (8 dígitos)' : 'RUC (11 dígitos)'" name="comprobante.clienteDocumento">
+              <UInput
+                v-model="comprobanteState.clienteDocumento"
+                :placeholder="comprobanteState.tipo === 'BOLETA' ? '12345678' : '20123456789'"
+                :maxlength="comprobanteState.tipo === 'BOLETA' ? 8 : 11"
+                icon="i-lucide-id-card"
+              />
+            </UFormField>
+          </div>
+        </Transition>
+        <p v-if="!wantsComprobante" class="text-xs text-muted">El cliente puede solicitar boleta o factura. Opcional.</p>
+      </div>
     </template>
 
     <div class="flex justify-between items-center mt-2 border-t border-default pt-4">
@@ -108,15 +198,17 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, watch, computed } from 'vue'
+import { reactive, ref, watch, computed } from 'vue'
 import type { FormSubmitEvent } from '@nuxt/ui'
-import type { Order, OrderStatus, SaleMethod } from '~/types'
+import type { Order, OrderStatus, SaleMethod, ComprobanteType } from '~/types'
 import { processOrderSchema, type ProcessOrderRequest } from '~/utils/validations'
 
 const props = defineProps<{
   loading?: boolean
   tableName?: string
   order: Order
+  /** Saldo en efectivo físico de la caja activa — usado para detectar vuelto insuficiente */
+  cashBalance?: number
 }>()
 
 const emit = defineEmits<{
@@ -131,6 +223,19 @@ const saleMethods = [
   { label: 'Yape', value: 'YAPE' as SaleMethod },
   { label: 'Mercado Pago', value: 'MERCADO_PAGO' as SaleMethod }
 ]
+
+const comprobanteTypes = [
+  { label: 'Boleta', value: 'BOLETA' as ComprobanteType },
+  { label: 'Factura', value: 'FACTURA' as ComprobanteType }
+]
+
+// Estado del comprobante (opcional)
+const wantsComprobante = ref(false)
+const comprobanteState = reactive({
+  tipo: 'BOLETA' as ComprobanteType,
+  clienteNombre: '',
+  clienteDocumento: ''
+})
 
 const statusColor = computed(() => {
   const colors: Record<string, 'warning' | 'info' | 'success' | 'primary' | 'error'> = {
@@ -177,7 +282,8 @@ const canProcessPayment = computed(() => {
 const state = reactive<ProcessOrderRequest>({
   orderId: props.order.id,
   paymentMethod: 'EFECTIVO',
-  tip: undefined
+  tip: undefined,
+  amountReceived: undefined
 })
 
 watch(() => props.order, (o) => {
@@ -192,11 +298,43 @@ const total = computed(() => {
   return subtotal.value + (state.tip || 0)
 })
 
+// Vuelto calculado desde el monto recibido (va al backend en amountReceived)
+const vuelto = computed(() => {
+  if (!state.amountReceived || state.amountReceived < total.value) return null
+  return state.amountReceived - total.value
+})
+
+// Advertencia: vuelto mayor al efectivo disponible en caja
+const insufficientCash = computed(() => {
+  if (vuelto.value === null || vuelto.value <= 0) return false
+  if (props.cashBalance == null) return false
+  return vuelto.value > props.cashBalance
+})
+
+// Resetear monto recibido al cambiar método de pago
+watch(() => state.paymentMethod, () => { state.amountReceived = undefined })
+
 function formatPrice(value: number) {
   return new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(value)
 }
 
 async function onSubmit(event: FormSubmitEvent<ProcessOrderRequest>) {
-  emit('submit', event.data)
+  const data: ProcessOrderRequest = { ...event.data }
+  // Adjuntar comprobante si el mozo lo activó y los campos requeridos están completos
+  if (wantsComprobante.value && comprobanteState.clienteNombre && comprobanteState.clienteDocumento) {
+    data.comprobante = {
+      tipo: comprobanteState.tipo,
+      clienteNombre: comprobanteState.clienteNombre,
+      clienteDocumento: comprobanteState.clienteDocumento
+    }
+  }
+  emit('submit', data)
 }
 </script>
+
+<style scoped>
+.slide-down-enter-active { transition: all 0.25s ease; }
+.slide-down-leave-active { transition: all 0.2s ease; }
+.slide-down-enter-from { opacity: 0; transform: translateY(-8px); }
+.slide-down-leave-to   { opacity: 0; transform: translateY(-8px); }
+</style>

@@ -6,8 +6,8 @@ import {
   getCashBoxById,
   openCashBox,
   closeCashBox,
-  getMovements1, // Cashbox movements
-  addMovement1, // Add Cashbox movement
+  getMovements1,
+  addMovement1,
   getCashBoxesByEmployeeId,
   getLatestCashBoxByEmployeeId
 } from '~/api/sdk.gen'
@@ -18,6 +18,7 @@ import {
   mapMovementCashboxResponseToUI,
   mapMovementCashboxRequestFromUI
 } from '~/adapters/cashbox'
+import { extractItems, STALE } from '~/utils/query'
 import type { CashBox, MovementCashbox } from '~/types'
 
 export const useCashBoxes = () => {
@@ -26,39 +27,60 @@ export const useCashBoxes = () => {
   const useFindAllCashBoxes = () => {
     return useQuery({
       queryKey: ['cashboxes'],
-      queryFn: async () => {
-        const res = await getCashBoxes()
-        const data = res.data || []
-        return Array.isArray(data) 
-          ? data.map((item) => mapCashBoxResponseToUI(item as CashBoxResponse)) 
-          : (data as any)?.content?.map((item: any) => mapCashBoxResponseToUI(item as CashBoxResponse)) || []
+      staleTime: STALE.MEDIUM,
+      queryFn: async (): Promise<CashBox[]> => {
+        const res = await getCashBoxes({ query: { page: 0, size: 100 } })
+        return extractItems<CashBoxResponse>(res.data as any).map(mapCashBoxResponseToUI)
       }
     })
   }
 
-  const useFindCashBoxesByEmployee = (employeeId: MaybeRef<number>, page: MaybeRef<number> = 0, size: MaybeRef<number> = 10) => {
+  const useFindCashBoxesByEmployee = (
+    employeeId: MaybeRef<number>,
+    page: MaybeRef<number> = 0,
+    size: MaybeRef<number> = 10
+  ) => {
     return useQuery({
       queryKey: ['cashboxes', 'employee', employeeId, page, size],
+      staleTime: STALE.MEDIUM,
       queryFn: async () => {
         const res = await getCashBoxesByEmployeeId({
           path: { employeeId: toValue(employeeId) },
           query: { page: toValue(page), size: toValue(size) }
         })
-        const data = res.data?.content || []
+        const content = extractItems<CashBoxResponse>(res.data as any)
         return {
-          content: data.map((item) => mapCashBoxResponseToUI(item as CashBoxResponse)),
-          totalElements: res.data?.totalElements || 0,
-          totalPages: res.data?.totalPages || 0
+          content: content.map(mapCashBoxResponseToUI),
+          totalElements: (res.data as any)?.totalElements ?? 0,
+          totalPages: (res.data as any)?.totalPages ?? 0
         }
       },
       enabled: computed(() => !!toValue(employeeId))
     })
   }
 
+  /** Primera caja con status ABIERTA del sistema (para que el mozo pueda usarla) */
+  const useFindActiveCashBox = () => {
+    return useQuery({
+      queryKey: ['cashboxes', 'active'],
+      staleTime: STALE.LIVE,
+      queryFn: async (): Promise<CashBox | null> => {
+        try {
+          const res = await getCashBoxes({ query: { status: 'ABIERTA', page: 0, size: 1 } })
+          const items = extractItems<CashBoxResponse>(res.data as any)
+          return items.length > 0 ? mapCashBoxResponseToUI(items[0]) : null
+        } catch {
+          return null
+        }
+      }
+    })
+  }
+
   const useFindLatestCashBoxByEmployee = (employeeId: MaybeRef<number>) => {
     return useQuery({
       queryKey: ['cashboxes', 'employee', employeeId, 'latest'],
-      queryFn: async () => {
+      staleTime: STALE.MEDIUM,
+      queryFn: async (): Promise<CashBox | null> => {
         try {
           const res = await getLatestCashBoxByEmployeeId({
             path: { employeeId: toValue(employeeId) }
@@ -76,6 +98,7 @@ export const useCashBoxes = () => {
   const useFindOneCashBox = (id: MaybeRef<number>) => {
     return useQuery({
       queryKey: ['cashboxes', id],
+      staleTime: STALE.MEDIUM,
       queryFn: async () => {
         const res = await getCashBoxById({ path: { id: toValue(id) } })
         if (res.error) throw res.error
@@ -88,12 +111,10 @@ export const useCashBoxes = () => {
   const useFindCashBoxMovements = (cashBoxId: MaybeRef<number>) => {
     return useQuery({
       queryKey: ['cashbox', cashBoxId, 'movements'],
-      queryFn: async () => {
+      staleTime: STALE.MEDIUM,
+      queryFn: async (): Promise<MovementCashbox[]> => {
         const res = await getMovements1({ path: { id: toValue(cashBoxId) } })
-        const data = res.data || []
-        return Array.isArray(data) 
-          ? data.map((item) => mapMovementCashboxResponseToUI(item as MovementCashboxResponse)) 
-          : (data as any)?.content?.map((item: any) => mapMovementCashboxResponseToUI(item as MovementCashboxResponse)) || []
+        return extractItems<MovementCashboxResponse>(res.data as any).map(mapMovementCashboxResponseToUI)
       },
       enabled: computed(() => !!toValue(cashBoxId))
     })
@@ -109,22 +130,25 @@ export const useCashBoxes = () => {
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['cashboxes'] })
-        queryClient.invalidateQueries({ queryKey: ['cashboxes', 'employee'] })
+        queryClient.invalidateQueries({ queryKey: ['cashboxes', 'active'] })
       }
     })
   }
 
   const useCloseCashBox = () => {
     return useMutation({
-      mutationFn: async (id: number) => {
-        const res = await closeCashBox({ path: { id } })
+      mutationFn: async ({ id, closingAmount }: { id: number; closingAmount?: number }) => {
+        const res = await closeCashBox({
+          path: { id },
+          body: closingAmount != null ? { closingAmount } : undefined
+        } as any)
         if (res.error) throw res.error
         return res.data ? mapCashBoxResponseToUI(res.data as CashBoxResponse) : null
       },
-      onSuccess: (_, id) => {
+      onSuccess: (_, vars) => {
         queryClient.invalidateQueries({ queryKey: ['cashboxes'] })
-        queryClient.invalidateQueries({ queryKey: ['cashboxes', 'employee'] })
-        queryClient.invalidateQueries({ queryKey: ['cashboxes', id] })
+        queryClient.invalidateQueries({ queryKey: ['cashboxes', 'active'] })
+        queryClient.invalidateQueries({ queryKey: ['cashboxes', vars.id] })
       }
     })
   }
@@ -138,15 +162,16 @@ export const useCashBoxes = () => {
         return res.data ? mapMovementCashboxResponseToUI(res.data as any) : null
       },
       onSuccess: (_, variables) => {
-        queryClient.invalidateQueries({ queryKey: ['cashboxes'] })
-        queryClient.invalidateQueries({ queryKey: ['cashboxes', 'employee'] })
+        queryClient.invalidateQueries({ queryKey: ['cashboxes', variables.cashBoxId] })
         queryClient.invalidateQueries({ queryKey: ['cashbox', variables.cashBoxId, 'movements'] })
+        queryClient.invalidateQueries({ queryKey: ['cashboxes'], exact: true })
       }
     })
   }
 
   return {
     useFindAllCashBoxes,
+    useFindActiveCashBox,
     useFindCashBoxesByEmployee,
     useFindLatestCashBoxByEmployee,
     useFindOneCashBox,

@@ -147,6 +147,9 @@ export interface Sale {
   metodo: SaleMethod
   monto: number
   orderId?: number
+  orderCode?: string
+  /** ID del comprobante emitido para esta venta (null si no se solicitó) */
+  comprobanteId?: number
 }
 
 // ===== EMPLOYEES =====
@@ -181,8 +184,13 @@ export interface CashBox {
   id: number | string
   name: string
   openingAmount: number
+  /** Saldo en efectivo físico (apertura + ventas EFECTIVO - vueltos) */
   currentBalance: number
+  /** Total de ventas (todos los métodos de pago) */
   collectedSales: number
+  closingAmount?: number
+  /** Acumulado de pagos digitales (Yape, Tarjeta, etc.) — informativo */
+  digitalBalance?: number
   openingTime: string | Date
   closingTime?: string | Date
   status: CashBoxStatus
@@ -190,7 +198,23 @@ export interface CashBox {
   employeeName?: string
 }
 
-export type ComprobanteType = 'Boleta' | 'Factura'
+// Backend enum: BOLETA | FACTURA
+export type ComprobanteType = 'BOLETA' | 'FACTURA'
+
+export interface Comprobante {
+  id: number
+  tipo: ComprobanteType
+  clienteNombre: string
+  clienteDocumento: string
+  orderCode: string
+  saleCode: string
+  total: number
+  itemsJson: string
+  metodoPago: string
+  cobradoPor: string
+  fechaEmision: string | Date
+  viewUrl: string
+}
 // Backend usa MAYÚSCULAS
 export type MovementCashboxType = 'INGRESO' | 'EGRESO'
 
@@ -201,6 +225,8 @@ export interface MovementCashbox {
   hora: string
   codigoPedidos?: string
   tipoComprobante?: string
+  /** Método de pago de la venta (EFECTIVO, YAPE, TARJETA, MERCADO_PAGO). Null en movimientos manuales. */
+  metodoPago?: string
   descripcion: string       // Backend: requerido (no opcional)
   tipo: MovementCashboxType
   monto: number

@@ -13,6 +13,8 @@ export const mapCashBoxResponseToUI = (data: CashBoxResponse): CashBox => ({
   openingAmount: data.openingAmount || 0,
   currentBalance: data.currentBalance || 0,
   collectedSales: data.collectedSales || 0,
+  closingAmount: (data as any).closingAmount ?? undefined,
+  digitalBalance: (data as any).digitalBalance ?? 0,
   openingTime: data.openingTime || new Date(),
   closingTime: data.closingTime,
   // Backend usa MAYÚSCULAS, el tipo UI ahora también usa MAYÚSCULAS
@@ -24,7 +26,7 @@ export const mapCashBoxResponseToUI = (data: CashBoxResponse): CashBox => ({
 export const mapCashBoxRequestFromUI = (data: Partial<CashBox>): CashBoxRequest => ({
   name: data.name || '',
   openingAmount: data.openingAmount || 0,
-  employeeId: data.employeeId || 0
+  employeeId: (data.employeeId || undefined) as unknown as number
 })
 
 // Movement Cashbox
@@ -35,6 +37,7 @@ export const mapMovementCashboxResponseToUI = (data: MovementCashboxResponse): M
   hora: data.hora || '',
   codigoPedidos: data.codigoPedidos,
   tipoComprobante: data.tipoComprobante,
+  metodoPago: (data as any).metodoPago ?? undefined,
   descripcion: data.descripcion || '',
   // Backend usa MAYÚSCULAS, el tipo UI ahora también usa MAYÚSCULAS
   tipo: (data.tipo || 'EGRESO') as MovementCashboxType,

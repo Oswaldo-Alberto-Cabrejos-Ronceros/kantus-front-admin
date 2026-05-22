@@ -11,6 +11,7 @@ import {
 } from '~/api/sdk.gen'
 import type { CategoryResponse } from '~/api/types.gen'
 import { mapCategoryResponseToUI, mapCategoryRequestFromUI } from '~/adapters/category'
+import { extractItems, STALE } from '~/utils/query'
 import type { Category } from '~/types'
 
 export const useCategories = () => {
@@ -19,12 +20,10 @@ export const useCategories = () => {
   const useFindAllCategories = () => {
     return useQuery({
       queryKey: ['categories'],
+      staleTime: STALE.STATIC,
       queryFn: async (): Promise<Category[]> => {
         const res = await getAllCategories()
-        const data = res.data || []
-        return Array.isArray(data) 
-          ? data.map((item) => mapCategoryResponseToUI(item as CategoryResponse)) 
-          : (data as any)?.content?.map((item: any) => mapCategoryResponseToUI(item as CategoryResponse)) || []
+        return extractItems<CategoryResponse>(res.data as any).map(mapCategoryResponseToUI)
       }
     })
   }
@@ -32,6 +31,7 @@ export const useCategories = () => {
   const useFindOneCategory = (id: MaybeRef<number>) => {
     return useQuery({
       queryKey: ['categories', id],
+      staleTime: STALE.STATIC,
       queryFn: async () => {
         const res = await getCategoryById({ path: { id: toValue(id) } })
         if (res.error) throw res.error
@@ -50,7 +50,7 @@ export const useCategories = () => {
         return res.data ? mapCategoryResponseToUI(res.data as CategoryResponse) : null
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['categories'] })
+        queryClient.invalidateQueries({ queryKey: ['categories'], exact: true })
       }
     })
   }
@@ -63,9 +63,9 @@ export const useCategories = () => {
         if (res.error) throw res.error
         return res.data ? mapCategoryResponseToUI(res.data as CategoryResponse) : null
       },
-      onSuccess: (_, variables) => {
-        queryClient.invalidateQueries({ queryKey: ['categories'] })
-        queryClient.invalidateQueries({ queryKey: ['categories', variables.id] })
+      onSuccess: (updatedCategory, variables) => {
+        if (updatedCategory) queryClient.setQueryData(['categories', variables.id], updatedCategory)
+        queryClient.invalidateQueries({ queryKey: ['categories'], exact: true })
       }
     })
   }
@@ -77,9 +77,9 @@ export const useCategories = () => {
         if (res.error) throw res.error
         return res.data ? mapCategoryResponseToUI(res.data as CategoryResponse) : null
       },
-      onSuccess: (_, id) => {
-        queryClient.invalidateQueries({ queryKey: ['categories'] })
-        queryClient.invalidateQueries({ queryKey: ['categories', id] })
+      onSuccess: (updated, id) => {
+        if (updated) queryClient.setQueryData(['categories', id], updated)
+        queryClient.invalidateQueries({ queryKey: ['categories'], exact: true })
       }
     })
   }
@@ -91,9 +91,9 @@ export const useCategories = () => {
         if (res.error) throw res.error
         return res.data ? mapCategoryResponseToUI(res.data as CategoryResponse) : null
       },
-      onSuccess: (_, id) => {
-        queryClient.invalidateQueries({ queryKey: ['categories'] })
-        queryClient.invalidateQueries({ queryKey: ['categories', id] })
+      onSuccess: (updated, id) => {
+        if (updated) queryClient.setQueryData(['categories', id], updated)
+        queryClient.invalidateQueries({ queryKey: ['categories'], exact: true })
       }
     })
   }
@@ -105,5 +105,5 @@ export const useCategories = () => {
     useUpdateCategory,
     useActivateCategory,
     useDeactivateCategory
- }
+  }
 }

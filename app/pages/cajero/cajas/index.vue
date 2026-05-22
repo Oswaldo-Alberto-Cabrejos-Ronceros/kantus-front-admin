@@ -6,12 +6,18 @@
           <UDashboardSidebarCollapse />
         </template>
         <template #right>
-          <UModal v-model:open="isModalOpen" title="Abrir Caja">
-            <UButton v-if="employee" icon="i-lucide-plus" color="primary">
-              Abrir Caja
-            </UButton>
+          <UTooltip v-if="hasOpenCashbox" text="Debes cerrar la caja actual antes de abrir una nueva">
+            <UButton icon="i-lucide-unlock" color="primary" disabled>Abrir Caja</UButton>
+          </UTooltip>
+          <UModal v-else v-model:open="isModalOpen" title="Abrir Caja">
+            <UButton icon="i-lucide-unlock" color="primary">Abrir Caja</UButton>
             <template #body>
-              <CashboxFormOpenCashbox :loading="isSubmitting" @submit="handleOpenCashbox" @cancel="isModalOpen = false" />
+              <CashboxFormOpenCashbox
+                :loading="isSubmitting"
+                :cashbox-name="generatedCashboxName"
+                @submit="handleOpenCashbox"
+                @cancel="isModalOpen = false"
+              />
             </template>
           </UModal>
         </template>
@@ -22,34 +28,42 @@
       <div v-if="isLoading" class="flex justify-center items-center h-full">
         <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-primary" />
       </div>
-      <div v-else-if="boxes && boxes.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
-        <CashboxCardCashBox
-          v-for="box in boxes"
-          :key="box.id"
-          v-bind="box"
+      <template v-else>
+        <UAlert
+          v-if="hasOpenCashbox"
+          icon="i-lucide-info"
+          color="warning"
+          variant="subtle"
+          :title="`Caja activa: ${activeCashbox?.name}`"
+          description="Ya hay una caja abierta en el sistema. Debes cerrarla antes de abrir una nueva."
+          class="m-4"
         />
-      </div>
-      <div v-else class="flex flex-col justify-center items-center h-full text-gray-500 gap-4">
-        <UIcon name="i-lucide-wallet-cards" class="w-16 h-16 text-gray-300" />
-        <p class="text-lg">No hay cajas abiertas o registradas.</p>
-        <UButton
-          v-if="employee"
-          icon="i-lucide-plus"
-          label="Abrir Caja Ahora"
-          color="primary"
-          @click="isModalOpen = true"
-        />
-      </div>
+
+        <div v-if="boxes.length" class="flex flex-col gap-6 p-4">
+          <div v-for="group in boxesByDate" :key="group.date">
+            <h3 class="mb-3 text-xs font-semibold uppercase tracking-wider text-muted capitalize">
+              {{ group.date }}
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <CashboxCardCashBox v-for="box in group.items" :key="box.id" v-bind="box" />
+            </div>
+          </div>
+        </div>
+        <div v-else class="flex flex-col justify-center items-center h-full text-gray-500 gap-4">
+          <UIcon name="i-lucide-wallet-cards" class="w-16 h-16 text-gray-300" />
+          <p class="text-lg">No tienes cajas registradas.</p>
+          <UButton icon="i-lucide-unlock" label="Abrir Caja Ahora" color="primary" @click="isModalOpen = true" />
+        </div>
+      </template>
     </template>
   </UDashboardPanel>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useAuth } from '~/composables/auth'
 import { useEmployees } from '~/composables/useEmployees'
-import { useCashBoxes } from '~/composables/useCashBoxes'
-import type { OpenCashboxRequest } from '~/utils/validations'
+import { useCashBoxManager } from '~/composables/useCashBoxManager'
 
 definePageMeta({
   middleware: [
@@ -64,44 +78,30 @@ definePageMeta({
   ]
 })
 
-const toast = useToast()
 const { user } = useAuth()
 const userId = computed(() => Number(user.value?.id) || 0)
 
 const { useFindEmployeeByUserId } = useEmployees()
 const { data: employee } = useFindEmployeeByUserId(userId)
+const employeeId = computed(() => Number(employee.value?.id) || undefined)
 
-const employeeId = computed(() => Number(employee.value?.id) || 0)
+const generatedCashboxName = computed(() => {
+  if (employee.value) return `Caja ${employee.value.name} ${employee.value.documentNumber}`
+  if (user.value) return `Caja ${user.value.name} ${user.value.lastname}`
+  return 'Caja'
+})
 
-const { useFindCashBoxesByEmployee, useOpenCashBox } = useCashBoxes()
-const page = ref(0)
-const size = ref(10)
-const { data: cashboxesData, isLoading } = useFindCashBoxesByEmployee(employeeId, page, size)
-const openMutation = useOpenCashBox()
-
-const boxes = computed(() => cashboxesData.value?.content || [])
-
-const isModalOpen = ref(false)
-const isSubmitting = ref(false)
-
-async function handleOpenCashbox(data: OpenCashboxRequest) {
-  if (!employeeId.value) {
-    toast.add({ title: 'Error: No se encontró perfil de empleado', color: 'error' })
-    return
-  }
-  isSubmitting.value = true
-  try {
-    await openMutation.mutateAsync({
-      name: data.name,
-      openingAmount: data.openingAmount,
-      employeeId: employeeId.value
-    })
-    isModalOpen.value = false
-    toast.add({ title: 'Caja abierta correctamente', color: 'success' })
-  } catch {
-    toast.add({ title: 'Error al abrir caja', color: 'error' })
-  } finally {
-    isSubmitting.value = false
-  }
-}
+const {
+  boxes,
+  activeCashbox,
+  hasOpenCashbox,
+  boxesByDate,
+  isLoading,
+  isModalOpen,
+  isSubmitting,
+  handleOpenCashbox
+} = useCashBoxManager({
+  cashboxName: () => generatedCashboxName.value,
+  employeeId: () => employeeId.value
+})
 </script>

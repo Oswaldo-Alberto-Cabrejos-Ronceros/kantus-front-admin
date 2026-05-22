@@ -14,6 +14,7 @@ import {
 import type { EmployeeResponse } from '~/api/types.gen'
 import { mapEmployeeResponseToUI, mapEmployeeRequestFromUI } from '~/adapters/employee'
 import { mapEmployeeUserRequestFromUI } from '~/adapters/user'
+import { extractItems, STALE } from '~/utils/query'
 import type { Employee } from '~/types'
 
 export const useEmployees = () => {
@@ -22,12 +23,10 @@ export const useEmployees = () => {
   const useFindAllEmployees = () => {
     return useQuery({
       queryKey: ['employees'],
-      queryFn: async () => {
+      staleTime: STALE.STATIC,
+      queryFn: async (): Promise<Employee[]> => {
         const res = await getAllEmployees()
-        const data = res.data || []
-        return Array.isArray(data) 
-          ? data.map((item) => mapEmployeeResponseToUI(item as EmployeeResponse)) 
-          : (data as any)?.content?.map((item: any) => mapEmployeeResponseToUI(item as EmployeeResponse)) || []
+        return extractItems<EmployeeResponse>(res.data as any).map(mapEmployeeResponseToUI)
       }
     })
   }
@@ -35,6 +34,7 @@ export const useEmployees = () => {
   const useFindOneEmployee = (id: MaybeRef<number>) => {
     return useQuery({
       queryKey: ['employees', id],
+      staleTime: STALE.STATIC,
       queryFn: async () => {
         const res = await getEmployeeById({ path: { id: toValue(id) } })
         if (res.error) throw res.error
@@ -47,6 +47,7 @@ export const useEmployees = () => {
   const useFindEmployeeByUserId = (userId: MaybeRef<number>) => {
     return useQuery({
       queryKey: ['employees', 'user', userId],
+      staleTime: STALE.STATIC,
       queryFn: async () => {
         const res = await getEmployeeByUserId({ path: { userId: toValue(userId) } })
         if (res.error) throw res.error
@@ -65,21 +66,21 @@ export const useEmployees = () => {
         return res.data ? mapEmployeeResponseToUI(res.data as EmployeeResponse) : null
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['employees'] })
+        queryClient.invalidateQueries({ queryKey: ['employees'], exact: true })
       }
     })
   }
 
   const useCreateEmployeeWithUser = () => {
     return useMutation({
-      mutationFn: async ({ employee, user }: { employee: Partial<Employee>; user: any }) => {
+      mutationFn: async ({ employee, user }: { employee: Partial<Employee>; user: Record<string, unknown> }) => {
         const body = mapEmployeeUserRequestFromUI(employee, user)
         const res = await createEmployeeWithUser({ body })
         if (res.error) throw res.error
         return res.data ? mapEmployeeResponseToUI(res.data as EmployeeResponse) : null
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['employees'] })
+        queryClient.invalidateQueries({ queryKey: ['employees'], exact: true })
       }
     })
   }
@@ -92,9 +93,9 @@ export const useEmployees = () => {
         if (res.error) throw res.error
         return res.data ? mapEmployeeResponseToUI(res.data as EmployeeResponse) : null
       },
-      onSuccess: (_, variables) => {
-        queryClient.invalidateQueries({ queryKey: ['employees'] })
-        queryClient.invalidateQueries({ queryKey: ['employees', variables.id] })
+      onSuccess: (updatedEmployee, variables) => {
+        if (updatedEmployee) queryClient.setQueryData(['employees', variables.id], updatedEmployee)
+        queryClient.invalidateQueries({ queryKey: ['employees'], exact: true })
       }
     })
   }
@@ -106,9 +107,9 @@ export const useEmployees = () => {
         if (res.error) throw res.error
         return res.data ? mapEmployeeResponseToUI(res.data as EmployeeResponse) : null
       },
-      onSuccess: (_, id) => {
-        queryClient.invalidateQueries({ queryKey: ['employees'] })
-        queryClient.invalidateQueries({ queryKey: ['employees', id] })
+      onSuccess: (updated, id) => {
+        if (updated) queryClient.setQueryData(['employees', id], updated)
+        queryClient.invalidateQueries({ queryKey: ['employees'], exact: true })
       }
     })
   }
@@ -120,9 +121,9 @@ export const useEmployees = () => {
         if (res.error) throw res.error
         return res.data ? mapEmployeeResponseToUI(res.data as EmployeeResponse) : null
       },
-      onSuccess: (_, id) => {
-        queryClient.invalidateQueries({ queryKey: ['employees'] })
-        queryClient.invalidateQueries({ queryKey: ['employees', id] })
+      onSuccess: (updated, id) => {
+        if (updated) queryClient.setQueryData(['employees', id], updated)
+        queryClient.invalidateQueries({ queryKey: ['employees'], exact: true })
       }
     })
   }

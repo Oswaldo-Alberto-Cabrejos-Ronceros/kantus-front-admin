@@ -14,6 +14,10 @@
     </template>
 
     <template #body>
+      <div v-if="isLoadingOrders" class="flex justify-center items-center h-64">
+        <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-primary" />
+      </div>
+      <template v-else>
       <!-- Stats -->
       <HomeStats :stats="orderStats" :columns="3" />
 
@@ -60,6 +64,7 @@
           No hay pedidos para mostrar
         </p>
       </div>
+      </template>
     </template>
   </UDashboardPanel>
 </template>
@@ -67,6 +72,9 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import type { Order, OrderStatus } from '~/types'
+
+// Tipo auxiliar para el mapa de pedidos agrupados
+type OrderMap = Record<string, Record<string, Order[]>>
 
 definePageMeta({
   middleware: [
@@ -89,24 +97,43 @@ const { user } = useAuth()
 const toast = useToast()
 
 const { useFindAllOrders, useUpdateOrderStatus } = useOrders()
-const { data: orders } = useFindAllOrders()
+const { data: orders, isPending: isLoadingOrders } = useFindAllOrders()
 const updateStatusMutation = useUpdateOrderStatus()
 
-const pendingCount = computed(() => orders.value?.filter((o: Order) => o.status === 'PENDIENTE').length || 0)
+/**
+ * Un único recorrido del array genera todos los contadores y el mapa agrupado.
+ * Evita múltiples .filter() independientes sobre el mismo array en cada render.
+ */
+const ordersGrouped = computed<OrderMap>(() => {
+  const map: OrderMap = {}
+  for (const order of orders.value ?? []) {
+    const type = order.type ?? 'TODOS'
+    const status = order.status
+    // Grupo "todos los tipos"
+    if (!map['TODOS']) map['TODOS'] = {}
+    if (!map['TODOS'][status]) map['TODOS'][status] = []
+    map['TODOS'][status].push(order)
+    // Grupo por tipo específico
+    if (!map[type]) map[type] = {}
+    if (!map[type][status]) map[type][status] = []
+    map[type][status].push(order)
+  }
+  return map
+})
 
-const orderStats = computed(() => [{
-  title: 'Pendientes',
-  icon: 'i-lucide-clock-alert',
-  value: orders.value?.filter((o: Order) => o.status === 'PENDIENTE').length || 0
-}, {
-  title: 'Preparando',
-  icon: 'i-lucide-chef-hat',
-  value: orders.value?.filter((o: Order) => o.status === 'PREPARANDO').length || 0
-}, {
-  title: 'Listos',
-  icon: 'i-lucide-check-circle',
-  value: orders.value?.filter((o: Order) => o.status === 'LISTO').length || 0
-}])
+const statusCounts = computed(() => ({
+  PENDIENTE: ordersGrouped.value['TODOS']?.['PENDIENTE']?.length ?? 0,
+  PREPARANDO: ordersGrouped.value['TODOS']?.['PREPARANDO']?.length ?? 0,
+  LISTO: ordersGrouped.value['TODOS']?.['LISTO']?.length ?? 0
+}))
+
+const pendingCount = computed(() => statusCounts.value.PENDIENTE)
+
+const orderStats = computed(() => [
+  { title: 'Pendientes', icon: 'i-lucide-clock-alert', value: statusCounts.value.PENDIENTE },
+  { title: 'Preparando', icon: 'i-lucide-chef-hat', value: statusCounts.value.PREPARANDO },
+  { title: 'Listos', icon: 'i-lucide-check-circle', value: statusCounts.value.LISTO }
+])
 
 const statusColumns = [
   { value: 'PENDIENTE' as OrderStatus, label: 'Pendiente', color: 'error' as const },
@@ -127,11 +154,11 @@ const items = computed(() => {
   }))
 })
 
-const getOrdersByTypeAndStatus = (typeValue?: string, status?: OrderStatus) => {
-  let filtered: Order[] = orders.value || []
-  if (typeValue) filtered = filtered.filter((o: Order) => o.type === typeValue)
-  if (status) filtered = filtered.filter((o: Order) => o.status === status)
-  return filtered
+/** Lee del mapa precalculado en lugar de filtrar en cada llamada del template */
+function getOrdersByTypeAndStatus(typeValue?: string, status?: OrderStatus): Order[] {
+  const key = typeValue ?? 'TODOS'
+  if (!status) return Object.values(ordersGrouped.value[key] ?? {}).flat()
+  return ordersGrouped.value[key]?.[status] ?? []
 }
 
 async function handleOrderAction(orderId: number, nextStatus: string) {

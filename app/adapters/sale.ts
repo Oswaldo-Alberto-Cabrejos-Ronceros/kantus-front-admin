@@ -5,14 +5,25 @@ export const mapSaleResponseToUI = (data: SaleResponse): Sale => ({
   id: data.id || 0,
   fecha: data.fecha || new Date(),
   codigo: data.codigo || '',
-  // Backend ya devuelve en MAYÚSCULAS, los usamos directamente
   metodo: (data.metodo || 'EFECTIVO') as SaleMethod,
   monto: data.monto || 0,
-  orderId: data.orderId
+  orderId: data.orderId,
+  orderCode: (data as any).orderCode ?? undefined,
+  comprobanteId: (data as any).comprobanteId ?? undefined
 })
 
-export const mapSaleRequestFromUI = (data: Partial<Sale>, orderId: number): SaleRequest => ({
+export const mapSaleRequestFromUI = (
+  data: Partial<Sale>,
+  orderId: number,
+  cashBoxId: number,
+  amountReceived?: number,
+  comprobante?: { tipo: string; clienteNombre: string; clienteDocumento: string }
+): SaleRequest => ({
   orderId: orderId,
-  // Usar directamente en MAYÚSCULAS (SaleMethod ya es uppercase)
-  metodo: (data.metodo || 'EFECTIVO') as 'EFECTIVO' | 'TARJETA' | 'YAPE' | 'MERCADO_PAGO'
+  cashBoxId: cashBoxId,
+  metodo: (data.metodo || 'EFECTIVO') as 'EFECTIVO' | 'TARJETA' | 'YAPE' | 'MERCADO_PAGO',
+  // Solo se envía cuando el pago es en efectivo
+  amountReceived: amountReceived as unknown as number,
+  // Comprobante opcional — backend ignora si es null/undefined
+  ...(comprobante ? { comprobante: comprobante as any } : {})
 })

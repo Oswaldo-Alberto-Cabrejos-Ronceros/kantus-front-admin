@@ -6,6 +6,8 @@ import type { AuthRequest, AuthResponse, BackendUserRole, UserRole } from '~/typ
 export const useAuth = () => {
   const authStore = useAuthStore()
   const router = useRouter()
+  // Inicializar queryClient al nivel del composable (contexto de setup), no dentro de funciones
+  const queryClient = useQueryClient()
 
   const user = computed(() => authStore.user)
   const isAuthenticated = computed(() => authStore.isAuthenticated)
@@ -47,7 +49,8 @@ export const useAuth = () => {
         return res.data as unknown as AuthResponse
       },
       onSuccess: (response) => {
-        queryClient.invalidateQueries({ queryKey: ['user'] })
+        // Limpiar toda la caché del usuario anterior antes de establecer el nuevo usuario
+        queryClient.clear()
         authStore.setAuth(response)
 
         switch (response.role) {
@@ -77,6 +80,8 @@ export const useAuth = () => {
   }
 
   const useLogout = () => {
+    // Limpiar toda la caché antes de cerrar sesión para que el siguiente usuario no vea datos del anterior
+    queryClient.clear()
     authStore.clearAuth()
     router.push('/login')
   }

@@ -10,6 +10,7 @@ import {
 } from '~/api/sdk.gen'
 import type { OrderResponse } from '~/api/types.gen'
 import { mapOrderResponseToUI, mapOrderRequestFromUI } from '~/adapters/order'
+import { extractItems, STALE } from '~/utils/query'
 import type { Order, OrderDelivery, OrderDeliveryStatus } from '~/types'
 
 export const useOrders = () => {
@@ -18,12 +19,10 @@ export const useOrders = () => {
   const useFindAllOrders = () => {
     return useQuery({
       queryKey: ['orders'],
-      queryFn: async () => {
+      staleTime: STALE.LIVE,
+      queryFn: async (): Promise<Order[]> => {
         const res = await getOrders()
-        const data = res.data || []
-        return Array.isArray(data) 
-          ? data.map((item) => mapOrderResponseToUI(item as OrderResponse)) 
-          : (data as any)?.content?.map((item: any) => mapOrderResponseToUI(item as OrderResponse)) || []
+        return extractItems<OrderResponse>(res.data as any).map(mapOrderResponseToUI)
       }
     })
   }
@@ -31,6 +30,7 @@ export const useOrders = () => {
   const useFindOneOrder = (id: MaybeRef<number>) => {
     return useQuery({
       queryKey: ['orders', id],
+      staleTime: STALE.LIVE,
       queryFn: async () => {
         const res = await getOrderById({ path: { id: toValue(id) } })
         if (res.error) throw res.error
@@ -43,25 +43,20 @@ export const useOrders = () => {
   const useGetDeliveryOrders = () => {
     return useQuery({
       queryKey: ['orders', 'delivery'],
-      queryFn: async () => {
+      staleTime: STALE.LIVE,
+      queryFn: async (): Promise<OrderDelivery[]> => {
         const res = await getDeliveryOrders()
         if (res.error) throw res.error
-        const data = res.data || []
-        const rawList = (Array.isArray(data) ? data : (data as any)?.content || []) as any[]
-        
+
         const statusMapFromBackend: Record<string, OrderDeliveryStatus> = {
-          'PENDIENTE': 'Pendiente',
-          'CAMINO': 'Camino',
-          'ENTREGADO': 'Entregado',
-          'Pendiente': 'Pendiente',
-          'Camino': 'Camino',
-          'Entregado': 'Entregado'
+          PENDIENTE: 'Pendiente', CAMINO: 'Camino', ENTREGADO: 'Entregado',
+          Pendiente: 'Pendiente', Camino: 'Camino', Entregado: 'Entregado'
         }
 
-        return rawList.map((item: any) => ({
+        return extractItems<any>(res.data as any).map((item) => ({
           ...item,
-          status: statusMapFromBackend[item.status] || item.status
-        })) as OrderDelivery[]
+          status: statusMapFromBackend[item.status] ?? item.status
+        }))
       }
     })
   }
@@ -75,7 +70,7 @@ export const useOrders = () => {
         return res.data ? mapOrderResponseToUI(res.data as OrderResponse) : null
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['orders'] })
+        queryClient.invalidateQueries({ queryKey: ['orders'], exact: true })
       }
     })
   }
@@ -87,10 +82,14 @@ export const useOrders = () => {
         if (res.error) throw res.error
         return res.data ? mapOrderResponseToUI(res.data as OrderResponse) : null
       },
-      onSuccess: (_, variables) => {
-        queryClient.invalidateQueries({ queryKey: ['orders'] })
-        queryClient.invalidateQueries({ queryKey: ['orders', variables.id] })
-        queryClient.invalidateQueries({ queryKey: ['orders', 'delivery'] })
+      onSuccess: (updatedOrder, variables) => {
+        // Actualiza el item individual en caché sin refetch
+        if (updatedOrder) {
+          queryClient.setQueryData(['orders', variables.id], updatedOrder)
+        }
+        // Invalida las listas para que se sincronicen
+        queryClient.invalidateQueries({ queryKey: ['orders'], exact: true })
+        queryClient.invalidateQueries({ queryKey: ['orders', 'delivery'], exact: true })
       }
     })
   }

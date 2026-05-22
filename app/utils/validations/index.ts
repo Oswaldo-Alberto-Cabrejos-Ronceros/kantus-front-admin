@@ -11,16 +11,24 @@ export type LoginRequest = z.infer<typeof loginSchema>
 // ===== CARTA =====
 
 export const categorySchema = z.object({
-  name: z.string().min(1, 'El nombre es obligatorio'),
-  description: z.string().min(1, 'La descripción es obligatoria')  // requerido por backend
+  name: z.string()
+    .min(4, 'El nombre debe tener al menos 4 caracteres')
+    .max(48, 'El nombre no puede superar los 48 caracteres'),
+  description: z.string()
+    .min(10, 'La descripción debe tener al menos 10 caracteres')
+    .max(256, 'La descripción no puede superar los 256 caracteres')
 })
 
 export type CategoryRequest = z.infer<typeof categorySchema>
 
 export const productSchema = z.object({
   categoryId: z.number({ message: 'La categoría es obligatoria' }),
-  name: z.string().min(1, 'El nombre es obligatorio'),
-  description: z.string().min(1, 'La descripción es obligatoria'),
+  name: z.string()
+    .min(4, 'El nombre debe tener al menos 4 caracteres')
+    .max(64, 'El nombre no puede superar los 64 caracteres'),
+  description: z.string()
+    .min(10, 'La descripción debe tener al menos 10 caracteres')
+    .max(256, 'La descripción no puede superar los 256 caracteres'),
   price: z.number({ message: 'El precio es obligatorio' })
     .positive('El precio debe ser mayor a 0')
   // imageUrl no se envía al backend, se gestiona por separado si aplica
@@ -123,9 +131,15 @@ export type AssignUserRequest = z.infer<typeof assignUserSchema>
 
 export const openCashboxSchema = z.object({
   name: z.string().min(1, 'El nombre de la caja es obligatorio'),
-  openingAmount: z.number({ message: 'Debe ser un número' }).min(0, 'El monto no puede ser negativo')
+  openingAmount: z.number({ message: 'El monto de apertura es obligatorio' }).positive('El monto de apertura debe ser mayor a cero')
 })
 export type OpenCashboxRequest = z.infer<typeof openCashboxSchema>
+
+// Schema simplificado: solo pide el monto (el nombre se genera automáticamente en el padre)
+export const openCashboxAmountSchema = z.object({
+  openingAmount: z.number({ message: 'El monto de apertura es obligatorio' }).positive('El monto de apertura debe ser mayor a cero')
+})
+export type OpenCashboxAmountRequest = z.infer<typeof openCashboxAmountSchema>
 
 export const closeCashboxSchema = z.object({
   closingAmount: z.number({ message: 'Debe ser un número' }).min(0, 'El monto no puede ser negativo')
@@ -144,10 +158,23 @@ export type MovementCashboxRequest = z.infer<typeof movementCashboxSchema>
 
 // ===== ORDERS =====
 
+export const comprobanteSchema = z.object({
+  tipo: z.enum(['BOLETA', 'FACTURA'], { message: 'Selecciona el tipo de comprobante' }),
+  clienteNombre: z.string().min(1, 'El nombre es obligatorio'),
+  clienteDocumento: z.string()
+    .min(8, 'Debe tener al menos 8 caracteres')
+    .max(11, 'Máximo 11 caracteres')
+    .regex(/^\d+$/, 'Solo dígitos')
+})
+export type ComprobanteFormData = z.infer<typeof comprobanteSchema>
+
 export const processOrderSchema = z.object({
   orderId: z.number({ message: 'El ID de la orden es obligatorio' }),
   paymentMethod: z.enum(['EFECTIVO', 'TARJETA', 'YAPE', 'MERCADO_PAGO'], { message: 'El método de pago es obligatorio' }),
-  tip: z.number().min(0, 'La propina no puede ser negativa').optional()
+  tip: z.number().min(0, 'La propina no puede ser negativa').optional(),
+  amountReceived: z.number().min(0).optional(), // monto entregado por el cliente (efectivo)
+  /** Datos opcionales de comprobante (boleta/factura) */
+  comprobante: comprobanteSchema.optional()
 })
 
 export type ProcessOrderRequest = z.infer<typeof processOrderSchema>

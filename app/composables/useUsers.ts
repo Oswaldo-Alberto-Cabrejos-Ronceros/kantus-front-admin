@@ -10,6 +10,7 @@ import {
 import type { UserResponse, EmployeeResponse } from '~/api/types.gen'
 import { mapUserResponseToUI, mapEmployeeUserRequestFromUI } from '~/adapters/user'
 import { mapEmployeeResponseToUI } from '~/adapters/employee'
+import { extractItems, STALE } from '~/utils/query'
 import type { EmployeeWithUserRequest } from '~/utils/validations'
 
 export const useUsers = () => {
@@ -18,12 +19,10 @@ export const useUsers = () => {
   const useFindAllUsers = () => {
     return useQuery({
       queryKey: ['users'],
+      staleTime: STALE.STATIC,
       queryFn: async () => {
         const res = await getAllUsers()
-        const data = res.data || []
-        return Array.isArray(data) 
-          ? data.map((item) => mapUserResponseToUI(item as UserResponse)) 
-          : (data as any)?.content?.map((item: any) => mapUserResponseToUI(item as UserResponse)) || []
+        return extractItems<UserResponse>(res.data as any).map(mapUserResponseToUI)
       }
     })
   }
@@ -31,6 +30,7 @@ export const useUsers = () => {
   const useFindOneUser = (id: MaybeRef<number>) => {
     return useQuery({
       queryKey: ['users', id],
+      staleTime: STALE.STATIC,
       queryFn: async () => {
         const res = await getUserById({ path: { id: toValue(id) } })
         if (res.error) throw res.error
@@ -48,8 +48,8 @@ export const useUsers = () => {
         return res.data ? mapUserResponseToUI(res.data as UserResponse) : null
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['users'] })
-        queryClient.invalidateQueries({ queryKey: ['employees'] })
+        queryClient.invalidateQueries({ queryKey: ['users'], exact: true })
+        queryClient.invalidateQueries({ queryKey: ['employees'], exact: true })
       }
     })
   }
@@ -63,8 +63,8 @@ export const useUsers = () => {
         return res.data ? mapEmployeeResponseToUI(res.data as EmployeeResponse) : null
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['users'] })
-        queryClient.invalidateQueries({ queryKey: ['employees'] })
+        queryClient.invalidateQueries({ queryKey: ['users'], exact: true })
+        queryClient.invalidateQueries({ queryKey: ['employees'], exact: true })
       }
     })
   }

@@ -11,6 +11,7 @@ import {
 } from '~/api/sdk.gen'
 import type { SupplierResponse } from '~/api/types.gen'
 import { mapSupplierResponseToUI, mapSupplierRequestFromUI } from '~/adapters/supplier'
+import { extractItems, STALE } from '~/utils/query'
 import type { Supplier } from '~/types'
 
 export const useSuppliers = () => {
@@ -19,12 +20,10 @@ export const useSuppliers = () => {
   const useFindAllSuppliers = () => {
     return useQuery({
       queryKey: ['suppliers'],
-      queryFn: async () => {
+      staleTime: STALE.STATIC,
+      queryFn: async (): Promise<Supplier[]> => {
         const res = await getAllSuppliers()
-        const data = res.data || []
-        return Array.isArray(data) 
-          ? data.map((item) => mapSupplierResponseToUI(item as SupplierResponse)) 
-          : (data as any)?.content?.map((item: any) => mapSupplierResponseToUI(item as SupplierResponse)) || []
+        return extractItems<SupplierResponse>(res.data as any).map(mapSupplierResponseToUI)
       }
     })
   }
@@ -32,6 +31,7 @@ export const useSuppliers = () => {
   const useFindOneSupplier = (id: MaybeRef<number>) => {
     return useQuery({
       queryKey: ['suppliers', id],
+      staleTime: STALE.STATIC,
       queryFn: async () => {
         const res = await getSupplierById({ path: { id: toValue(id) } })
         if (res.error) throw res.error
@@ -50,7 +50,7 @@ export const useSuppliers = () => {
         return res.data ? mapSupplierResponseToUI(res.data as SupplierResponse) : null
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['suppliers'] })
+        queryClient.invalidateQueries({ queryKey: ['suppliers'], exact: true })
       }
     })
   }
@@ -63,9 +63,9 @@ export const useSuppliers = () => {
         if (res.error) throw res.error
         return res.data ? mapSupplierResponseToUI(res.data as SupplierResponse) : null
       },
-      onSuccess: (_, variables) => {
-        queryClient.invalidateQueries({ queryKey: ['suppliers'] })
-        queryClient.invalidateQueries({ queryKey: ['suppliers', variables.id] })
+      onSuccess: (updated, variables) => {
+        if (updated) queryClient.setQueryData(['suppliers', variables.id], updated)
+        queryClient.invalidateQueries({ queryKey: ['suppliers'], exact: true })
       }
     })
   }
@@ -77,9 +77,9 @@ export const useSuppliers = () => {
         if (res.error) throw res.error
         return res.data ? mapSupplierResponseToUI(res.data as SupplierResponse) : null
       },
-      onSuccess: (_, id) => {
-        queryClient.invalidateQueries({ queryKey: ['suppliers'] })
-        queryClient.invalidateQueries({ queryKey: ['suppliers', id] })
+      onSuccess: (updated, id) => {
+        if (updated) queryClient.setQueryData(['suppliers', id], updated)
+        queryClient.invalidateQueries({ queryKey: ['suppliers'], exact: true })
       }
     })
   }
@@ -91,9 +91,9 @@ export const useSuppliers = () => {
         if (res.error) throw res.error
         return res.data ? mapSupplierResponseToUI(res.data as SupplierResponse) : null
       },
-      onSuccess: (_, id) => {
-        queryClient.invalidateQueries({ queryKey: ['suppliers'] })
-        queryClient.invalidateQueries({ queryKey: ['suppliers', id] })
+      onSuccess: (updated, id) => {
+        if (updated) queryClient.setQueryData(['suppliers', id], updated)
+        queryClient.invalidateQueries({ queryKey: ['suppliers'], exact: true })
       }
     })
   }
