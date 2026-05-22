@@ -62,13 +62,11 @@
         </UButton>
         <UButton
           v-if="nextStatus"
-          v-if="nextStatus"
           type="submit"
           color="primary"
           :loading="loading"
           icon="i-lucide-save"
         >
-          {{ updateButtonText }}
           {{ updateButtonText }}
         </UButton>
       </div>
