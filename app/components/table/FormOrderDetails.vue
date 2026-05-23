@@ -138,34 +138,32 @@
           </UButton>
         </div>
 
-        <Transition name="slide-down">
-          <div v-if="wantsComprobante" class="flex flex-col gap-3">
-            <UFormField label="Tipo" name="comprobante.tipo">
-              <URadioGroup
-                v-model="comprobanteState.tipo"
-                orientation="horizontal"
-                :items="comprobanteTypes"
-                class="w-full"
-              />
-            </UFormField>
-            <UFormField :label="comprobanteState.tipo === 'BOLETA' ? 'Nombre del cliente' : 'Razón social'" name="comprobante.clienteNombre">
-              <UInput
-                v-model="comprobanteState.clienteNombre"
-                :placeholder="comprobanteState.tipo === 'BOLETA' ? 'Ej. Juan Pérez' : 'Ej. Empresa SAC'"
-                icon="i-lucide-user"
-              />
-            </UFormField>
-            <UFormField :label="comprobanteState.tipo === 'BOLETA' ? 'DNI (8 dígitos)' : 'RUC (11 dígitos)'" name="comprobante.clienteDocumento">
-              <UInput
-                v-model="comprobanteState.clienteDocumento"
-                :placeholder="comprobanteState.tipo === 'BOLETA' ? '12345678' : '20123456789'"
-                :maxlength="comprobanteState.tipo === 'BOLETA' ? 8 : 11"
-                icon="i-lucide-id-card"
-              />
-            </UFormField>
-          </div>
-        </Transition>
-        <p v-if="!wantsComprobante" class="text-xs text-muted">El cliente puede solicitar boleta o factura. Opcional.</p>
+        <p class="text-xs text-muted mb-3">La boleta se genera automáticamente. Completa los datos solo si el cliente los necesita impresos.</p>
+        <div class="flex flex-col gap-3">
+          <UFormField label="Tipo" name="comprobante.tipo">
+            <URadioGroup
+              v-model="comprobanteState.tipo"
+              orientation="horizontal"
+              :items="comprobanteTypes"
+              class="w-full"
+            />
+          </UFormField>
+          <UFormField :label="comprobanteState.tipo === 'BOLETA' ? 'Nombre (opcional)' : 'Razón social'" name="comprobante.clienteNombre">
+            <UInput
+              v-model="comprobanteState.clienteNombre"
+              :placeholder="comprobanteState.tipo === 'BOLETA' ? 'Público General' : 'Ej. Empresa SAC'"
+              icon="i-lucide-user"
+            />
+          </UFormField>
+          <UFormField :label="comprobanteState.tipo === 'BOLETA' ? 'DNI (opcional)' : 'RUC'" name="comprobante.clienteDocumento">
+            <UInput
+              v-model="comprobanteState.clienteDocumento"
+              :placeholder="comprobanteState.tipo === 'BOLETA' ? '00000000' : '20123456789'"
+              :maxlength="comprobanteState.tipo === 'BOLETA' ? 8 : 11"
+              icon="i-lucide-id-card"
+            />
+          </UFormField>
+        </div>
       </div>
     </template>
 
@@ -229,8 +227,7 @@ const comprobanteTypes = [
   { label: 'Factura', value: 'FACTURA' as ComprobanteType }
 ]
 
-// Estado del comprobante (opcional)
-const wantsComprobante = ref(false)
+// Datos opcionales del cliente para la boleta (siempre se genera una)
 const comprobanteState = reactive({
   tipo: 'BOLETA' as ComprobanteType,
   clienteNombre: '',
@@ -320,13 +317,11 @@ function formatPrice(value: number) {
 
 async function onSubmit(event: FormSubmitEvent<ProcessOrderRequest>) {
   const data: ProcessOrderRequest = { ...event.data }
-  // Adjuntar comprobante si el mozo lo activó y los campos requeridos están completos
-  if (wantsComprobante.value && comprobanteState.clienteNombre && comprobanteState.clienteDocumento) {
-    data.comprobante = {
-      tipo: comprobanteState.tipo,
-      clienteNombre: comprobanteState.clienteNombre,
-      clienteDocumento: comprobanteState.clienteDocumento
-    }
+  // Siempre se incluye el objeto comprobante (backend usa defaults si los campos están vacíos)
+  data.comprobante = {
+    tipo: comprobanteState.tipo,
+    clienteNombre: comprobanteState.clienteNombre || undefined,
+    clienteDocumento: comprobanteState.clienteDocumento || undefined
   }
   emit('submit', data)
 }

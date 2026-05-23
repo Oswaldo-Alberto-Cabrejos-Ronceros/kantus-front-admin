@@ -18,8 +18,8 @@
       <UInput
         v-model.number="state.openingAmount"
         type="number"
-        min="0.01"
-        step="0.50"
+        min="10"
+        step="0.01"
         placeholder="Ej. 100.00"
         icon="i-lucide-coins"
         class="w-full"

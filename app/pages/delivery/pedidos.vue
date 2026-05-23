@@ -21,7 +21,7 @@
           <UPageCard
             variant="subtle"
             class="lg:rounded-none first:rounded-l-lg last:rounded-r-lg hover:z-1"
-            icon="i-lucide-motorbike"
+            icon="i-lucide-truck"
             title="En Camino"
             :description="inTransitCount.toString()"
           />
@@ -65,6 +65,9 @@ import { ref, computed } from 'vue'
 import type { OrderDelivery } from '~/types'
 import type { ProcessDeliveryOrderRequest } from '~/utils/validations'
 
+const config = useRuntimeConfig()
+const apiBaseUrl = config.public.apiBaseUrl as string
+
 definePageMeta({
   layout: 'delivery'
 })
@@ -72,8 +75,10 @@ definePageMeta({
 const toast = useToast()
 
 const { useGetDeliveryOrders, useUpdateOrderStatus } = useOrders()
+const { useCreateSale } = useSales()
 const { data: deliveries } = useGetDeliveryOrders()
 const updateStatusMutation = useUpdateOrderStatus()
+const createSaleMutation = useCreateSale()
 
 const isModalOpen = ref(false)
 const selectedOrder = ref<OrderDelivery | null>(null)
@@ -93,19 +98,48 @@ function openOrderDetails(order: OrderDelivery) {
 async function handleSubmit(data: ProcessDeliveryOrderRequest) {
   isSubmitting.value = true
   try {
-    const statusMap: Record<'Pendiente' | 'Camino' | 'Entregado', 'PENDIENTE' | 'CAMINO' | 'ENTREGADO'> = {
-      'Pendiente': 'PENDIENTE',
-      'Camino': 'CAMINO',
-      'Entregado': 'ENTREGADO'
+    if (data.status === 'Entregado') {
+      // Cobrar la entrega: crea la venta y el backend marca la orden como ENTREGADO automáticamente.
+      // cashBoxId es omitido → backend busca la caja activa automáticamente.
+      const saleRes = await createSaleMutation.mutateAsync({
+        sale: { metodo: (data.paymentMethod ?? 'EFECTIVO') as any },
+        orderId: data.orderId,
+        amountReceived: data.amountReceived,
+        comprobante: data.comprobante as any
+      })
+      isModalOpen.value = false
+
+      // Si se generó un comprobante, mostrar enlace de boleta
+      const comprobanteId = (saleRes as any)?.comprobanteId
+      if (comprobanteId) {
+        toast.add({
+          title: '¡Entrega cobrada!',
+          description: 'Boleta generada correctamente.',
+          color: 'success',
+          actions: [{
+            label: 'Ver boleta',
+            click: () => window.open(`${apiBaseUrl}/api/comprobantes/${comprobanteId}/view`, '_blank')
+          }]
+        })
+      } else {
+        toast.add({ title: '¡Entrega cobrada!', description: 'Pedido marcado como entregado.', color: 'success' })
+      }
+    } else {
+      // Solo actualizar estado (Pendiente → Camino)
+      const statusMap: Record<'Pendiente' | 'Camino' | 'Entregado', 'PENDIENTE' | 'CAMINO' | 'ENTREGADO'> = {
+        Pendiente: 'PENDIENTE',
+        Camino: 'CAMINO',
+        Entregado: 'ENTREGADO'
+      }
+      await updateStatusMutation.mutateAsync({
+        id: data.orderId,
+        status: statusMap[data.status]
+      })
+      isModalOpen.value = false
+      toast.add({ title: '¡Estado actualizado!', color: 'success' })
     }
-    await updateStatusMutation.mutateAsync({
-      id: data.orderId,
-      status: statusMap[data.status]
-    })
-    isModalOpen.value = false
-    toast.add({ title: '¡Estado actualizado!', color: 'success' })
   } catch {
-    toast.add({ title: 'Error al actualizar el estado', color: 'error' })
+    toast.add({ title: 'Error al procesar la entrega', color: 'error' })
   } finally {
     isSubmitting.value = false
   }

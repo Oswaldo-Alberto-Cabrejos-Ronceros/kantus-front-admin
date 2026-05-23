@@ -15,15 +15,16 @@ export const mapSaleResponseToUI = (data: SaleResponse): Sale => ({
 export const mapSaleRequestFromUI = (
   data: Partial<Sale>,
   orderId: number,
-  cashBoxId: number,
+  cashBoxId?: number,
   amountReceived?: number,
-  comprobante?: { tipo: string; clienteNombre: string; clienteDocumento: string }
+  comprobante?: { tipo: string; clienteNombre?: string; clienteDocumento?: string }
 ): SaleRequest => ({
   orderId: orderId,
-  cashBoxId: cashBoxId,
+  // cashBoxId es opcional: si es undefined el backend busca la caja activa automáticamente
+  ...(cashBoxId != null ? { cashBoxId } : {}),
   metodo: (data.metodo || 'EFECTIVO') as 'EFECTIVO' | 'TARJETA' | 'YAPE' | 'MERCADO_PAGO',
   // Solo se envía cuando el pago es en efectivo
-  amountReceived: amountReceived as unknown as number,
+  ...(amountReceived != null ? { amountReceived } : {}),
   // Comprobante opcional — backend ignora si es null/undefined
   ...(comprobante ? { comprobante: comprobante as any } : {})
-})
+} as SaleRequest)

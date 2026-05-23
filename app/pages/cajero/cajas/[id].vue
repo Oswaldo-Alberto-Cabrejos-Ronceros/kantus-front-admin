@@ -119,29 +119,14 @@
           </div>
         </div>
 
-        <UTable
-          class="shrink-0"
-          :data="movements || []"
-          :columns="columns"
-          :loading="isPending"
-          :ui="{
-            base: 'table-fixed border-separate border-spacing-0',
-            thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
-            tbody: '[&>tr]:last:[&>td]:border-b-0',
-            th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
-            td: 'border-b border-default',
-            separator: 'h-0'
-          }"
-        />
+        <CashboxMovementsTable :movements="movements || []" :loading="isPending" />
       </div>
     </template>
   </UDashboardPanel>
 </template>
 
 <script lang="ts" setup>
-import { h, resolveComponent, withCtx, createTextVNode, computed, ref } from 'vue'
-import type { TableColumn } from '@nuxt/ui'
-import type { MovementCashbox } from '~/types'
+import { computed, ref } from 'vue'
 import type { OpenCashboxRequest, CloseCashboxRequest } from '~/utils/validations'
 
 const route = useRoute()
@@ -160,7 +145,6 @@ definePageMeta({
   ]
 })
 
-const UBadge = resolveComponent('UBadge')
 const toast = useToast()
 
 const { useFindCashBoxMovements, useOpenCashBox, useCloseCashBox, useFindOneCashBox } = useCashBoxes()
@@ -227,97 +211,14 @@ const cashboxStats = computed(() => [
 ])
 
 // ── Helpers ──────────────────────────────────────────────────────
-const config = useRuntimeConfig()
-const backendUrl = (config.public as any).apiBaseUrl ?? 'http://localhost:8080'
-
 function fmt(value?: number | null) {
   return new Intl.NumberFormat('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value ?? 0)
 }
 
-function metodoBadge(metodo?: string) {
-  if (!metodo) return h('span', { class: 'text-muted text-xs' }, '—')
-  const colors: Record<string, string> = {
-    EFECTIVO: 'success',
-    YAPE: 'secondary',
-    TARJETA: 'primary',
-    MERCADO_PAGO: 'warning'
-  }
-  const labels: Record<string, string> = {
-    EFECTIVO: 'Efectivo',
-    YAPE: 'Yape',
-    TARJETA: 'Tarjeta',
-    MERCADO_PAGO: 'M.Pago'
-  }
-  return h(UBadge, { color: colors[metodo] ?? 'neutral', variant: 'subtle', size: 'xs' }, { default: withCtx(() => [createTextVNode(labels[metodo] ?? metodo)]) })
-}
-
-// ── Columnas ─────────────────────────────────────────────────────
+// ── Modal state ──────────────────────────────────────────────────
 const isOpenModalOpen = ref(false)
 const isCloseModalOpen = ref(false)
 const isSubmitting = ref(false)
-
-const columns = computed<TableColumn<MovementCashbox>[]>(() => [
-  {
-    id: 'datetime',
-    header: 'Fecha · Hora',
-    cell: ({ row }) => {
-      const dia = typeof row.original.dia === 'string'
-        ? row.original.dia
-        : new Date(row.original.dia).toLocaleDateString('es-PE')
-      const hora = (row.original.hora || '').substring(0, 5)
-      return `${dia} ${hora}`
-    }
-  },
-  {
-    accessorKey: 'codigoPedidos',
-    header: 'Pedido',
-    cell: ({ row }) => row.original.codigoPedidos
-      ? h('span', { class: 'font-mono text-xs text-highlighted' }, row.original.codigoPedidos)
-      : h('span', { class: 'text-muted' }, '—')
-  },
-  {
-    id: 'metodoPago',
-    header: 'Método',
-    cell: ({ row }) => metodoBadge(row.original.metodoPago)
-  },
-  {
-    accessorKey: 'descripcion',
-    header: 'Descripción',
-    cell: ({ row }) => {
-      const desc = row.original.descripcion || ''
-      return h('span', { class: 'text-xs text-muted', title: desc }, desc.length > 40 ? desc.substring(0, 40) + '…' : desc)
-    }
-  },
-  {
-    id: 'tipo',
-    header: 'Tipo',
-    cell: ({ row }) => h(UBadge,
-      { color: row.original.tipo === 'INGRESO' ? 'success' : 'error', variant: 'subtle', size: 'xs' },
-      { default: withCtx(() => [createTextVNode(row.original.tipo)]) }
-    )
-  },
-  {
-    accessorKey: 'monto',
-    header: 'Monto',
-    cell: ({ row }) => h(
-      'span',
-      { class: row.original.tipo === 'INGRESO' ? 'font-semibold text-success' : 'font-semibold text-error' },
-      `${row.original.tipo === 'INGRESO' ? '+' : '−'}S/ ${row.original.monto.toFixed(2)}`
-    )
-  },
-  {
-    id: 'comprobante',
-    header: '',
-    cell: ({ row }) => {
-      if (!row.original.codigoPedidos) return h('span', {})
-      const url = `${backendUrl}/api/comprobantes/by-order/${row.original.codigoPedidos}/view`
-      return h('a',
-        { href: url, target: '_blank', title: 'Ver comprobante', class: 'inline-flex items-center justify-center w-7 h-7 rounded-md hover:bg-elevated text-muted hover:text-primary transition-colors' },
-        h(resolveComponent('UIcon'), { name: 'i-lucide-receipt', class: 'w-4 h-4' })
-      )
-    }
-  }
-])
 
 // ── Acciones ─────────────────────────────────────────────────────
 async function handleOpenCashbox(data: OpenCashboxRequest) {

@@ -91,9 +91,10 @@ export const useSales = () => {
       mutationFn: async ({ sale, orderId, cashBoxId, amountReceived, comprobante }: {
         sale: Partial<Sale>
         orderId: number
-        cashBoxId: number
+        /** Opcional — si es undefined el backend busca la caja activa automáticamente */
+        cashBoxId?: number
         amountReceived?: number
-        comprobante?: { tipo: string; clienteNombre: string; clienteDocumento: string }
+        comprobante?: { tipo: string; clienteNombre?: string; clienteDocumento?: string }
       }) => {
         const body = mapSaleRequestFromUI(sale, orderId, cashBoxId, amountReceived, comprobante)
         const res = await createSale({ body })
@@ -107,11 +108,14 @@ export const useSales = () => {
         queryClient.invalidateQueries({ queryKey: ['sales', 'latest'], exact: true })
         // La orden pasó a ENTREGADO — invalida lista de órdenes
         queryClient.invalidateQueries({ queryKey: ['orders'], exact: true })
-        // Invalida la caja específica y sus movimientos
-        queryClient.invalidateQueries({ queryKey: ['cashboxes', variables.cashBoxId] })
-        queryClient.invalidateQueries({ queryKey: ['cashbox', variables.cashBoxId, 'movements'] })
+        queryClient.invalidateQueries({ queryKey: ['orders', 'delivery'], exact: true })
         // Invalida el listado general de cajas (saldo/ventas cobradas cambiaron)
         queryClient.invalidateQueries({ queryKey: ['cashboxes'], exact: true })
+        // Si se conoce la caja específica, invalida también sus movimientos
+        if (variables.cashBoxId != null) {
+          queryClient.invalidateQueries({ queryKey: ['cashboxes', variables.cashBoxId] })
+          queryClient.invalidateQueries({ queryKey: ['cashbox', variables.cashBoxId, 'movements'] })
+        }
       }
     })
   }

@@ -131,13 +131,13 @@ export type AssignUserRequest = z.infer<typeof assignUserSchema>
 
 export const openCashboxSchema = z.object({
   name: z.string().min(1, 'El nombre de la caja es obligatorio'),
-  openingAmount: z.number({ message: 'El monto de apertura es obligatorio' }).positive('El monto de apertura debe ser mayor a cero')
+  openingAmount: z.number({ message: 'El monto de apertura es obligatorio' }).min(10, 'El monto mínimo de apertura es S/ 10')
 })
 export type OpenCashboxRequest = z.infer<typeof openCashboxSchema>
 
 // Schema simplificado: solo pide el monto (el nombre se genera automáticamente en el padre)
 export const openCashboxAmountSchema = z.object({
-  openingAmount: z.number({ message: 'El monto de apertura es obligatorio' }).positive('El monto de apertura debe ser mayor a cero')
+  openingAmount: z.number({ message: 'El monto de apertura es obligatorio' }).min(10, 'El monto mínimo de apertura es S/ 10')
 })
 export type OpenCashboxAmountRequest = z.infer<typeof openCashboxAmountSchema>
 
@@ -158,13 +158,15 @@ export type MovementCashboxRequest = z.infer<typeof movementCashboxSchema>
 
 // ===== ORDERS =====
 
+/**
+ * Datos opcionales del cliente para la boleta.
+ * El backend siempre genera una BOLETA — estos campos solo personalizan el nombre/documento.
+ * Si tipo=FACTURA se requieren los campos.
+ */
 export const comprobanteSchema = z.object({
-  tipo: z.enum(['BOLETA', 'FACTURA'], { message: 'Selecciona el tipo de comprobante' }),
-  clienteNombre: z.string().min(1, 'El nombre es obligatorio'),
-  clienteDocumento: z.string()
-    .min(8, 'Debe tener al menos 8 caracteres')
-    .max(11, 'Máximo 11 caracteres')
-    .regex(/^\d+$/, 'Solo dígitos')
+  tipo: z.enum(['BOLETA', 'FACTURA']).default('BOLETA'),
+  clienteNombre: z.string().optional(),
+  clienteDocumento: z.string().optional()
 })
 export type ComprobanteFormData = z.infer<typeof comprobanteSchema>
 
@@ -172,16 +174,21 @@ export const processOrderSchema = z.object({
   orderId: z.number({ message: 'El ID de la orden es obligatorio' }),
   paymentMethod: z.enum(['EFECTIVO', 'TARJETA', 'YAPE', 'MERCADO_PAGO'], { message: 'El método de pago es obligatorio' }),
   tip: z.number().min(0, 'La propina no puede ser negativa').optional(),
-  amountReceived: z.number().min(0).optional(), // monto entregado por el cliente (efectivo)
-  /** Datos opcionales de comprobante (boleta/factura) */
+  amountReceived: z.number().min(0).optional(),
+  /** Datos del cliente para personalizar la boleta (siempre se genera una). */
   comprobante: comprobanteSchema.optional()
 })
 
 export type ProcessOrderRequest = z.infer<typeof processOrderSchema>
 
+/** Schema para el repartidor al marcar Entregado con cobro. */
 export const processDeliveryOrderSchema = z.object({
   orderId: z.number({ message: 'El ID de la orden es obligatorio' }),
-  status: z.enum(['Pendiente', 'Camino', 'Entregado'], { message: 'El estado es obligatorio' })
+  status: z.enum(['Pendiente', 'Camino', 'Entregado'], { message: 'El estado es obligatorio' }),
+  // Campos de cobro — solo requeridos cuando status = 'Entregado'
+  paymentMethod: z.enum(['EFECTIVO', 'TARJETA', 'YAPE', 'MERCADO_PAGO']).optional(),
+  amountReceived: z.number().min(0).optional(),
+  comprobante: comprobanteSchema.optional()
 })
 
 export type ProcessDeliveryOrderRequest = z.infer<typeof processDeliveryOrderSchema>

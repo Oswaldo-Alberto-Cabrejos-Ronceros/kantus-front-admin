@@ -142,6 +142,35 @@
   box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
 }
 
+/* ===== Dark Mode — Warm Palette ===== */
+/*
+  Override Nuxt UI dark variables to use a warm amber-compatible palette.
+  Default Nuxt UI dark uses cold neutral grays that clash with amber primary.
+  This theme uses slightly warm-tinted darks (think dark wood / premium restaurant).
+*/
+.dark {
+  /* Backgrounds — deep warm darks */
+  --ui-bg:              #0f0e0c;
+  --ui-bg-muted:        #141210;
+  --ui-bg-elevated:     #1c1a15;
+  --ui-bg-accented:     #252218;
+  --ui-bg-inverted:     #f5ede0;
+
+  /* Borders — warm, subtle */
+  --ui-border:          #2b2820;
+  --ui-border-muted:    #201e17;
+  --ui-border-accented: #3a3528;
+  --ui-border-inverted: #ede5d8;
+
+  /* Text — warm whites and creams */
+  --ui-text-dimmed:     #52493c;
+  --ui-text-muted:      #8a7d6a;
+  --ui-text-toned:      #b5a48e;
+  --ui-text:            #d8ccbc;
+  --ui-text-highlighted:#f2e8d8;
+  --ui-text-inverted:   #1a1510;
+}
+
 /* ===== Custom Scrollbar ===== */
 ::-webkit-scrollbar {
   width: 6px;

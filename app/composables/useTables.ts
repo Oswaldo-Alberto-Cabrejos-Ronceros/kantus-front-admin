@@ -9,7 +9,8 @@ import {
   deactivateTable,
   occupyTable,
   freeTable,
-  getTableById
+  getTableById,
+  deleteTable
 } from '~/api/sdk.gen'
 import type { RestaurantTableResponse } from '~/api/types.gen'
 import { mapTableResponseToUI, mapTableRequestFromUI } from '~/adapters/table'
@@ -128,6 +129,18 @@ export const useTables = () => {
     })
   }
 
+  const useDeleteTable = () => {
+    return useMutation({
+      mutationFn: async (id: number) => {
+        const res = await deleteTable({ path: { id } })
+        if ((res as any).error) throw (res as any).error
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['tables'], exact: true })
+      }
+    })
+  }
+
   return {
     useFindAllTables,
     useFindOneTable,
@@ -136,6 +149,7 @@ export const useTables = () => {
     useActivateTable,
     useDeactivateTable,
     useOccupyTable,
-    useFreeTable
+    useFreeTable,
+    useDeleteTable
   }
 }

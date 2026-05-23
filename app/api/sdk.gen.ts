@@ -266,6 +266,10 @@ export const deactivateTable = <ThrowOnError extends boolean = false>(options: O
 
 export const activateTable = <ThrowOnError extends boolean = false>(options: Options<ActivateTableData, ThrowOnError>) => (options.client ?? client).patch<ActivateTableResponses, unknown, ThrowOnError>({ url: '/api/tables/{id}/activate', ...options });
 
+// Manual: no incluido en el spec generado
+export const deleteTable = <ThrowOnError extends boolean = false>(options: { path: { id: number }; client?: typeof client }) =>
+  (options.client ?? client).delete<void, unknown, ThrowOnError>({ url: '/api/tables/{id}', path: options.path } as any);
+
 export const deactivateSupplier = <ThrowOnError extends boolean = false>(options: Options<DeactivateSupplierData, ThrowOnError>) => (options.client ?? client).patch<DeactivateSupplierResponses, unknown, ThrowOnError>({ url: '/api/suppliers/{id}/deactivate', ...options });
 
 export const activateSupplier = <ThrowOnError extends boolean = false>(options: Options<ActivateSupplierData, ThrowOnError>) => (options.client ?? client).patch<ActivateSupplierResponses, unknown, ThrowOnError>({ url: '/api/suppliers/{id}/activate', ...options });
