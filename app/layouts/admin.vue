@@ -38,12 +38,13 @@ const links = [{
   icon: 'i-lucide-square-user-round',
   to: '/empleados',
   onSelect: () => { open.value = false }
-}, {
+}
+/*{
   label: 'Ingresos',
   icon: 'i-lucide-banknote',
   to: '/ingresos',
   onSelect: () => { open.value = false }
-}] as NavigationMenuItem[]
+}*/] as NavigationMenuItem[]
 </script>
 
 <template>
