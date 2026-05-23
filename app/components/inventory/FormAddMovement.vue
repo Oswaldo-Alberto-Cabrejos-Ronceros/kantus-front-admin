@@ -5,10 +5,7 @@
     class="space-y-4"
     @submit="onSubmit"
   >
-    <UFormField
-      label="Tipo de Movimiento"
-      name="tipo"
-    >
+    <UFormField label="Tipo de Movimiento" name="tipo">
       <URadioGroup
         v-model="state.tipo"
         orientation="horizontal"
@@ -18,24 +15,19 @@
       />
     </UFormField>
 
-    <UFormField
-      label="Producto"
-      name="productId"
-    >
+    <!-- Campo correcto: productInventoryId (no productId) -->
+    <UFormField label="Producto" name="productInventoryId">
       <USelectMenu
-        v-model="state.productId"
+        v-model="state.productInventoryId"
         :items="products"
         value-key="id"
-        option-key="name"
+        label-key="name"
         placeholder="Seleccione un producto"
         class="w-full"
       />
     </UFormField>
 
-    <UFormField
-      label="Cantidad"
-      name="cantidad"
-    >
+    <UFormField label="Cantidad" name="cantidad">
       <UInput
         v-model.number="state.cantidad"
         type="number"
@@ -44,10 +36,7 @@
       />
     </UFormField>
 
-    <UFormField
-      label="Razón"
-      name="razon"
-    >
+    <UFormField label="Razón" name="razon">
       <UInput
         v-model="state.razon"
         placeholder="Ej. Compra de insumos, merma..."
@@ -56,17 +45,10 @@
     </UFormField>
 
     <div class="flex justify-end gap-2">
-      <UButton
-        color="neutral"
-        variant="ghost"
-        @click="$emit('cancel')"
-      >
+      <UButton color="neutral" variant="ghost" @click="$emit('cancel')">
         Cancelar
       </UButton>
-      <UButton
-        type="submit"
-        :loading="loading"
-      >
+      <UButton type="submit" :loading="loading">
         Guardar
       </UButton>
     </div>
@@ -90,13 +72,13 @@ const emit = defineEmits<{
 }>()
 
 const movementTypes = [
-  { label: 'Entrada', value: 'entrada' },
-  { label: 'Salida', value: 'salida' }
+  { label: 'Entrada', value: 'ENTRADA' },
+  { label: 'Salida', value: 'SALIDA' }
 ]
 
 const state = reactive<Partial<MovementInventoryRequest>>({
-  tipo: 'entrada',
-  productId: undefined,
+  tipo: 'ENTRADA',
+  productInventoryId: undefined,  // campo correcto del backend
   cantidad: undefined,
   razon: undefined
 })

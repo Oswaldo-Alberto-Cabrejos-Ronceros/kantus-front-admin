@@ -5,10 +5,7 @@
     class="space-y-4"
     @submit="onSubmit"
   >
-    <UFormField
-      label="Nombre"
-      name="name"
-    >
+    <UFormField label="Nombre" name="name">
       <UInput
         v-model="state.name"
         placeholder="Ej. Ceviche Clásico"
@@ -16,10 +13,7 @@
       />
     </UFormField>
 
-    <UFormField
-      label="Descripción"
-      name="description"
-    >
+    <UFormField label="Descripción" name="description">
       <UInput
         v-model="state.description"
         placeholder="Plato tradicional peruano..."
@@ -27,10 +21,7 @@
       />
     </UFormField>
 
-    <UFormField
-      label="Precio"
-      name="price"
-    >
+    <UFormField label="Precio (S/)" name="price">
       <UInput
         v-model.number="state.price"
         type="number"
@@ -39,27 +30,13 @@
       />
     </UFormField>
 
-    <UFormField
-      label="Categoría"
-      name="categoryId"
-    >
+    <UFormField label="Categoría" name="categoryId">
       <USelectMenu
         v-model="state.categoryId"
         :items="categories"
         value-key="id"
         label-key="name"
         placeholder="Seleccione una categoría"
-        class="w-full"
-      />
-    </UFormField>
-
-    <UFormField
-      label="URL de Imagen"
-      name="imageUrl"
-    >
-      <UInput
-        v-model="state.imageUrl"
-        placeholder="https://ejemplo.com/imagen.jpg"
         class="w-full"
       />
     </UFormField>
@@ -104,8 +81,7 @@ const state = reactive<Partial<ProductRequest>>({
   name: props.initialData?.name || undefined,
   description: props.initialData?.description || undefined,
   price: props.initialData?.price || undefined,
-  categoryId: props.initialData?.categoryId || undefined,
-  imageUrl: props.initialData?.imageUrl || undefined
+  categoryId: props.initialData?.categoryId || undefined
 })
 
 watch(() => props.initialData, (newData) => {
@@ -114,13 +90,11 @@ watch(() => props.initialData, (newData) => {
     state.description = newData.description
     state.price = newData.price
     state.categoryId = newData.categoryId
-    state.imageUrl = newData.imageUrl
   } else {
     state.name = undefined
     state.description = undefined
     state.price = undefined
     state.categoryId = undefined
-    state.imageUrl = undefined
   }
 })
 

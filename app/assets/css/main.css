@@ -2,7 +2,7 @@
 @import "@nuxt/ui";
 
 @theme static {
-  --font-sans: 'Public Sans', sans-serif;
+  --font-sans: 'Inter', 'Public Sans', system-ui, sans-serif;
 
   --color-green-50: #EFFDF5;
   --color-green-100: #D9FBE8;
@@ -15,4 +15,266 @@
   --color-green-800: #016538;
   --color-green-900: #0A5331;
   --color-green-950: #052E16;
+}
+
+/* ===== Google Font Import ===== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* ===== Global Transitions ===== */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* ===== Page Transitions ===== */
+.page-enter-active,
+.page-leave-active {
+  transition: all 0.3s ease;
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+/* ===== Layout Transitions ===== */
+.layout-enter-active,
+.layout-leave-active {
+  transition: all 0.3s ease;
+}
+.layout-enter-from,
+.layout-leave-to {
+  opacity: 0;
+}
+
+/* ===== Glassmorphism Card ===== */
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .glass-card {
+  background: rgba(30, 30, 30, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ===== Premium Card Hover ===== */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.15);
+}
+.dark .card-hover:hover {
+  box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* ===== Gradient Backgrounds ===== */
+.gradient-warm {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+}
+
+.gradient-hero {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%);
+}
+
+.dark .gradient-hero {
+  background: linear-gradient(135deg, #1c1917 0%, #292524 50%, #44403c 100%);
+}
+
+.gradient-sidebar {
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.05) 0%, transparent 100%);
+}
+
+/* ===== Pulse Animation for Alerts ===== */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+/* ===== Fade In Animation ===== */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s ease-out forwards;
+}
+
+/* ===== Staggered Animation ===== */
+.stagger-item {
+  opacity: 0;
+  animation: fade-in-up 0.4s ease-out forwards;
+}
+.stagger-item:nth-child(1) { animation-delay: 0.05s; }
+.stagger-item:nth-child(2) { animation-delay: 0.1s; }
+.stagger-item:nth-child(3) { animation-delay: 0.15s; }
+.stagger-item:nth-child(4) { animation-delay: 0.2s; }
+.stagger-item:nth-child(5) { animation-delay: 0.25s; }
+.stagger-item:nth-child(6) { animation-delay: 0.3s; }
+.stagger-item:nth-child(7) { animation-delay: 0.35s; }
+.stagger-item:nth-child(8) { animation-delay: 0.4s; }
+
+/* ===== Badge Glow ===== */
+.badge-glow-success {
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+}
+.badge-glow-warning {
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+.badge-glow-error {
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+}
+
+/* ===== Dark Mode — Warm Palette ===== */
+/*
+  Override Nuxt UI dark variables to use a warm amber-compatible palette.
+  Default Nuxt UI dark uses cold neutral grays that clash with amber primary.
+  This theme uses slightly warm-tinted darks (think dark wood / premium restaurant).
+*/
+.dark {
+  /* Backgrounds — deep warm darks */
+  --ui-bg:              #0f0e0c;
+  --ui-bg-muted:        #141210;
+  --ui-bg-elevated:     #1c1a15;
+  --ui-bg-accented:     #252218;
+  --ui-bg-inverted:     #f5ede0;
+
+  /* Borders — warm, subtle */
+  --ui-border:          #2b2820;
+  --ui-border-muted:    #201e17;
+  --ui-border-accented: #3a3528;
+  --ui-border-inverted: #ede5d8;
+
+  /* Text — warm whites and creams */
+  --ui-text-dimmed:     #52493c;
+  --ui-text-muted:      #8a7d6a;
+  --ui-text-toned:      #b5a48e;
+  --ui-text:            #d8ccbc;
+  --ui-text-highlighted:#f2e8d8;
+  --ui-text-inverted:   #1a1510;
+}
+
+/* ===== Custom Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ===== Status Dot Animations ===== */
+@keyframes status-ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+.status-dot {
+  position: relative;
+}
+.status-dot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  animation: status-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+  background: inherit;
+}
+
+/* ===== Empty State ===== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--color-neutral-400);
+}
+.dark .empty-state {
+  color: var(--color-neutral-500);
+}
+
+/* ===== Menu Digital (Client View) ===== */
+.menu-digital-bg {
+  background: linear-gradient(180deg, #fffbeb 0%, #ffffff 30%);
+  min-height: 100vh;
+}
+.dark .menu-digital-bg {
+  background: linear-gradient(180deg, #1c1917 0%, #0c0a09 30%);
+}
+
+/* ===== Cart Slide Animation ===== */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out forwards;
+}
+
+/* ===== Kanban Board ===== */
+.kanban-column {
+  min-height: 400px;
+  border-radius: 12px;
+}
+
+/* ===== Number Counter Animation ===== */
+@keyframes count-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+.animate-count-bounce {
+  animation: count-bounce 0.3s ease-out;
+}
+
+/* ===== Floating Action Button ===== */
+.fab {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 50;
+  box-shadow: 0 8px 32px rgba(245, 158, 11, 0.3);
+  transition: all 0.3s ease;
+}
+.fab:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 40px rgba(245, 158, 11, 0.4);
 }

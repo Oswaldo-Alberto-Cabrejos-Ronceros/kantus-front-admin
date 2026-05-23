@@ -1,17 +1,35 @@
 <template>
-  <div class="flex min-h-screen flex-col items-center justify-center gap-4 p-4">
-    <UColorModeButton class="absolute top-2 right-2" />
-    <UPageCard class="w-full max-w-md">
-      <UAuthForm
-        :schema="loginSchema"
-        title="Inicio de sesión"
-        description="Ingrese sus credenciales"
-        icon="i-lucide-user"
-        :fields="fields"
-        :loading="isPending"
-        @submit="onSubmit"
-      />
-    </UPageCard>
+  <div class="flex min-h-screen flex-col items-center justify-center gap-4 p-4 gradient-hero">
+    <UColorModeButton class="absolute top-4 right-4" />
+
+    <div class="w-full max-w-md animate-fade-in-up">
+      <!-- Logo -->
+      <div class="flex flex-col items-center mb-8">
+        <img
+          src="/image/logo.jpg"
+          alt="Kantus"
+          class="mx-auto h-20 w-auto lg:mx-0 mb-4"
+        >
+        <h1 class="text-2xl font-bold text-highlighted">
+          Kantus Pollería
+        </h1>
+        <p class="text-sm text-muted mt-1">
+          Sistema de Gestión
+        </p>
+      </div>
+
+      <UPageCard class="w-full">
+        <UAuthForm
+          :schema="loginSchema"
+          title="Inicio de sesión"
+          description="Ingrese sus credenciales para acceder"
+          icon="i-lucide-lock"
+          :fields="fields"
+          :loading="isPending"
+          @submit="onSubmit"
+        />
+      </UPageCard>
+    </div>
   </div>
 </template>
 

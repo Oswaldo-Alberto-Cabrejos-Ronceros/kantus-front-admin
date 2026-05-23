@@ -1,49 +1,60 @@
 <template>
-  <UCard :ui="{ body: 'py-4 sm:p-4', footer: 'py-4 sm:p-4' }">
+  <UCard :ui="{ body: 'py-4 sm:p-4', footer: 'py-4 sm:p-4' }" class="card-hover overflow-hidden">
     <template #header>
       <div class="flex items-center justify-between mb-2">
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+        <h3 class="text-lg font-bold text-highlighted">
           #{{ code }}
         </h3>
-        <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">
+        <span class="text-xs text-muted font-medium">
           {{ timeAgo }}
         </span>
       </div>
       <div class="flex gap-2">
-        <UBadge :color="type === 'delivery' ? 'secondary' : 'info'" variant="soft" size="xs">
-          {{ type.toUpperCase() }}
+        <UBadge :color="type === 'DELIVERY' ? 'secondary' : 'info'" variant="soft" size="xs">
+          {{ type === 'DELIVERY' ? '🛵 DELIVERY' : '🍽️ SALÓN' }}
         </UBadge>
-        <UBadge :color="statusInfo.color" variant="solid" size="xs">
-          {{ status }}
+        <UBadge
+          :color="statusInfo.color"
+          variant="solid"
+          size="xs"
+          :class="statusInfo.glowClass"
+        >
+          {{ statusLabels[status] || status }}
         </UBadge>
       </div>
     </template>
 
     <div class="flex flex-col gap-4">
-      <!-- Información del Cliente (Solo si es Delivery) -->
-      <div v-if="type === 'delivery'" class="text-sm text-gray-600 dark:text-gray-300 space-y-1 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-md">
+      <!-- Delivery customer info -->
+      <div v-if="type === 'DELIVERY'" class="text-sm space-y-1 bg-elevated/50 p-3 rounded-lg">
         <div v-if="customerName" class="flex items-center gap-2">
-          <UIcon name="i-lucide-user" class="w-4 h-4 text-gray-400" />
-          <span>{{ customerName }}</span>
+          <UIcon name="i-lucide-user" class="w-4 h-4 text-muted" />
+          <span class="text-highlighted">{{ customerName }}</span>
         </div>
         <div v-if="customerPhone" class="flex items-center gap-2">
-          <UIcon name="i-lucide-phone" class="w-4 h-4 text-gray-400" />
+          <UIcon name="i-lucide-phone" class="w-4 h-4 text-muted" />
           <span>{{ customerPhone }}</span>
         </div>
         <div v-if="location" class="flex items-center gap-2">
-          <UIcon name="i-lucide-map-pin" class="w-4 h-4 text-gray-400" />
+          <UIcon name="i-lucide-map-pin" class="w-4 h-4 text-muted" />
           <span class="line-clamp-2">{{ location }}</span>
         </div>
       </div>
 
-      <!-- Lista de Productos -->
+      <!-- Table info for salon -->
+      <div v-if="type === 'SALON' && tableName" class="text-sm bg-elevated/50 p-2 rounded-lg flex items-center gap-2">
+        <UIcon name="i-lucide-armchair" class="w-4 h-4 text-muted" />
+        <span class="font-medium text-highlighted">{{ tableName }}</span>
+      </div>
+
+      <!-- Products list -->
       <div>
-        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+        <h4 class="text-xs font-semibold text-muted uppercase tracking-wider mb-2">
           Productos
         </h4>
         <ul class="space-y-1">
           <li v-for="(product, index) in products" :key="index" class="text-sm flex justify-between items-start gap-2">
-            <span class="flex-1 text-gray-900 dark:text-gray-100">
+            <span class="flex-1 text-highlighted">
               <span class="font-semibold text-primary mr-1">{{ product.quantity }}x</span>
               {{ product.name }}
             </span>
@@ -52,14 +63,15 @@
       </div>
 
       <!-- Total -->
-      <div class="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-700">
-        <span class="font-semibold text-gray-900 dark:text-white">Total</span>
+      <div class="flex justify-between items-center pt-3 border-t border-default">
+        <span class="font-semibold text-highlighted">Total</span>
         <span class="text-xl font-bold text-primary">{{ formatPrice(totalPrice) }}</span>
       </div>
     </div>
 
     <template #footer>
       <UButton
+        v-if="statusInfo.nextStatus"
         block
         :color="statusInfo.actionColor"
         :icon="statusInfo.icon"
@@ -67,6 +79,10 @@
       >
         {{ statusInfo.actionLabel }}
       </UButton>
+      <div v-else class="text-center text-sm text-muted py-1">
+        <UIcon name="i-lucide-check-circle" class="w-4 h-4 inline mr-1" />
+        Completado
+      </div>
     </template>
   </UCard>
 </template>
@@ -74,10 +90,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { useTimeAgo } from '@vueuse/core'
-
-type OrderStatus = 'Pendiente' | 'Preparando' | 'Listo'
-type OrderType = 'salon' | 'delivery'
-type ThemeColor = 'error' | 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'neutral'
+import type { OrderStatus, OrderType } from '~/types'
 
 interface OrderProduct {
   name: string
@@ -92,41 +105,60 @@ const props = defineProps<{
   products: OrderProduct[]
   time: string | number | Date
   totalPrice: number
-  // Optional fields for delivery
   location?: string
   customerName?: string
   customerPhone?: string
+  tableName?: string
+  hideDeliverAction?: boolean
 }>()
 
 const emit = defineEmits(['action'])
 
-// Calcula el tiempo transcurrido reactivamente
 const timeAgo = useTimeAgo(() => new Date(props.time))
 
-// Evalúa la información visual y la acción dependiendo del estado actual
+type ThemeColor = 'error' | 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'neutral'
+
+const statusLabels: Record<OrderStatus, string> = {
+  PENDIENTE: 'Pendiente',
+  PREPARANDO: 'Preparando',
+  LISTO: 'Listo',
+  CAMINO: 'En Camino',
+  ENTREGADO: 'Entregado',
+  CANCELADO: 'Cancelado'
+}
+
 const statusInfo = computed<{
   color: ThemeColor
   actionLabel: string
   actionColor: ThemeColor
   icon: string
-  nextStatus: string
+  nextStatus: OrderStatus | ''
+  glowClass: string
 }>(() => {
   switch (props.status) {
-    case 'Pendiente':
-      return { color: 'error', actionLabel: 'Iniciar', actionColor: 'primary', icon: 'i-lucide-play', nextStatus: 'Preparando' }
-    case 'Preparando':
-      return { color: 'warning', actionLabel: 'Marcar Listo', actionColor: 'warning', icon: 'i-lucide-check-circle', nextStatus: 'Listo' }
-    case 'Listo':
-      return { color: 'success', actionLabel: 'Entregado', actionColor: 'success', icon: 'i-lucide-package-check', nextStatus: 'Entregado' }
+    case 'PENDIENTE':
+      return { color: 'error', actionLabel: 'Iniciar Preparación', actionColor: 'primary', icon: 'i-lucide-play', nextStatus: 'PREPARANDO', glowClass: 'badge-glow-error animate-pulse-soft' }
+    case 'PREPARANDO':
+      return { color: 'warning', actionLabel: 'Marcar Listo', actionColor: 'warning', icon: 'i-lucide-check-circle', nextStatus: 'LISTO', glowClass: 'badge-glow-warning' }
+    case 'LISTO':
+      return {
+        color: 'success',
+        actionLabel: props.hideDeliverAction ? '' : 'Marcar Entregado',
+        actionColor: 'success',
+        icon: props.hideDeliverAction ? '' : 'i-lucide-package-check',
+        nextStatus: props.hideDeliverAction ? '' : 'ENTREGADO',
+        glowClass: 'badge-glow-success'
+      }
+    case 'ENTREGADO':
+      return { color: 'primary', actionLabel: '', actionColor: 'neutral', icon: '', nextStatus: '', glowClass: '' }
+    case 'CANCELADO':
+      return { color: 'error', actionLabel: '', actionColor: 'neutral', icon: '', nextStatus: '', glowClass: '' }
     default:
-      return { color: 'neutral', actionLabel: 'Actualizar', actionColor: 'neutral', icon: 'i-lucide-arrow-right', nextStatus: props.status }
+      return { color: 'neutral', actionLabel: 'Actualizar', actionColor: 'neutral', icon: 'i-lucide-arrow-right', nextStatus: props.status, glowClass: '' }
   }
 })
 
 function formatPrice(value: number) {
-  return new Intl.NumberFormat('es-PE', {
-    style: 'currency',
-    currency: 'PEN'
-  }).format(value)
+  return new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(value)
 }
 </script>

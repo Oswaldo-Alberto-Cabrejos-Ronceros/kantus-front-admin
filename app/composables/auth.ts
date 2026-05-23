@@ -1,49 +1,72 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import { login as apiLogin } from '~/api/sdk.gen'
 import { useAuthStore } from '~/stores/auth'
-import type { AuthRequest, AuthResponse } from '~/types'
+import type { AuthRequest, AuthResponse, BackendUserRole, UserRole } from '~/types'
 
 export const useAuth = () => {
   const authStore = useAuthStore()
   const router = useRouter()
+  // Inicializar queryClient al nivel del composable (contexto de setup), no dentro de funciones
+  const queryClient = useQueryClient()
 
   const user = computed(() => authStore.user)
   const isAuthenticated = computed(() => authStore.isAuthenticated)
 
-  // Computed properties útiles para validar el rol en la interfaz
-  const isAdmin = computed(() => authStore.user?.role === 'Admin')
-  const isMozo = computed(() => authStore.user?.role === 'Mozo')
-  const isCajero = computed(() => authStore.user?.role === 'Cajero')
-  const isCocinero = computed(() => authStore.user?.role === 'Cocinero')
-  const isDelivery = computed(() => authStore.user?.role === 'Delivery')
+  // Computed properties for role checks
+  const isAdmin = computed(() => authStore.user?.role === 'ADMIN')
+  const isMozo = computed(() => authStore.user?.role === 'MOZO')
+  const isCajero = computed(() => authStore.user?.role === 'CAJERO')
+  const isCocinero = computed(() => authStore.user?.role === 'COCINERO')
+  const isDelivery = computed(() => authStore.user?.role === 'DELIVERY')
+
+  // Helper to check if user has a specific role
+  const hasRole = (role: BackendUserRole) => computed(() => authStore.user?.role === role)
+
+  // Helper to check if user has any of the given roles
+  const hasAnyRole = (...roles: BackendUserRole[]) => computed(() => {
+    return roles.includes(authStore.user?.role as BackendUserRole)
+  })
+
+  // User display name
+  const displayName = computed(() => {
+    if (!authStore.user) return 'Usuario'
+    return `${authStore.user.name} ${authStore.user.lastname}`
+  })
+
+  // User initials for avatar
+  const initials = computed(() => {
+    if (!authStore.user) return 'U'
+    return `${authStore.user.name.charAt(0)}${authStore.user.lastname.charAt(0)}`
+  })
 
   const useLogin = () => {
     const queryClient = useQueryClient()
 
     return useMutation({
       mutationFn: async (credentials: AuthRequest) => {
-        return await $fetch<AuthResponse>('/api/auth/login', {
-          method: 'POST',
-          body: credentials
-        })
+        const res = await apiLogin({ body: { email: credentials.email, password: credentials.password } as any })
+        if (res.error) throw res.error
+        return res.data as unknown as AuthResponse
       },
       onSuccess: (response) => {
-        queryClient.invalidateQueries({ queryKey: ['user'] })
+        // Limpiar toda la caché del usuario anterior antes de establecer el nuevo usuario
+        queryClient.clear()
         authStore.setAuth(response)
 
         switch (response.role) {
-          case 'Admin':
+          case 'ADMIN':
             router.push('/')
             break
-          case 'Mozo':
+          case 'MOZO':
             router.push('/mozo/mesas')
             break
-          case 'Cajero':
-            router.push('/cajas')
+          case 'CAJERO':
+            router.push('/cajero/cajas')
             break
-          case 'Cocinero':
+          case 'COCINERO':
             router.push('/pedidos-cocina')
             break
-          case 'Delivery':
+          case 'DELIVERY':
             router.push('/delivery/pedidos')
             break
           default:
@@ -57,6 +80,8 @@ export const useAuth = () => {
   }
 
   const useLogout = () => {
+    // Limpiar toda la caché antes de cerrar sesión para que el siguiente usuario no vea datos del anterior
+    queryClient.clear()
     authStore.clearAuth()
     router.push('/login')
   }
@@ -70,6 +95,10 @@ export const useAuth = () => {
     isCajero,
     isCocinero,
     isDelivery,
+    hasRole,
+    hasAnyRole,
+    displayName,
+    initials,
     useLogout
   }
 }

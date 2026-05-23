@@ -5,14 +5,11 @@ const open = ref(false)
 
 const links = [
   {
-    label: 'Caja',
+    label: 'Cajas',
     icon: 'i-lucide-hand-coins',
-    to: '/cajas',
-    onSelect: () => {
-      open.value = false
-    }
+    to: '/cajero/cajas',
+    onSelect: () => { open.value = false }
   }
-
 ] as NavigationMenuItem[]
 </script>
 
@@ -23,11 +20,10 @@ const links = [
       v-model:open="open"
       collapsible
       resizable
-      class="bg-elevated/25 transition-all duration-300"
+      class="bg-elevated/25 gradient-sidebar"
       :ui="{ footer: 'lg:border-t lg:border-default' }"
     >
       <template #header="{ collapsed }">
-        <!-- icon -->
         <LogoTitle :show-title="!collapsed" />
       </template>
 
@@ -39,7 +35,6 @@ const links = [
           tooltip
           popover
         />
-
         <UNavigationMenu
           :collapsed="collapsed"
           orientation="vertical"

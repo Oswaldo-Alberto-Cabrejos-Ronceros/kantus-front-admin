@@ -32,7 +32,8 @@ const baseStats = [{
   variation: 10
 }]
 
-const { data: topProducts, status } = await useFetch<ProductTop[]>('/api/product-top')
+const { useGetTopProducts } = useProducts()
+const { data: topProducts, isPending } = useGetTopProducts()
 
 const columns = computed<TableColumn<ProductTop>[]>(() => [
   { accessorKey: 'id', header: 'Top' },
@@ -81,7 +82,7 @@ const columns = computed<TableColumn<ProductTop>[]>(() => [
           class="shrink-0"
           :data="topProducts || []"
           :columns="columns"
-          :loading="status === 'pending'"
+          :loading="isPending"
           :ui="{
             base: 'table-fixed border-separate border-spacing-0',
             thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
